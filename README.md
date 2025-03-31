@@ -5,6 +5,10 @@ A power station is an all-in-one combination of charge controller, battery, and 
 
 This project combines a power station with smart relays and an automated transfer switch.
 
+The basic idea is that devices are assigned to the given position (P1-4).
+
+![image](https://github.com/communityvirtualpowerplant/smartPowerStation/blob/main/smartPowerStation_March31_2025.drawio.png)
+
 It is intended to be paired with the Simple Demand Response project.
 
 ## Hardware

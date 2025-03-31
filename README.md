@@ -15,7 +15,7 @@ It is intended to be paired with the Simple Demand Response project.
 
 ### Power Station
 
-Bluetti power stations 
+This project has been tested with Bluetti power stations, because the data can be accessed via bluetooth. At some point, once testing has been conducted, it will be expanded to include other power stations regardless of their level of data access.
 
 ### Smart Relays
 
@@ -42,7 +42,7 @@ https://www.adafruit.com/product/4226
 ### Additional Components
 
 * GFCI plug
-* 14 AWG wire
+* 14 AWG wire (this is limted
 * Connectors
 * Junction Box
   
@@ -50,4 +50,29 @@ https://www.adafruit.com/product/4226
 
 ### Data
 
+Data is collected from each sensor position and stored locally. Data is shared based on user-preferences.
+
+* Signals from the aggregator are sent via MQTT.
+* Data is shared with the aggregator via HTTP.
+
 ### Controls
+
+There are three modes
+* upcoming event
+* ongoing event
+* normal/ post-event
+
+In upcoming mode, the system ensures the battery is fully charged by the start of the event.
+During an event, the system attempts to meet a given reduction goal based on user preferences.
+Normal mode cycles the battery daily.
+
+### UX
+
+* Specify level of data sharing
+* specifiy response preferences
+
+## Demand Response Event Methods
+
+Replacement
+Shifting
+Curtailment

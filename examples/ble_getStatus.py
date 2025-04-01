@@ -94,9 +94,9 @@ async def main(location) -> None:
         sys.exit(0)
 
     tasks = [statusUpdate(e) for e in devices]
-    await asyncio.gather(*tasks)     # causes an error on RPi, so using the below sequential method instead    
-    # for task in tasks:
-    #     await task
+    #await asyncio.gather(*tasks)     # causes an error on RPi, so using the below sequential method instead    
+    for task in tasks:
+        await task
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):

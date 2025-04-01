@@ -31,7 +31,7 @@ printDebug = True
 printError = True
 #logging.basicConfig(level=logging.DEBUG)
 
-fileName = 'data/devices.json'
+deviceFile = 'data/devices.json'
 
 #if an arg has been passed
 if len(sys.argv) > 1:
@@ -88,14 +88,14 @@ async def main(location) -> None:
     scan_duration = 5
     # Read data from a JSON file
     try:
-        with open(fileName, "r") as json_file:
-            saveDevices = json.load(json_file)
+        with open(deviceFile, "r") as json_file:
+            savedDevices = json.load(json_file)
     except Exception as e:
         log_error(f"Error during reading devices.json file: {e}")
         savedDevices = []
 
     filteredEntries = []
-    for entry in saveDevices:
+    for entry in savedDevices:
         if entry['location'] == location:
             filteredEntries.append(entry)
 

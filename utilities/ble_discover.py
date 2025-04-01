@@ -20,7 +20,7 @@ import json
 from components.Shelly import ShellyDevice as Shelly
 import sys
 
-fileName = 'data/devices.json'
+deviceFile = 'data/devices.json'
 
 printInfo = True
 printDebug = True
@@ -202,7 +202,7 @@ def print_devices(devices: List[Dict[str, str]]):
 
 def save_devices(data):
     # Save data to a JSON file
-    with open(fileName, "w") as json_file:
+    with open(deviceFile, "w") as json_file:
         json.dump(data, json_file, indent=4)
 
     print(f"JSON file saved successfully at {fileName}")

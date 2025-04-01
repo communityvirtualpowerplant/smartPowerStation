@@ -3,7 +3,7 @@
 
 import sys
 import subprocess
-import numpy as np
+# import numpy as np
 import pandas as pd
 import csv
 import asyncio
@@ -11,6 +11,7 @@ import json
 import signal
 import logging
 import time
+import datetime
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from components.Shelly import ShellyDevice
@@ -34,7 +35,7 @@ printDebug = True
 printError = True
 #logging.basicConfig(level=logging.DEBUG)
 
-fileName = 'data/devices.json'
+deviceFile = 'data/devices.json'
 
 #if an arg has been passed
 if len(sys.argv) > 1:
@@ -93,14 +94,14 @@ async def main(location) -> None:
     scan_duration = 5
     # Read data from a JSON file
     try:
-        with open(fileName, "r") as json_file:
-            saveDevices = json.load(json_file)
+        with open(deviceFile, "r") as json_file:
+            savedDevices = json.load(json_file)
     except Exception as e:
         log_error(f"Error during reading devices.json file: {e}")
         savedDevices = []
 
     filteredEntries = []
-    for entry in saveDevices:
+    for entry in savedDevices:
         if entry['location'] == location:
             filteredEntries.append(entry)
 
@@ -323,7 +324,7 @@ async def log_command(client: BluetoothClient, device: BluettiDevice, command: D
 
 def packageData(d, r, t):
     try:
-        if d[1]['manufacturer'].lower() == 'bluetti'
+        if d[1]['manufacturer'].lower() == 'bluetti':
             print('bluetti!')
             t["powerstation_percentage"] = r['total_battery_percent']
             t["powerstation_inputWAC"] = r['ac_input_power']

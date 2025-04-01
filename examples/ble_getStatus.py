@@ -211,9 +211,9 @@ async def getStatusShelly(device: ShellyDevice):
 
         except Exception as e:
             print(f"Unexpected error during attempt {attempt} command execution: {e}")
-            if attempt < retries:
-                print(f"Retrying in 1 second...")
-                await asyncio.sleep(1)
+            if attempt <= retries:
+                print(f"Retrying in {1 * retries} second...")
+                await asyncio.sleep(1 * retries)
             else:
                 print(f"All {retries} attempts failed.")
                 raise

@@ -81,7 +81,7 @@ def reset_bluetooth():
 # ============================        
 async def main(location) -> None:
     reset_bluetooth()
-    
+
     scan_duration = 5
     # Read data from a JSON file
     try:
@@ -137,6 +137,8 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
     
     print(addressList)
 
+    await asyncio.sleep(2)
+    
     return filteredDevices
 
 async def statusUpdate(device):

@@ -62,6 +62,9 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
         if device.name is None:
             return
 
+        # print all devices
+        #print(device)
+
         if shellySTR.lower() in device.name.lower(): #make case insentive
             # if ALLTERCO_MFID not in advertisement_data.manufacturer_data:
             #     continue
@@ -101,12 +104,20 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
                         "manufacturer":mf,
                         "rssi": advertisement_data.rssi,
                         "timestamp":datetime.now().isoformat(),
-                        "location": location,
-                        "assignment": assignment #indiciates position in system (by channel if applicable)
+                        "location": location, #site
+                        "assignment0": entry["assignment0"], #indiciates position in system (by channel if applicable)
+                        "assignment1": entry["assignment1"] #indiciates position in system (by channel if applicable)
                     })
                     print(advertisement_data)
                     break
         else:
+            #this might need to be done differently to deal with async...
+            uResponse = input("Do you want to assign channels? (y/n): ")
+            if uResponse.lower() == "y":
+                print("Current assignment:")
+            else:
+                print("Continuing...")
+
             saved_devices.append({
                     "name": device.name,
                     "address": device.address,
@@ -114,7 +125,8 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
                     "rssi": advertisement_data.rssi,
                     "timestamp":datetime.now().isoformat(),
                     "location": location,
-                    "assignment":'' #this is manually entered
+                    "assignment0":'', #this is manually entered
+                    "assignment1":'' #this is manually entered
                 })
             addresses.add(device.address)
 

@@ -137,6 +137,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
     
     print(addressList)
 
+    # Some BLE chipsets (especially on Raspberry Pi) need a few seconds between scanning and connecting.
     await asyncio.sleep(2)
     
     return filteredDevices
@@ -196,17 +197,26 @@ async def getStatusShelly(device: ShellyDevice):
     params = None
     rpc_method='Shelly.GetStatus'
     
-    try:
-        result = await device.call_rpc(rpc_method, params=params)
-        if result:
-            print(f"RPC Method '{rpc_method}' executed successfully. Result:")
-            result = device.parse_response(result)
-        else:
-            print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
-        return result
+    retries = 3
+    for attempt in range(1, retries + 1):
+        try:
+            result = await device.call_rpc(rpc_method, params=params)
+            if result:
+                print(f"RPC Method '{rpc_method}' executed successfully. Result:")
+                result = device.parse_response(result)
+                return result
+            else:
+                print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
+                return None
 
-    except Exception as e:
-        print(f"Unexpected error during command execution: {e}")
+        except Exception as e:
+            print(f"Unexpected error during attempt {attempt} command execution: {e}")
+            if attempt < retries:
+                print(f"Retrying in 1 second...")
+                await asyncio.sleep(1)
+            else:
+                print(f"All {retries} attempts failed.")
+                raise
 
     #return
 

@@ -2,6 +2,7 @@
 # run with "python -m utilities.ble_getStatus.py" + location from parent directory
 
 import sys
+import subprocess
 import asyncio
 import json
 import signal
@@ -68,7 +69,19 @@ def handle_signal(signal_num: int, frame: Any) -> None:
     log_info(f"Received signal {signal_num}, shutting down gracefully...")
     sys.exit(0)
 
+def reset_bluetooth():
+    try:
+        subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
+        subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
+    except subprocess.CalledProcessError as e:
+        log_error(f"Bluetooth interface reset failed: {e}")
+
+# ============================
+# Main
+# ============================        
 async def main(location) -> None:
+    reset_bluetooth()
+    
     scan_duration = 5
     # Read data from a JSON file
     try:
@@ -119,7 +132,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
 
     log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
 
-    async with BleakScanner(detection_callback=discovery_handler) as scanner:
+    async with BleakScanner(adapter="hci0", detection_callback=discovery_handler) as scanner:
         await asyncio.sleep(scan_duration)
     
     print(addressList)

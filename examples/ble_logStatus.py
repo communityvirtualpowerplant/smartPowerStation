@@ -35,6 +35,7 @@ printDebug = True
 printError = True
 #logging.basicConfig(level=logging.DEBUG)
 
+dataDirectory = 'data/'
 deviceFile = 'data/devices.json'
 
 #if an arg has been passed
@@ -45,8 +46,6 @@ else:
 
 #changed based on hardware
 bleAdapter = "hci0"
-
-fileName = 'data/' + location + 'sps_'+str(datetime.date.today())+'.csv'
 
 # ============================
 # Logging Helper
@@ -166,7 +165,9 @@ async def main(location) -> None:
             tempResults = packageData(e, result, tempResults)
             #results.append(result)
     
-    writeData(pd.DataFrame(tempResults))
+    fileName = dataDirectory + location + 'sps_'+str(datetime.date.today())+'.csv'
+
+    writeData(fileName, pd.DataFrame([tempResults]))
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):
@@ -367,9 +368,8 @@ def packageData(d, r, t):
 async def writeData(fn, df):
     # create a new file daily to save data
     # or append if the file already exists
-    fileName = fn
     try:
-        with open(fileName) as csvfile:
+        with open(fn) as csvfile:
             savedDf = pd.read_csv(fn)
             savedDf = pd.concat([savedDf,df], ignore_index = True)
             #df = df.append(newDF, ignore_index = True)

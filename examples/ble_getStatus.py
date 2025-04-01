@@ -78,7 +78,7 @@ def reset_bluetooth():
         subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
     except subprocess.CalledProcessError as e:
         log_error(f"Bluetooth interface reset failed: {e}")
-        
+
 # ============================
 # Main
 # ============================        
@@ -141,7 +141,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
     print(addressList)
 
     # Some BLE chipsets (especially on Raspberry Pi) need a few seconds between scanning and connecting.
-    await asyncio.sleep(2)
+    await asyncio.sleep(3)
     
     return filteredDevices
 

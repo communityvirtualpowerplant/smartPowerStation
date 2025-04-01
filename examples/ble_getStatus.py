@@ -200,7 +200,7 @@ async def getStatusShelly(device: ShellyDevice):
     params = None
     rpc_method='Shelly.GetStatus'
     
-    retries = 3
+    retries = 4
     for attempt in range(1, retries + 1):
         try:
             result = await device.call_rpc(rpc_method, params=params)

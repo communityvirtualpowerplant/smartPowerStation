@@ -213,9 +213,14 @@ async def getStatusBluetti(myDevice: str):
         asyncio.get_running_loop().create_task(client.run())
 
         # Wait for device connection
+        maxTries = 10
+        t = 0
         while not client.is_ready:
             print('Waiting for connection...')
             await asyncio.sleep(1)
+            t = t +1
+            if t > 10:
+                break
             continue
 
         # Poll device

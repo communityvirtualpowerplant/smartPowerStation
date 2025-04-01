@@ -62,9 +62,6 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
         if device.name is None:
             return
 
-        # print all devices
-        #print(device)
-
         if shellySTR.lower() in device.name.lower(): #make case insentive
             # if ALLTERCO_MFID not in advertisement_data.manufacturer_data:
             #     continue

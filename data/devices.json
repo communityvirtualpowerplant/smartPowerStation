@@ -9,12 +9,39 @@
         "assignment": ""
     },
     {
+        "name": "Shelly1PMG3-5432045886C8",
+        "address": "54:32:04:58:86:CA",
+        "manufacturer": "shelly",
+        "rssi": -39,
+        "timestamp": "2025-04-01T15:12:30.130007",
+        "location": "CASE",
+        "assignment": ""
+    },
+    {
+        "name": "AC1802339003249506",
+        "address": "DC:8A:6F:FD:79:66",
+        "manufacturer": "bluetti",
+        "rssi": -47,
+        "timestamp": "2025-04-01T14:11:36.558278",
+        "location": "CASE",
+        "assignment": ""
+    },
+    {
         "name": "Shelly2PMG3-34CDB0770E28",
         "address": "34:CD:B0:77:0E:2A",
         "manufacturer": "shelly",
         "rssi": -48,
         "timestamp": "2025-03-31T21:22:47.419844",
         "location": "home",
+        "assignment": ""
+    },
+    {
+        "name": "ShellyPlus1PM-B8D61A8897D4",
+        "address": "B8:D6:1A:88:97:D6",
+        "manufacturer": "shelly",
+        "rssi": -61,
+        "timestamp": "2025-04-01T15:12:29.704925",
+        "location": "CASE",
         "assignment": ""
     }
 ]

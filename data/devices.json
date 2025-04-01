@@ -6,7 +6,8 @@
         "rssi": -30,
         "timestamp": "2025-03-31T21:22:49.313183",
         "location": "home",
-        "assignment": ""
+        "assignment0": "ps",
+        "assignment1":""
     },
     {
         "name": "Shelly1PMG3-5432045886C8",
@@ -15,7 +16,8 @@
         "rssi": -39,
         "timestamp": "2025-04-01T15:12:30.130007",
         "location": "CASE",
-        "assignment": ""
+        "assignment0": 1,
+        "assignment1":""
     },
     {
         "name": "AC1802339003249506",
@@ -24,7 +26,8 @@
         "rssi": -47,
         "timestamp": "2025-04-01T14:11:36.558278",
         "location": "CASE",
-        "assignment": ""
+        "assignment0": "ps",
+        "assignment1":""
     },
     {
         "name": "Shelly2PMG3-34CDB0770E28",
@@ -33,7 +36,8 @@
         "rssi": -48,
         "timestamp": "2025-03-31T21:22:47.419844",
         "location": "home",
-        "assignment": ""
+        "assignment0": 1,
+        "assignment1": 2,
     },
     {
         "name": "ShellyPlus1PM-B8D61A8897D4",
@@ -42,6 +46,7 @@
         "rssi": -61,
         "timestamp": "2025-04-01T15:12:29.704925",
         "location": "CASE",
-        "assignment": ""
+        "assignment0": 2,
+        "assignment1":""
     }
 ]

@@ -123,7 +123,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
 
     log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
 
-    async with BleakScanner(detection_callback=discovery_handler):
+    async with BleakScanner(detection_callback=discovery_handler) as scanner:
         await asyncio.sleep(scan_duration)
     
     print(addressList)

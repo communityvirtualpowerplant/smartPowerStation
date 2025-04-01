@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional, Tuple, List
 from components.Shelly import ShellyDevice
 from components.Bluetti import Bluetti
 from bluetti_mqtt.bluetooth import (
-    check_addresses, scan_devices, BluetoothClient, ModbusError,
+    check_addresses, build_device, scan_devices, BluetoothClient, ModbusError,
     ParseError, BadConnectionError
 )
 from bluetti_mqtt.core import (
@@ -93,12 +93,10 @@ async def main(location) -> None:
         log_error("No devices found. Exiting")
         sys.exit(0)
 
-    ## causes an error on RPi    
     tasks = [statusUpdate(e) for e in devices]
-    # await asyncio.gather(*tasks)
-
-    for task in tasks:
-        await task
+    await asyncio.gather(*tasks)     # causes an error on RPi, so using the below sequential method instead    
+    # for task in tasks:
+    #     await task
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):
@@ -203,11 +201,12 @@ async def getStatusBluetti(myDevice: str):
     }
 
     try:
-        devices = await check_addresses({address})
-        #if len(devices) == 0:
-          #  sys.exit('Could not find the given device to connect to')
-        device = devices[0]
-    
+        # devices = await check_addresses({address})
+        # #if len(devices) == 0:
+        #   #  sys.exit('Could not find the given device to connect to')
+        # device = devices[0]
+        device = build_device(myDevice.address, myDevice.name)
+
         print(f'Connecting to {device.address}')
         client = BluetoothClient(device.address)
         #await client.run()
@@ -231,7 +230,6 @@ async def getStatusBluetti(myDevice: str):
 
     except Exception as e:
         print(f"Unexpected error during command execution: {e}")
-
 
 async def log_command(client: BluetoothClient, device: BluettiDevice, command: DeviceCommand):
     response_future = await client.perform(command)

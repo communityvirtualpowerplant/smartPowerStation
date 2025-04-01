@@ -39,6 +39,9 @@ if len(sys.argv) > 1:
 else:
     location = ''
 
+#changed based on hardware
+bleAdapter = "hci0"
+
 # ============================
 # Logging Helper
 # ============================
@@ -75,6 +78,8 @@ def reset_bluetooth():
         subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
     except subprocess.CalledProcessError as e:
         log_error(f"Bluetooth interface reset failed: {e}")
+
+print("Bluetooth adapter found!" if has_bluetooth_adapter() else "No Bluetooth adapter found.")
 
 # ============================
 # Main
@@ -132,7 +137,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
 
     log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
 
-    async with BleakScanner(adapter="hci0", detection_callback=discovery_handler) as scanner:
+    async with BleakScanner(adapter=bleAdapter, detection_callback=discovery_handler) as scanner:
         await asyncio.sleep(scan_duration)
     
     print(addressList)
@@ -212,8 +217,8 @@ async def getStatusShelly(device: ShellyDevice):
         except Exception as e:
             print(f"Unexpected error during attempt {attempt} command execution: {e}")
             if attempt <= retries:
-                print(f"Retrying in {1 * retries} second...")
-                await asyncio.sleep(1 * retries)
+                print(f"Retrying in {2 * retries} second...")
+                await asyncio.sleep(2 * retries)
             else:
                 print(f"All {retries} attempts failed.")
                 raise

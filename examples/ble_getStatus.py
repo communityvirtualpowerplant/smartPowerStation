@@ -93,14 +93,12 @@ async def main(location) -> None:
         log_error("No devices found. Exiting")
         sys.exit(0)
 
-    # Connect to all target devices concurrently
-    # tasks = [connect_to_device(address) for address in target_addresses]
-    # await asyncio.gather(*tasks)
-    #await asyncio.gather(*[c.run() for c in self.clients.values()])
-
-    
+    ## causes an error on RPi    
     tasks = [statusUpdate(e) for e in devices]
-    await asyncio.gather(*tasks)
+    # await asyncio.gather(*tasks)
+
+    for task in tasks:
+        await task
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):

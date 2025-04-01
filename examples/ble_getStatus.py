@@ -78,9 +78,7 @@ def reset_bluetooth():
         subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
     except subprocess.CalledProcessError as e:
         log_error(f"Bluetooth interface reset failed: {e}")
-
-print("Bluetooth adapter found!" if has_bluetooth_adapter() else "No Bluetooth adapter found.")
-
+        
 # ============================
 # Main
 # ============================        

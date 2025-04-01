@@ -162,6 +162,7 @@ async def main(location) -> None:
     for e in devices:
         result = await statusUpdate(e)
         if result:
+            print(result)
             tempResults = packageData(e, result, tempResults)
             #results.append(result)
     
@@ -213,7 +214,7 @@ async def statusUpdate(device):
 
             if result:
                 print(f"RPC Method executed successfully. Result:")
-                print(json.dumps(result))
+                #print(json.dumps(result))
             else:
                 print(f"RPC Method executed successfully. No data returned.")
         except Exception as e:
@@ -333,7 +334,7 @@ def packageData(d, r, t):
             t["powerstation_outputWAC"] = r['ac_output_power']
             t["powerstation_outputWDC"] = r['dc_output_power']
             t["powerstation_outputMode"] = r['output_mode']
-            t["powerstation_deviceType"] = r['AC180']
+            t["powerstation_deviceType"] = r['device_type']
         elif 'Shelly'.lower() in d[1]['name'].lower():
             if '1PM'.lower() in d[1]['name'].lower():
                 print('1pm!')

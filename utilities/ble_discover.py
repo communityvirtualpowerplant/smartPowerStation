@@ -127,7 +127,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
     return saved_devices
 
 async def main():
-    scan_duaration = 5
+    scan_duration = 5
 
     # Read data from a JSON file
     try:

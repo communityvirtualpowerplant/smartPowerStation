@@ -69,40 +69,77 @@ def handle_signal(signal_num: int, frame: Any) -> None:
     sys.exit(0)
 
 async def main(location) -> None:
+    scan_duration = 5
     # Read data from a JSON file
     try:
         with open(fileName, "r") as json_file:
-            devices = json.load(json_file)
+            saveDevices = json.load(json_file)
     except Exception as e:
         log_error(f"Error during reading devices.json file: {e}")
         savedDevices = []
 
+    filteredEntries = []
+    for entry in saveDevices:
+        if entry['location'] == location:
+            filteredEntries.append(entry)
+
+    try:
+        devices = await scan_devices(scan_duration, filteredEntries)
+    except Exception as e:
+        log_error(f"Error during scanning: {e}")
+        return
+
     if not devices:
         log_error("No devices found. Exiting")
         sys.exit(0)
-
 
     # Connect to all target devices concurrently
     # tasks = [connect_to_device(address) for address in target_addresses]
     # await asyncio.gather(*tasks)
     #await asyncio.gather(*[c.run() for c in self.clients.values()])
 
-    filteredEntries = []
-    for entry in devices:
-        if entry['location'] == location:
-            filteredEntries.append(entry)
-    tasks = [statusUpdate(e) for e in filteredEntries]
+    
+    tasks = [statusUpdate(e) for e in devices]
     await asyncio.gather(*tasks)
 
-async def statusUpdate(entry):
+# returns list of BLE objects and matching saved devices i.e. [BLE, saved]
+async def scan_devices(scan_duration: int, saved_devices: Dict):
+    filteredDevices = []
 
-    #while True:
+    addressList = []
+    def discovery_handler(device: BLEDevice, advertisement_data: AdvertisementData):
+        # mf = ''
+        # notFound = 1
+
+        if device.name is None:
+            return
+
+        for sd in saved_devices:
+            #print(sd)
+            if device.address == sd['address'] and device.address not in addressList:    
+                print(device)
+                addressList.append(device.address)
+                filteredDevices.append([device,sd])
+
+    log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
+
+    async with BleakScanner(detection_callback=discovery_handler):
+        await asyncio.sleep(scan_duration)
+    
+    print(addressList)
+
+    return filteredDevices
+
+async def statusUpdate(device):
+    bleDev = device[0]
+    savedDev = device[1]
+
     print("")
-    if entry['manufacturer'] == 'shelly':
+    if savedDev['manufacturer'] == 'shelly':
 
-        entry['device'] = ShellyDevice(entry["address"], entry["name"])
+        savedDev['device'] = ShellyDevice(savedDev["address"], savedDev["name"])
         try:
-            result = await getStatusShelly(entry['device'])
+            result = await getStatusShelly(savedDev['device'])
 
             if result:
                 print(f"RPC Method executed successfully. Result:")
@@ -113,10 +150,10 @@ async def statusUpdate(entry):
         except Exception as e:
             log_error(f"Error getting Shelly status: {e}")
 
-    elif entry['manufacturer'] == 'bluetti':
-        entry['device'] = Bluetti(entry["address"],entry["name"])
+    elif savedDev['manufacturer'] == 'bluetti':
+        savedDev['device'] = Bluetti(savedDev["address"],savedDev["name"])
         try:
-            result = await getStatusBluetti(entry['device'])
+            result = await getStatusBluetti(savedDev['device'])
         except Exception as e:
             log_error(f"Error getting Bluetti status: {e}")
 

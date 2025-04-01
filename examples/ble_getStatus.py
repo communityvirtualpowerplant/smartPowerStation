@@ -141,7 +141,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
     print(addressList)
 
     # Some BLE chipsets (especially on Raspberry Pi) need a few seconds between scanning and connecting.
-    await asyncio.sleep(3)
+    await asyncio.sleep(2)
     
     return filteredDevices
 
@@ -215,8 +215,8 @@ async def getStatusShelly(device: ShellyDevice):
         except Exception as e:
             print(f"Unexpected error during attempt {attempt} command execution: {e}")
             if attempt <= retries:
-                print(f"Retrying in {2 * retries} second...")
-                await asyncio.sleep(2 * retries)
+                print(f"Retrying in {2 * attempt} second...")
+                await asyncio.sleep(2 * attempt)
             else:
                 print(f"All {retries} attempts failed.")
                 raise

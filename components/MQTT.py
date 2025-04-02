@@ -7,7 +7,7 @@ import time
 import random
 import ssl
 
-class Node:
+class Participant:
     def __init__(self, network: str):
         self.network = network #the name of the grid network
         self.broker = "test.mosquitto.org"

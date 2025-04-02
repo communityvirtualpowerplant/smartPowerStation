@@ -47,6 +47,20 @@ class ShellyDevice:
         self.data = []
         #self.relayChannel = channel
         #self.position = position
+        # built-in Shelly commands
+        self.commands = [
+            "Shelly.ListMethods",
+            "Shelly.GetDeviceInfo",
+            "Shelly.GetStatus",
+            "Shelly.GetConfig",
+            "WiFi.SetConfig",
+            "WiFi.GetStatus",
+            "Eth.GetConfig",
+            "Eth.SetConfig",
+            "Eth.GetStatus",         # Added Eth.GetStatus
+            "Shelly.Reboot",        # Added Shelly.Reboot
+            "Switch.Toggle",
+        ]
 
     async def call_rpc(
         self,

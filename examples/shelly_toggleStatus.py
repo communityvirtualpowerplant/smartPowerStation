@@ -1,17 +1,13 @@
-# gets data and saves it in a CSV file
-# run with "python -m examples.ble_logStatus" + location from parent directory
+# reads the devices.json file and retrieves the status of all devices at the specified location
+# run with "python -m utilities.ble_getStatus.py" + location from parent directory
 
 import sys
 import subprocess
-# import numpy as np
-import pandas as pd
-import csv
 import asyncio
 import json
 import signal
 import logging
 import time
-import datetime
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from components.Shelly import ShellyDevice
@@ -35,7 +31,6 @@ printDebug = True
 printError = True
 #logging.basicConfig(level=logging.DEBUG)
 
-dataDirectory = 'data/'
 deviceFile = 'data/devices.json'
 
 #if an arg has been passed
@@ -102,7 +97,8 @@ async def main(location) -> None:
     filteredEntries = []
     for entry in savedDevices:
         if entry['location'] == location:
-            filteredEntries.append(entry)
+            if entry['manufacturer'] == 'shelly':
+                filteredEntries.append(entry)
 
     try:
         devices = await scan_devices(scan_duration, filteredEntries)
@@ -114,61 +110,34 @@ async def main(location) -> None:
         log_error("No devices found. Exiting")
         sys.exit(0)
 
+    tasks = [execute_command(e, 10) for e in devices]
+    for task in tasks:
+        await task
     # tasks = [statusUpdate(e) for e in devices]
+    # #await asyncio.gather(*tasks)     # causes an error on RPi, so using the below sequential method instead    
     # for task in tasks:
     #     await task
 
-    # resultsDF = pd.DataFrame(data={
-    #                     "datetime" : [datetime.datetime.now()],
-    #                     "powerstation_percentage": [],
-    #                     "powerstation_inputWAC": [],
-    #                     "powerstation_inputWDC": [],
-    #                     "powerstation_outputWAC": [],
-    #                     "powerstation_outputWDC":[],
-    #                     "powerstation_outputMode":[],
-    #                     "powerstation_deviceType":[],
-    #                     "relay1_power": [],
-    #                     "relay1_current":[],
-    #                     "relay1_voltage": [],
-    #                     "relay1_status": [],
-    #                     "relay1_device": [],
-    #                     "relay2_power": [],
-    #                     "relay2_current":[],
-    #                     "relay2_voltage": [],
-    #                     "relay2_status": [],
-    #                     "relay2_device": []})
 
-    tempResults = {
-                    "datetime" : datetime.datetime.now(),
-                    "powerstation_percentage": '',
-                    "powerstation_inputWAC": '',
-                    "powerstation_inputWDC": '',
-                    "powerstation_outputWAC": '',
-                    "powerstation_outputWDC":'',
-                    "powerstation_outputMode":'',
-                    "powerstation_deviceType":'',
-                    "relay1_power": '',
-                    "relay1_current":'',
-                    "relay1_voltage": '',
-                    "relay1_status": '',
-                    "relay1_device": '',
-                    "relay2_power": '',
-                    "relay2_current":'',
-                    "relay2_voltage": '',
-                    "relay2_status": '',
-                    "relay2_device": ''}
-
-    #results = []
-    for e in devices:
-        result = await statusUpdate(e)
-        if result:
-            print(result)
-            tempResults = packageData(e, result, tempResults)
-            #results.append(result)
+# command list from ShellyDevice class
+async def execute_command(device: ShellyDevice, command: int) -> Optional[str]:
+    id_input = 0
+    params = {"id": 0}
+    #'Switch.Toggle'
+    rpc_method= device.commands[command]
+    print(rpc_method)
     
-    fileName = dataDirectory + location + 'sps_'+str(datetime.date.today())+'.csv'
+    try:
+        result = await device.call_rpc(rpc_method, params=params)
+        if result:
+            print(f"RPC Method '{rpc_method}' executed successfully. Result:")
+        else:
+            print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
 
-    await writeData(fileName, pd.DataFrame([tempResults]))
+    except Exception as e:
+        print(f"Unexpected error during command execution: {e}")
+
+    return None  # Continue normally
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):
@@ -214,7 +183,8 @@ async def statusUpdate(device):
 
             if result:
                 print(f"RPC Method executed successfully. Result:")
-                #print(json.dumps(result))
+                print(json.dumps(result))
+
             else:
                 print(f"RPC Method executed successfully. No data returned.")
         except Exception as e:
@@ -229,16 +199,24 @@ async def statusUpdate(device):
 
         if result:
             print(f"Method executed successfully. Result:")
-            #print(result)
-            
+            print(result)
+
         #   for k,v in commandResponse.items():
         #     print(k + ": " + str(v))
         #     myData[k]=v
 
         else:
             print(f"Method executed successfully. No data returned.")
+    #await asyncio.sleep(20)
 
-    return result
+
+    # result = await execute_toggle(device)
+
+    # if result:
+    #     print(f"RPC Method '{rpc_method}' executed successfully. Result:")
+    #     print_with_jq(result.get("result", {}))
+    # else:
+    #     print(f"RPC Method executed successfully. No data returned.")
 
 # get status
 async def getStatusShelly(device: ShellyDevice):
@@ -323,64 +301,6 @@ async def log_command(client: BluetoothClient, device: BluettiDevice, command: D
     except (BadConnectionError, BleakError, ModbusError, ParseError) as err:
         print(f'Got an error running command {command}: {err}')
         #log_invalid(log_file, err, command)
-
-def packageData(d, r, t):
-    try:
-        if d[1]['manufacturer'].lower() == 'bluetti':
-            print('bluetti!')
-            t["powerstation_percentage"] = r['total_battery_percent']
-            t["powerstation_inputWAC"] = r['ac_input_power']
-            t["powerstation_inputWDC"] = r['dc_input_power']
-            t["powerstation_outputWAC"] = r['ac_output_power']
-            t["powerstation_outputWDC"] = r['dc_output_power']
-            t["powerstation_outputMode"] = r['output_mode']
-            t["powerstation_deviceType"] = r['device_type']
-        elif 'Shelly'.lower() in d[1]['name'].lower():
-            if '1PM'.lower() in d[1]['name'].lower():
-                print('1pm!')
-                if d[1]['assignment0'] == 1:
-                    t['relay1_power'] = r[0]["apower"]
-                    t['relay1_current'] =r[0]["current"]
-                    t['relay1_voltage'] =r[0]["voltage"]
-                    t['relay1_status'] =str(r[0]["output"])
-                    t['relay1_device'] = d[1]['name']
-                else:
-                    t['relay2_power'] = r[0]["apower"]
-                    t['relay2_current'] =r[0]["current"]
-                    t['relay2_voltage'] =r[0]["voltage"]
-                    t['relay2_status'] =str(r[0]["output"])
-                    t['relay2_device'] = d[1]['name']
-            elif '2PM'.lower() in d[1]['name'].lower():
-                print('2pm!')
-                t['relay1_power'] = r[0]["apower"]
-                t['relay1_current'] =r[0]["current"]
-                t['relay1_voltage'] =r[0]["voltage"]
-                t['relay1_status'] =r[0]["output"]
-                t['relay1_device'] = e[1]['name']
-                t['relay2_power'] = r[1]["apower"]
-                t['relay2_current'] =r[1]["current"]
-                t['relay2_voltage'] =r[1]["voltage"]
-                t['relay2_status'] =str(r[1]["output"])
-                t['relay2_device'] = d[1]['name']
-    except Exception as e:
-        print(e)
-
-    return t
-
-async def writeData(fn, df):
-    # create a new file daily to save data
-    # or append if the file already exists
-    try:
-        with open(fn) as csvfile:
-            savedDf = pd.read_csv(fn)
-            savedDf = pd.concat([savedDf,df], ignore_index = True)
-            #df = df.append(newDF, ignore_index = True)
-            savedDf.to_csv(fn, sep=',',index=False)
-    except Exception as e:
-        print(e)
-        df.to_csv(fn, sep=',',index=False)
-
-    print("csv writing: " + str(datetime.datetime.now()))
 
 if __name__ == "__main__":
     # Suppress FutureWarnings

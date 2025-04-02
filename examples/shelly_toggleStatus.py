@@ -110,17 +110,13 @@ async def main(location) -> None:
         log_error("No devices found. Exiting")
         sys.exit(0)
 
-    tasks = [execute_command(e, 10) for e in devices]
-    for task in tasks:
-        await task
-    # tasks = [statusUpdate(e) for e in devices]
-    # #await asyncio.gather(*tasks)     # causes an error on RPi, so using the below sequential method instead    
-    # for task in tasks:
-    #     await task
-
+    for e in devices:
+        sDevice = ShellyDevice(e[1]["address"], e[1]["name"])
+        await execute_command(sDevice, 10)
 
 # command list from ShellyDevice class
 async def execute_command(device: ShellyDevice, command: int) -> Optional[str]:
+
     id_input = 0
     params = {"id": 0}
     #'Switch.Toggle'

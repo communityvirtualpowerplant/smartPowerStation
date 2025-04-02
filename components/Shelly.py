@@ -59,7 +59,7 @@ class ShellyDevice:
             "Eth.SetConfig",
             "Eth.GetStatus",         # Added Eth.GetStatus
             "Shelly.Reboot",        # Added Shelly.Reboot
-            "Switch.Toggle",
+            "Switch.Toggle"
         ]
 
     async def call_rpc(

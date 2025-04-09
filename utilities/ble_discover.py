@@ -20,7 +20,8 @@ import json
 from components.Shelly import ShellyDevice as Shelly
 import sys
 
-deviceFile = 'data/devices.json'
+deviceFile = 'config/devices.json'
+configFile = 'config/config.json'
 
 printInfo = True
 printDebug = True
@@ -42,10 +43,10 @@ shellySTR = 'Shelly'
 bluettiSTR = ['AC180','AC2']
 
 #if an arg has been passed
-if len(sys.argv) > 1:
-    location = sys.argv[len(sys.argv) - 1]
-else:
-    location = ''
+# if len(sys.argv) > 1:
+#     location = sys.argv[len(sys.argv) - 1]
+# else:
+#     location = ''
 
 async def scan_devices(scan_duration: int, saved_devices: Dict):
     #devices = saved_devices
@@ -131,7 +132,10 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
     saved_devices.sort(key=lambda d: d["rssi"], reverse=True)
     return saved_devices
 
-async def main(fn):
+async def main(fn,conf):
+    location = conf['location']
+    print(location)
+    
     scan_duration = 5
 
     # Read data from a JSON file
@@ -207,14 +211,25 @@ def save_devices(data, fn):
 
     print(f"JSON file saved successfully at {fn}")
 
+def getConfig(fn):
+    # Read data from a JSON file
+    try:
+        with open(fn, "r") as json_file:
+            return json.load(json_file)
+    except Exception as e:
+        log_error(f"Error during reading config file: {e}")
+        return {}
+
 if __name__ == "__main__":
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
 
+    config = getConfig(configFile)
+
     try:
-        asyncio.run(main(deviceFile))
+        asyncio.run(main(deviceFile,config))
     except KeyboardInterrupt:
         log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

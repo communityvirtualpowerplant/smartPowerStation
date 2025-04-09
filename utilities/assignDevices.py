@@ -20,7 +20,8 @@ import json
 from components.Shelly import ShellyDevice as Shelly
 import sys
 
-fileName = 'data/devices.json'
+deviceFile = 'config/devices.json'
+configFile = 'config/config.json'
 
 printInfo = True
 printDebug = True
@@ -143,7 +144,7 @@ async def main():
 
     # Read data from a JSON file
     try:
-        with open(fileName, "r") as json_file:
+        with open(deviceFile, "r") as json_file:
             savedDevices = json.load(json_file)
     except Exception as e:
         log_error(f"Error during reading devices.json file: {e}")
@@ -209,10 +210,10 @@ def print_devices(devices: List[Dict[str, str]]):
 
 def save_devices(data):
     # Save data to a JSON file
-    with open(fileName, "w") as json_file:
+    with open(deviceFile, "w") as json_file:
         json.dump(data, json_file, indent=4)
 
-    print(f"JSON file saved successfully at {fileName}")
+    print(f"JSON file saved successfully at {deviceFile}")
 
 if __name__ == "__main__":
 

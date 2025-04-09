@@ -131,12 +131,12 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
     saved_devices.sort(key=lambda d: d["rssi"], reverse=True)
     return saved_devices
 
-async def main():
+async def main(fn):
     scan_duration = 5
 
     # Read data from a JSON file
     try:
-        with open(fileName, "r") as json_file:
+        with open(fn, "r") as json_file:
             savedDevices = json.load(json_file)
     except Exception as e:
         log_error(f"Error during reading devices.json file: {e}")
@@ -154,7 +154,7 @@ async def main():
         # Display devices
         log_info("Discovered devices:")
         print_devices(devices)
-        save_devices(devices)
+        save_devices(devices, fn)
 
 # ============================
 # Logging Helper
@@ -200,12 +200,12 @@ def print_devices(devices: List[Dict[str, str]]):
     for index, device in enumerate(devices, start=1):
         print(f"Name: {device['name']}, Address: {device['address']}, RSSI: {device['rssi']}, Manufacturer: {device['manufacturer']}")
 
-def save_devices(data):
+def save_devices(data, fn):
     # Save data to a JSON file
-    with open(deviceFile, "w") as json_file:
+    with open(fn, "w") as json_file:
         json.dump(data, json_file, indent=4)
 
-    print(f"JSON file saved successfully at {fileName}")
+    print(f"JSON file saved successfully at {fn}")
 
 if __name__ == "__main__":
 
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, handle_signal)
 
     try:
-        asyncio.run(main())
+        asyncio.run(main(deviceFile))
     except KeyboardInterrupt:
         log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

@@ -168,7 +168,7 @@ async def main(SPS: SmartPowerStation) -> None:
         result = await statusUpdate(d)
         if result:
             print(result)
-            tempResults = packageData(e, result, tempResults)
+            tempResults = packageData(d, result, tempResults)
             #results.append(result)
     
     fileName = dataDirectory + location + 'sps_'+str(datetime.date.today())+'.csv'

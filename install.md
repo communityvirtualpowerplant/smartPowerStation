@@ -6,6 +6,10 @@
 * clone repo
 * install packages `pip install -r requirements.txt`
 * move config directory up one level
+	* set user as config directory owner 
+	* `sudo chown pi:pi config`
+	* `sudo chown pi:pi config/config.json`
+	* `sudo chown pi:pi config/devices.json`
 
 ### Smart Power Station
 

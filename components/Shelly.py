@@ -45,7 +45,7 @@ class ShellyDevice:
         self.RPC_CHAR_RX_CTL_UUID = "5f6d4f53-5f52-5043-5f72-785f63746c5f"
         self.ALLTERCO_MFID = 0x0BA9  # Manufacturer ID for Shelly devices
         self.data = []
-        self.channels = channels(self.name)
+        self.channels = self.getChannels(self.name)
         #self.relayChannel = channel
         #self.position = position
         # built-in Shelly commands

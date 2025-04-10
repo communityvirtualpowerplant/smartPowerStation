@@ -406,7 +406,7 @@ if __name__ == "__main__":
     config = getConfig(configFile)
 
     try:
-        asyncio.run(main(config.location))
+        asyncio.run(main(config['location']))
     except KeyboardInterrupt:
         log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

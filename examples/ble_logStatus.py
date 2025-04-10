@@ -164,8 +164,8 @@ async def main(SPS: SmartPowerStation) -> None:
                     "relay2_device": ''}
 
     #results = []
-    for e in devices:
-        result = await statusUpdate(e)
+    for d in devices:
+        result = await statusUpdate(d)
         if result:
             print(result)
             tempResults = packageData(e, result, tempResults)

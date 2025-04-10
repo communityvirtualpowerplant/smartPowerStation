@@ -20,8 +20,8 @@ import json
 from components.Shelly import ShellyDevice as Shelly
 import sys
 
-deviceFile = 'config/devices.json'
-configFile = 'config/config.json'
+deviceFile = '../config/devices.json'
+configFile = '../config/config.json'
 
 printInfo = True
 printDebug = True

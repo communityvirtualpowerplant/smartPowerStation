@@ -34,11 +34,11 @@ bluettiSTR = ['AC180','AC2']
 printInfo = True
 printDebug = True
 printError = True
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 dataDirectory = 'data/'
-deviceFile = 'config/devices.json'
-configFile = 'config/config.json'
+deviceFile = '../config/devices.json'
+configFile = '../config/config.json'
 
 # #if an arg has been passed
 # if len(sys.argv) > 1:

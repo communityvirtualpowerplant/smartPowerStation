@@ -2,7 +2,12 @@
 
 ## Software
 
-### Raspberry Pi
+* create venv
+* clone repo
+* install packages `pip install -r requirements.txt`
+* move config directory up one level
+
+### Smart Power Station
 
 ### Bluetti
 

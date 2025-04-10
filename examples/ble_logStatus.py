@@ -26,6 +26,7 @@ from bluetti_mqtt.core import (
 from bleak import BleakClient, BleakError, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
+from components.SmartPowerStation import SmartPowerStation
 
 shellySTR = 'Shelly'
 bluettiSTR = ['AC180','AC2']
@@ -78,28 +79,21 @@ def handle_signal(signal_num: int, frame: Any) -> None:
     log_info(f"Received signal {signal_num}, shutting down gracefully...")
     sys.exit(0)
 
-def reset_bluetooth():
-    try:
-        subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
-        subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
-    except subprocess.CalledProcessError as e:
-        log_error(f"Bluetooth interface reset failed: {e}")
-
-
-def getConfig(fn):
-    # Read data from a JSON file
-    try:
-        with open(fn, "r") as json_file:
-            return json.load(json_file)
-    except Exception as e:
-        log_error(f"Error during reading config file: {e}")
-        return {}
+# def reset_bluetooth():
+#     try:
+#         subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
+#         subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
+#     except subprocess.CalledProcessError as e:
+#         log_error(f"Bluetooth interface reset failed: {e}")
 
 # ============================
 # Main
 # ============================        
-async def main(location) -> None:
-    reset_bluetooth()
+async def main(SPS: SmartPowerStation) -> None:
+    SPS.reset_bluetooth()
+
+    location = SPS.location
+    print(location)
 
     scan_duration = 5
     # Read data from a JSON file
@@ -403,10 +397,10 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
 
-    config = getConfig(configFile)
+    SPS = SmartPowerStation(configFile)
 
     try:
-        asyncio.run(main(config['location']))
+        asyncio.run(main(SPS))
     except KeyboardInterrupt:
         log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

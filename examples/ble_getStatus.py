@@ -22,6 +22,7 @@ from bluetti_mqtt.core import (
 from bleak import BleakClient, BleakError, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
+from components.SmartPowerStation import SmartPowerStation
 
 shellySTR = 'Shelly'
 bluettiSTR = ['AC180','AC2']

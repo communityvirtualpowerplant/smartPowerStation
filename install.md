@@ -10,6 +10,8 @@
 	* `sudo chown pi:pi config`
 	* `sudo chown pi:pi config/config.json`
 	* `sudo chown pi:pi config/devices.json`
+* make the data directory one level up
+	* `mkdir data`
 
 ### Smart Power Station
 

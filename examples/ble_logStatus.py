@@ -36,7 +36,7 @@ printDebug = True
 printError = True
 #logging.basicConfig(level=logging.DEBUG)
 
-dataDirectory = 'data/'
+dataDirectory = '../data/'
 deviceFile = '../config/devices.json'
 configFile = '../config/config.json'
 
@@ -348,25 +348,25 @@ def packageData(d, r, t):
                     t['relay1_power'] = r[0]["apower"]
                     t['relay1_current'] =r[0]["current"]
                     t['relay1_voltage'] =r[0]["voltage"]
-                    t['relay1_status'] =str(r[0]["output"])
+                    t['relay1_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
                     t['relay1_device'] = d[1]['name']
                 else:
                     t['relay2_power'] = r[0]["apower"]
                     t['relay2_current'] =r[0]["current"]
                     t['relay2_voltage'] =r[0]["voltage"]
-                    t['relay2_status'] =str(r[0]["output"])
+                    t['relay2_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
                     t['relay2_device'] = d[1]['name']
             elif '2PM'.lower() in d[1]['name'].lower():
                 #print('2pm!')
                 t['relay1_power'] = r[0]["apower"]
                 t['relay1_current'] =r[0]["current"]
                 t['relay1_voltage'] =r[0]["voltage"]
-                t['relay1_status'] =r[0]["output"]
-                t['relay1_device'] = e[1]['name']
+                t['relay1_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
+                t['relay1_device'] = d[1]['name']
                 t['relay2_power'] = r[1]["apower"]
                 t['relay2_current'] =r[1]["current"]
                 t['relay2_voltage'] =r[1]["voltage"]
-                t['relay2_status'] =str(r[1]["output"])
+                t['relay2_status'] =str(r[1]["output"]) #must be cast to str because the dict interprets the bool as an int
                 t['relay2_device'] = d[1]['name']
     except Exception as e:
         print(e)

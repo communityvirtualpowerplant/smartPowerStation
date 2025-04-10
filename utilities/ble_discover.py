@@ -48,7 +48,7 @@ bluettiSTR = ['AC180','AC2']
 # else:
 #     location = ''
 
-async def scan_devices(scan_duration: int, saved_devices: Dict):
+async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
     #devices = saved_devices
 
     # get unique addresses
@@ -147,7 +147,7 @@ async def main(fn,conf):
         savedDevices = []
 
     try:
-        devices = await scan_devices(scan_duration, savedDevices)
+        devices = await scan_devices(scan_duration, savedDevices,location)
     except Exception as e:
         log_error(f"Error during scanning: {e}")
         return

@@ -80,6 +80,16 @@ def reset_bluetooth():
     except subprocess.CalledProcessError as e:
         log_error(f"Bluetooth interface reset failed: {e}")
 
+
+def getConfig(fn):
+    # Read data from a JSON file
+    try:
+        with open(fn, "r") as json_file:
+            return json.load(json_file)
+    except Exception as e:
+        log_error(f"Error during reading config file: {e}")
+        return {}
+        
 # ============================
 # Main
 # ============================        

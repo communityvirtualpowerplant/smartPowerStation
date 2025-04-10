@@ -39,11 +39,11 @@ dataDirectory = 'data/'
 deviceFile = 'config/devices.json'
 configFile = 'config/config.json'
 
-#if an arg has been passed
-if len(sys.argv) > 1:
-    location = sys.argv[len(sys.argv)-1]
-else:
-    location = ''
+# #if an arg has been passed
+# if len(sys.argv) > 1:
+#     location = sys.argv[len(sys.argv)-1]
+# else:
+#     location = ''
 
 #changed based on hardware
 bleAdapter = "hci0"
@@ -84,6 +84,16 @@ def reset_bluetooth():
         subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
     except subprocess.CalledProcessError as e:
         log_error(f"Bluetooth interface reset failed: {e}")
+
+
+def getConfig(fn):
+    # Read data from a JSON file
+    try:
+        with open(fn, "r") as json_file:
+            return json.load(json_file)
+    except Exception as e:
+        log_error(f"Error during reading config file: {e}")
+        return {}
 
 # ============================
 # Main
@@ -393,8 +403,10 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
 
+    config = getConfig(configFile)
+
     try:
-        asyncio.run(main(location))
+        asyncio.run(main(config.location))
     except KeyboardInterrupt:
         log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

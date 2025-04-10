@@ -45,6 +45,7 @@ class ShellyDevice:
         self.RPC_CHAR_RX_CTL_UUID = "5f6d4f53-5f52-5043-5f72-785f63746c5f"
         self.ALLTERCO_MFID = 0x0BA9  # Manufacturer ID for Shelly devices
         self.data = []
+        self.channels = channels(self.name)
         #self.relayChannel = channel
         #self.position = position
         # built-in Shelly commands
@@ -61,6 +62,13 @@ class ShellyDevice:
             "Shelly.Reboot",        # Added Shelly.Reboot
             "Switch.Toggle"
         ]
+
+    #returns number of channels based on device name
+    def getChannels(self,n: str)-> int:
+        if '1PM'.lower() in n.lower():
+            return 1
+        elif '2PM'.lower() in n.lower():
+            return 2
 
     async def call_rpc(
         self,

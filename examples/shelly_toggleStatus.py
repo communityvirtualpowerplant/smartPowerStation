@@ -139,31 +139,34 @@ async def main(location) -> None:
 #     return None  # Continue normally
 
 async def execute_command(device: ShellyDevice, command: int):
-    id_input = 0
-    params = {"id": 0}
-    #'Switch.Toggle'
-    rpc_method= device.commands[command]
-    
-    retries = 4
-    for attempt in range(1, retries + 1):
-        try:
-            result = await device.call_rpc(rpc_method, params=params)
-            if result:
-                print(f"RPC Method '{rpc_method}' executed successfully. Result:")
-                result = device.parse_response(result)
-                return result
-            else:
-                print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
-                return None
 
-        except Exception as e:
-            print(f"Unexpected error during attempt {attempt} command execution: {e}")
-            if attempt <= retries:
-                print(f"Retrying in {2 * attempt} second...")
-                await asyncio.sleep(2 * attempt)
-            else:
-                print(f"All {retries} attempts failed.")
-                raise
+    for i in range(ShellyDevice.channels+1):
+        print(i)
+        id_input = 0
+        params = {"id": i}
+        #'Switch.Toggle'
+        rpc_method= device.commands[command]
+        
+        retries = 4
+        for attempt in range(1, retries + 1):
+            try:
+                result = await device.call_rpc(rpc_method, params=params)
+                if result:
+                    print(f"RPC Method '{rpc_method}' executed successfully. Result:")
+                    result = device.parse_response(result)
+                    return result
+                else:
+                    print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
+                    return None
+
+            except Exception as e:
+                print(f"Unexpected error during attempt {attempt} command execution: {e}")
+                if attempt <= retries:
+                    print(f"Retrying in {2 * attempt} second...")
+                    await asyncio.sleep(2 * attempt)
+                else:
+                    print(f"All {retries} attempts failed.")
+                    raise
 
     #return
 

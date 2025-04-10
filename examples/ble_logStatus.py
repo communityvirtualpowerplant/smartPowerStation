@@ -34,7 +34,7 @@ bluettiSTR = ['AC180','AC2']
 printInfo = True
 printDebug = True
 printError = True
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 dataDirectory = 'data/'
 deviceFile = 'config/devices.json'
@@ -165,6 +165,7 @@ async def main(SPS: SmartPowerStation) -> None:
 
     #results = []
     for d in devices:
+        print(d)
         result = await statusUpdate(d)
         if result:
             print(result)
@@ -332,7 +333,7 @@ async def log_command(client: BluetoothClient, device: BluettiDevice, command: D
 def packageData(d, r, t):
     try:
         if d[1]['manufacturer'].lower() == 'bluetti':
-            print('bluetti!')
+            #print('bluetti!')
             t["powerstation_percentage"] = r['total_battery_percent']
             t["powerstation_inputWAC"] = r['ac_input_power']
             t["powerstation_inputWDC"] = r['dc_input_power']
@@ -342,7 +343,7 @@ def packageData(d, r, t):
             t["powerstation_deviceType"] = r['device_type']
         elif 'Shelly'.lower() in d[1]['name'].lower():
             if '1PM'.lower() in d[1]['name'].lower():
-                print('1pm!')
+                #print('1pm!')
                 if d[1]['assignment0'] == 1:
                     t['relay1_power'] = r[0]["apower"]
                     t['relay1_current'] =r[0]["current"]
@@ -356,7 +357,7 @@ def packageData(d, r, t):
                     t['relay2_status'] =str(r[0]["output"])
                     t['relay2_device'] = d[1]['name']
             elif '2PM'.lower() in d[1]['name'].lower():
-                print('2pm!')
+                #print('2pm!')
                 t['relay1_power'] = r[0]["apower"]
                 t['relay1_current'] =r[0]["current"]
                 t['relay1_voltage'] =r[0]["voltage"]
@@ -381,8 +382,8 @@ async def writeData(fn, df):
             savedDf = pd.concat([savedDf,df], ignore_index = True)
             #df = df.append(newDF, ignore_index = True)
             savedDf.to_csv(fn, sep=',',index=False)
-    except Exception as e:
-        print(e)
+    except Exception as err:
+        print(err)
         df.to_csv(fn, sep=',',index=False)
 
     print("csv writing: " + str(datetime.datetime.now()))

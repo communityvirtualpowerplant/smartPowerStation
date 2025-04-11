@@ -137,6 +137,7 @@ class ShellyDevice:
             o = s[1]['output']
 
         if o != str(state):
+            print('changing state!')
             await self.execute_command(10,[channel])
 
     async def call_rpc(

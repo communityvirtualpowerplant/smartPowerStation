@@ -118,11 +118,11 @@ async def main(SPS: SmartPowerStation) -> None:
 
         if savedDev['manufacturer'] == 'shelly':
 
-            savedDev['device'] = ShellyDevice(savedDev["address"], savedDev["name"])
+            shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
             try:
-                await savedDev['device'].setState(toState,[0])
+                await shDevice.setState(toState,[0])
             except Exception as e:
-                log_error(f"Error getting Shelly status: {e}")
+                log_error(f"Error setting state")
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):

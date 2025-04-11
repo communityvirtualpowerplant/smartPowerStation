@@ -4,7 +4,7 @@ After=network.target
 Wants=network.target
 
 [Service]
-ExecStart=/home/alex/smartPowerStation/venv/bin/python /home/alex/smartPowerStation
+ExecStart=/home/alex/smartPowerStation/venv/bin/python -m /home/alex/smartPowerStation/services.ble_logger
 WorkingDirectory=/home/alex
 StandardOutput=inherit
 StandardError=inherit

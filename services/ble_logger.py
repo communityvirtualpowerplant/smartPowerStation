@@ -220,6 +220,9 @@ async def statusUpdate(device):
 async def writeData(fn, df):
     # create a new file daily to save data
     # or append if the file already exists
+
+    log_debug(df)
+    
     try:
         with open(fn) as csvfile:
             savedDf = pd.read_csv(fn)

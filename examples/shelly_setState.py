@@ -120,7 +120,7 @@ async def main(SPS: SmartPowerStation) -> None:
 
             savedDev['device'] = ShellyDevice(savedDev["address"], savedDev["name"])
             try:
-                savedDev['device'].setState(toState,[0])
+                await savedDev['device'].setState(toState,[0])
             except Exception as e:
                 log_error(f"Error getting Shelly status: {e}")
 

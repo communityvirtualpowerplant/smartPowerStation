@@ -128,7 +128,7 @@ class ShellyDevice:
     
     # state=True for on and False for off
     async def setState(self, state: bool, channel: int)-> None:
-        s = self.getStatus()
+        s = await self.getStatus()
 
         if channel == 0:
             o = s[0]['output']
@@ -136,7 +136,7 @@ class ShellyDevice:
             o = s[1]['output']
 
         if o != state:
-            self.execute_command(10,[channel])
+            await self.execute_command(10,[channel])
 
     async def call_rpc(
         self,

@@ -19,6 +19,9 @@ app = Flask(__name__)
 CORS(app)  
 
 filePath = '/home/alex/data/'
+filePrefix = str(location) + '_'
+
+configFile = '../config/config.json'
 
 HTML = """
 <!DOCTYPE html>
@@ -62,6 +65,17 @@ HTML = """
 </body>
 </html>
 """
+# reads json config file and returns it as dict
+def getConfig(fn:str) -> dict:
+    # Read data from a JSON file
+    try:
+        with open(fn, "r") as json_file:
+            return json.load(json_file)
+    except Exception as e:
+        self.log_error(f"Error during reading config file: {e}")
+        return {}
+
+config = getConfig(configFile)
 
 def getMostRecent():
     # Get all CSV files in the data/ directory
@@ -89,6 +103,9 @@ def index():
         rows = list(reader)#[-10:]  # last 10 readings
     return render_template_string(HTML, data=rows)
 
+@app.route("/api/discover")
+def discover():
+    return jsonify({'name': config['location']}), 404
 
 @app.route("/api/data")
 def get_csv_for_date():

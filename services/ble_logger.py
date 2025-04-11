@@ -140,7 +140,7 @@ async def main(SPS: SmartPowerStation) -> None:
                 tempResults = SPS.packageData(d, result, tempResults)
                 #results.append(result)
         
-        fileName = dataDirectory + location + 'sps_'+str(datetime.date.today())+'.csv'
+        fileName = dataDirectory + str(location) + '_' +str(datetime.date.today())+'.csv'
 
         await writeData(fileName, pd.DataFrame([tempResults]))
 
@@ -222,7 +222,7 @@ async def writeData(fn, df):
     # or append if the file already exists
 
     log_debug(df)
-    
+
     try:
         with open(fn) as csvfile:
             savedDf = pd.read_csv(fn)

@@ -46,6 +46,7 @@ class ShellyDevice:
         self.ALLTERCO_MFID = 0x0BA9  # Manufacturer ID for Shelly devices
         self.data = []
         self.channels = self.getChannels(self.name)
+        self.status = {}
         #self.relayChannel = channel
         #self.position = position
         # built-in Shelly commands

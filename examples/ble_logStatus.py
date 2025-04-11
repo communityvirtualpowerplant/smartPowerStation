@@ -40,12 +40,6 @@ dataDirectory = '../data/'
 deviceFile = '../config/devices.json'
 configFile = '../config/config.json'
 
-# #if an arg has been passed
-# if len(sys.argv) > 1:
-#     location = sys.argv[len(sys.argv)-1]
-# else:
-#     location = ''
-
 #changed based on hardware
 bleAdapter = "hci0"
 
@@ -78,13 +72,6 @@ def handle_signal(signal_num: int, frame: Any) -> None:
     """Handles termination signals for graceful shutdown."""
     log_info(f"Received signal {signal_num}, shutting down gracefully...")
     sys.exit(0)
-
-# def reset_bluetooth():
-#     try:
-#         subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
-#         subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
-#     except subprocess.CalledProcessError as e:
-#         log_error(f"Bluetooth interface reset failed: {e}")
 
 # ============================
 # Main
@@ -122,26 +109,6 @@ async def main(SPS: SmartPowerStation) -> None:
     # tasks = [statusUpdate(e) for e in devices]
     # for task in tasks:
     #     await task
-
-    # resultsDF = pd.DataFrame(data={
-    #                     "datetime" : [datetime.datetime.now()],
-    #                     "powerstation_percentage": [],
-    #                     "powerstation_inputWAC": [],
-    #                     "powerstation_inputWDC": [],
-    #                     "powerstation_outputWAC": [],
-    #                     "powerstation_outputWDC":[],
-    #                     "powerstation_outputMode":[],
-    #                     "powerstation_deviceType":[],
-    #                     "relay1_power": [],
-    #                     "relay1_current":[],
-    #                     "relay1_voltage": [],
-    #                     "relay1_status": [],
-    #                     "relay1_device": [],
-    #                     "relay2_power": [],
-    #                     "relay2_current":[],
-    #                     "relay2_voltage": [],
-    #                     "relay2_status": [],
-    #                     "relay2_device": []})
 
     tempResults = {
                     "datetime" : datetime.datetime.now(),

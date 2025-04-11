@@ -1,13 +1,17 @@
-# reads the devices.json file and retrieves the status of all devices at the specified location
-# run with "python -m utilities.ble_getStatus.py" + location from parent directory
+# gets data and saves it in a CSV file
+# run with "python -m examples.ble_logStatus" + location from parent directory
 
 import sys
 import subprocess
+# import numpy as np
+import pandas as pd
+import csv
 import asyncio
 import json
 import signal
 import logging
 import time
+import datetime
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from components.Shelly import ShellyDevice
@@ -23,6 +27,7 @@ printDebug = True
 printError = True
 #logging.basicConfig(level=logging.DEBUG)
 
+dataDirectory = '../data/'
 deviceFile = '../config/devices.json'
 configFile = '../config/config.json'
 
@@ -80,8 +85,7 @@ async def main(SPS: SmartPowerStation) -> None:
     filteredEntries = []
     for entry in savedDevices:
         if entry['location'] == location:
-            if entry['manufacturer'] == 'shelly':
-                filteredEntries.append(entry)
+            filteredEntries.append(entry)
 
     try:
         devices = await scan_devices(scan_duration, filteredEntries)
@@ -93,12 +97,13 @@ async def main(SPS: SmartPowerStation) -> None:
         log_error("No devices found. Exiting")
         sys.exit(0)
 
-    for e in devices:
-        try:
-            sDevice = ShellyDevice(e[1]["address"], e[1]["name"])
-            await execute_command(sDevice, 10) 
-        except Exception as e:
-            print(e)
+    #results = []
+    for d in devices:
+        print(d)
+        shDevice = await statusUpdate(d)
+        if S:
+            print(shDevice.status)
+            await execute_command(shDevice, 10) 
 
 async def execute_command(device: ShellyDevice, command: int) -> None:
 
@@ -129,7 +134,7 @@ async def execute_command(device: ShellyDevice, command: int) -> None:
                 else:
                     print(f"All {retries} attempts failed.")
                     raise
-
+                    
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):
     filteredDevices = []
@@ -174,12 +179,14 @@ async def statusUpdate(device):
 
             if result:
                 print(f"RPC Method executed successfully. Result:")
-                print(json.dumps(result))
-
+                savedDev['device'].status = result
+                #print(json.dumps(result))
             else:
                 print(f"RPC Method executed successfully. No data returned.")
         except Exception as e:
             log_error(f"Error getting Shelly status: {e}")
+    
+    return savedDev['device']
 
 # get status
 async def getStatusShelly(device: ShellyDevice):

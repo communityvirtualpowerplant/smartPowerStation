@@ -76,7 +76,7 @@ class ShellyDevice:
     async def getStatus(self)-> dict:
         params = None
         rpc_method=self.commands[2]
-        
+
         retries = 4
         for attempt in range(1, retries + 1):
             try:
@@ -129,7 +129,8 @@ class ShellyDevice:
     # state=True for on and False for off
     async def setState(self, state: bool, channel: int)-> None:
         s = await self.getStatus()
-
+        print(s)
+        
         if channel == 0:
             o = s[0]['output']
         else:

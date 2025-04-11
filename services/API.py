@@ -63,6 +63,20 @@ HTML = """
 </html>
 """
 
+def getMostRecent():
+    # Get all CSV files in the data/ directory
+    file_pattern = os.path.join(filePath, f"*.csv")
+    files = sorted(glob.glob(file_pattern))
+
+    fileName = files[-1]
+    fullFilePath = filePath + fileName #os.path.join(fileName)
+    df = pd.read_csv(fullFilePath)  # Update path as needed
+
+    if df.empty:
+        return jsonify({'error': 'CSV is empty'}), 404
+    
+    return df
+
 @app.route("/")
 def index():
     fileName = filePath + filePrefix +str(datetime.date.today())+'.csv'
@@ -80,17 +94,20 @@ def get_csv_for_date():
         return "Please provide file name in proper form (see api/files) or date=now for most recent data", 400
 
     if file == 'now':
-        pass
         try:
-            fileName = file+'.csv'
-            fullFilePath = filePath + fileName #os.path.join(fileName)
-            df = pd.read_csv(fullFilePath)  # Update path as needed
-
-            if df.empty:
-                return jsonify({'error': 'CSV is empty'}), 404
-
+            df = getMostRecent()
             last_row = df.iloc[-1].to_dict()
             return jsonify(last_row)
+        except FileNotFoundError:
+            return jsonify({'error': 'CSV file not found'}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    elif file == 'recent':
+        try:
+            df = getMostRecent() # Update path as needed
+            if df.empty:
+                return jsonify({'error': 'CSV is empty'}), 404
+            return send_file(fullFilePath, as_attachment=True, download_name=fileName)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:

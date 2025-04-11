@@ -37,7 +37,7 @@ bleAdapter = "hci0"
 
 #if an arg has been passed
 if len(sys.argv) > 1:
-    toState = sys.argv[len(sys.argv)-1]
+    toState = bool(sys.argv[len(sys.argv)-1])
 else:
     toState = False
 

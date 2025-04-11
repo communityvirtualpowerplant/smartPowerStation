@@ -6,11 +6,11 @@ StartLimitIntervalSec=60
 StartLimitBurst=5
 
 [Service]
-ExecStart=/home/alex/venv/bin/python -m /home/alex/smartPowerStation/services.api
-WorkingDirectory=/home/alex
+ExecStart=/home/alex/smartPowerStation/venv/bin/python -m /home/alex/smartPowerStation/services.api
+WorkingDirectory=/home/alex/smartPowerStation
 Restart=always
 RestartSec=5
-User=case
+User=alex
 # Hard memory limit (50MB)
 # MemoryMax=50M
 

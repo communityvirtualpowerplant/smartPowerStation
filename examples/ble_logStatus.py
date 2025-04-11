@@ -196,7 +196,7 @@ async def statusUpdate(device):
     elif savedDev['manufacturer'] == 'bluetti':
         savedDev['device'] = Bluetti(savedDev["address"],savedDev["name"])
         try:
-            result = await savedDev['device'].getStatus #getStatusBluetti(savedDev['device'])
+            result = await savedDev['device'].getStatus() #getStatusBluetti(savedDev['device'])
         except Exception as e:
             log_error(f"Error getting Bluetti status: {e}")
 

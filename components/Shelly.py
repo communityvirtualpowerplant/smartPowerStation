@@ -74,8 +74,6 @@ class ShellyDevice:
 
     # get status
     async def getStatus(self)-> dict:
-
-        #id_input = 0
         params = None
         rpc_method=self.commands[2]
         
@@ -100,12 +98,9 @@ class ShellyDevice:
                     print(f"All {retries} attempts failed.")
                     raise
 
-
-    async def execute_command(self, command: int, channels: list) -> list[dict]:
+    async def execute_command(self, command: int, channels: list) -> list:
         cR=[]
         for i in channels:
-            print(i)
-            id_input = 0
             params = {"id": i}
             rpc_method= self.commands[command]
             
@@ -114,9 +109,7 @@ class ShellyDevice:
                 try:
                     result = await self.call_rpc(rpc_method, params=params)
                     if result:
-                        print(f"RPC Method '{rpc_method}' executed successfully. Result:")
-                        #result = self.parse_response(result)
-                        #print(result)
+                        print(f"RPC Method '{rpc_method}' executed successfully.")
                         cR.append(result)
                         break
                     else:
@@ -132,6 +125,18 @@ class ShellyDevice:
                         print(f"All {retries} attempts failed.")
                         raise
         return cR
+    
+    # state=True for on and False for off
+    async def setState(self, state: bool, channel: int)-> None:
+        s = self.getStatus()
+
+        if channel == 0:
+            o = s[0]['output']
+        else:
+            o = s[1]['output']
+
+        if o != state:
+            self.execute_command(10,[channel])
 
     async def call_rpc(
         self,
@@ -354,29 +359,25 @@ class ShellyDevice:
         # for d in data:
         self.data = data
 
-    async def run(self, freq=60):
-        # Poll device
-        while True:
-            
-            #id_input = 0
-            params = None
-            rpc_method='Shelly.GetStatus'
+    # async def run(self, freq=60):
+    #     # Poll device
+    #     while True:
+    #         params = None
+    #         rpc_method='Shelly.GetStatus'
     
-            try:
-                result = await device.call_rpc(rpc_method, params=params)
-                if result:
-                    print(f"RPC Method '{rpc_method}' executed successfully. Result:")
-                    result = device.parse_response(result)
-                else:
-                    print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
+    #         try:
+    #             result = await device.call_rpc(rpc_method, params=params)
+    #             if result:
+    #                 print(f"RPC Method '{rpc_method}' executed successfully. Result:")
+    #                 result = device.parse_response(result)
+    #             else:
+    #                 print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
 
-                self.update_data(self.parse_response(response))
-            except Exception as e:
-                print(f"Unexpected error during command execution: {e}")
+    #             self.update_data(self.parse_response(response))
+    #         except Exception as e:
+    #             print(f"Unexpected error during command execution: {e}")
 
-            await asyncio.sleep(freq)
-
-    #     
+    #         await asyncio.sleep(freq)
 
 
 

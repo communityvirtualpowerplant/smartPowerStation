@@ -34,6 +34,15 @@ configFile = '../config/config.json'
 #changed based on hardware
 bleAdapter = "hci0"
 
+
+#if an arg has been passed
+if len(sys.argv) > 1:
+    toState = sys.argv[len(sys.argv)-1]
+else:
+    toState = False
+
+print('Setting state: ' + toState)
+
 # ============================
 # Logging Helper
 # ============================
@@ -99,11 +108,21 @@ async def main(SPS: SmartPowerStation) -> None:
 
     for d in devices:
         print(d)
-        shDevice = await statusUpdate(d)
-        if shDevice:
-            print(shDevice.status)
-            c = list(range(shDevice.channels))
-            print(await shDevice.execute_command(10,c))
+        # shDevice = await statusUpdate(d)
+        # if shDevice:
+        #     print(shDevice.status)
+        #     c = list(range(shDevice.channels))
+        #     print(await shDevice.execute_command(10,c))
+        bleDev = d[0]
+        savedDev = d[1]
+
+        if savedDev['manufacturer'] == 'shelly':
+
+            savedDev['device'] = ShellyDevice(savedDev["address"], savedDev["name"])
+            try:
+                savedDev['device'].setState(toState,[0])
+            except Exception as e:
+                log_error(f"Error getting Shelly status: {e}")
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):
@@ -135,28 +154,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
     await asyncio.sleep(2)
     
     return filteredDevices
-
-async def statusUpdate(device):
-    bleDev = device[0]
-    savedDev = device[1]
-
-    if savedDev['manufacturer'] == 'shelly':
-
-        savedDev['device'] = ShellyDevice(savedDev["address"], savedDev["name"])
-        try:
-            result = await savedDev['device'].getStatus()
-
-            if result:
-                print(f"RPC Method executed successfully. Result:")
-                savedDev['device'].status = result
-                #print(json.dumps(result))
-            else:
-                print(f"RPC Method executed successfully. No data returned.")
-        except Exception as e:
-            log_error(f"Error getting Shelly status: {e}")
     
-        return savedDev['device']
-
 if __name__ == "__main__":
     # Suppress FutureWarnings
     import warnings

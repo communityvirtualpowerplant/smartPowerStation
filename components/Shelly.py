@@ -130,18 +130,14 @@ class ShellyDevice:
     async def setState(self, state: bool, channel: int)-> None:
         s = await self.getStatus()
 
-        for i in s:
-            print('')
-            print(type(i['output']))
-
         print('channel: ' + str(channel))
 
         if channel == 0:
-            o = bool(s[0]['output'])
+            o = bool(s[channel]['output'])
         else:
-            o = bool(s[1]['output'])
+            o = bool(s[channel]['output'])
 
-        if o != state:
+        if o != bool(state):
             print('changing state!')
             await self.execute_command(10,[channel])
 

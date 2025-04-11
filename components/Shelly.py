@@ -45,7 +45,7 @@ class ShellyDevice:
         self.RPC_CHAR_RX_CTL_UUID = "5f6d4f53-5f52-5043-5f72-785f63746c5f"
         self.ALLTERCO_MFID = 0x0BA9  # Manufacturer ID for Shelly devices
         self.data = []
-        self.channels = self.getChannels(self.name)
+        self.channels = self.getChannels(name)
         self.status = {}
         #self.relayChannel = channel
         #self.position = position
@@ -70,6 +70,63 @@ class ShellyDevice:
             return 1
         elif '2PM'.lower() in n.lower():
             return 2
+
+    # get status
+    async def getStatus(self):
+
+        #id_input = 0
+        params = None
+        rpc_method=self.commands[2]
+        
+        retries = 4
+        for attempt in range(1, retries + 1):
+            try:
+                result = await self.call_rpc(rpc_method, params=params)
+                if result:
+                    print(f"RPC Method '{rpc_method}' executed successfully. Result:")
+                    result = self.parse_response(result)
+                    return result
+                else:
+                    print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
+                    return None
+
+            except Exception as e:
+                print(f"Unexpected error during attempt {attempt} command execution: {e}")
+                if attempt <= retries:
+                    print(f"Retrying in {2 * attempt} second...")
+                    await asyncio.sleep(2 * attempt)
+                else:
+                    print(f"All {retries} attempts failed.")
+                    raise
+
+
+    async def execute_command(self, command: int, channels: list) -> None:
+        for i in channels:
+            print(i)
+            id_input = 0
+            params = {"id": i}
+            rpc_method= self.commands[command]
+            
+            retries = 4
+            for attempt in range(1, retries + 1):
+                try:
+                    result = await self.call_rpc(rpc_method, params=params)
+                    if result:
+                        print(f"RPC Method '{rpc_method}' executed successfully. Result:")
+                        result = self.parse_response(result)
+                        return result
+                    else:
+                        print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
+                        return None
+
+                except Exception as e:
+                    print(f"Unexpected error during attempt {attempt} command execution: {e}")
+                    if attempt <= retries:
+                        print(f"Retrying in {2 * attempt} second...")
+                        await asyncio.sleep(2 * attempt)
+                    else:
+                        print(f"All {retries} attempts failed.")
+                        raise
 
     async def call_rpc(
         self,

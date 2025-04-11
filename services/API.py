@@ -24,7 +24,7 @@ HTML = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pi Sensor Dashboard</title>
+    <title>Smart Power Station</title>
     <meta http-equiv="refresh" content="60" />
     <style>
         body { font-family: sans-serif; margin: 2em; }

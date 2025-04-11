@@ -41,7 +41,7 @@ if len(sys.argv) > 1:
 else:
     toState = False
 
-print('Setting state: ' + toState)
+print('Setting state: ' + str(toState))
 
 # ============================
 # Logging Helper

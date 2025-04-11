@@ -130,13 +130,13 @@ class ShellyDevice:
     async def setState(self, state: bool, channel: int)-> None:
         s = await self.getStatus()
         print(s)
-        
+
         if channel == 0:
             o = s[0]['output']
         else:
             o = s[1]['output']
 
-        if o != state:
+        if o != str(state):
             await self.execute_command(10,[channel])
 
     async def call_rpc(

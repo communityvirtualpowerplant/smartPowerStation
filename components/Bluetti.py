@@ -108,9 +108,10 @@ class Bluetti():
                 for k,v in commandResponse.items():
                     myData[k]=v
             #print(myData)
+            await client.client.disconnect()
+
             return myData
 
-            #client.client.disconnect()
 
         except Exception as e:
             print(f"Unexpected error during command execution: {e}")

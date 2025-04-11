@@ -101,7 +101,7 @@ async def main(SPS: SmartPowerStation) -> None:
     for d in devices:
         print(d)
         shDevice = await statusUpdate(d)
-        if S:
+        if shDevice:
             print(shDevice.status)
             await execute_command(shDevice, 10) 
 
@@ -134,7 +134,7 @@ async def execute_command(device: ShellyDevice, command: int) -> None:
                 else:
                     print(f"All {retries} attempts failed.")
                     raise
-                    
+
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):
     filteredDevices = []

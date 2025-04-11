@@ -40,12 +40,6 @@ dataDirectory = '../data/'
 deviceFile = '../config/devices.json'
 configFile = '../config/config.json'
 
-# #if an arg has been passed
-# if len(sys.argv) > 1:
-#     location = sys.argv[len(sys.argv)-1]
-# else:
-#     location = ''
-
 #changed based on hardware
 bleAdapter = "hci0"
 
@@ -78,13 +72,6 @@ def handle_signal(signal_num: int, frame: Any) -> None:
     """Handles termination signals for graceful shutdown."""
     log_info(f"Received signal {signal_num}, shutting down gracefully...")
     sys.exit(0)
-
-# def reset_bluetooth():
-#     try:
-#         subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
-#         subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
-#     except subprocess.CalledProcessError as e:
-#         log_error(f"Bluetooth interface reset failed: {e}")
 
 # ============================
 # Main
@@ -186,7 +173,7 @@ async def statusUpdate(device):
 
         savedDev['device'] = ShellyDevice(savedDev["address"], savedDev["name"])
         try:
-            result = await getStatusShelly(savedDev['device'])
+            result = await savedDev['device'].getStatus()
 
             if result:
                 print(f"RPC Method executed successfully. Result:")
@@ -199,7 +186,7 @@ async def statusUpdate(device):
     elif savedDev['manufacturer'] == 'bluetti':
         savedDev['device'] = Bluetti(savedDev["address"],savedDev["name"])
         try:
-            result = await getStatusBluetti(savedDev['device'])
+            result = await savedDev['device'].getStatus()
         except Exception as e:
             log_error(f"Error getting Bluetti status: {e}")
 
@@ -215,148 +202,6 @@ async def statusUpdate(device):
             print(f"Method executed successfully. No data returned.")
 
     return result
-
-# get status
-async def getStatusShelly(device: ShellyDevice):
-
-    #id_input = 0
-    params = None
-    rpc_method='Shelly.GetStatus'
-    
-    retries = 4
-    for attempt in range(1, retries + 1):
-        try:
-            result = await device.call_rpc(rpc_method, params=params)
-            if result:
-                print(f"RPC Method '{rpc_method}' executed successfully. Result:")
-                result = device.parse_response(result)
-                return result
-            else:
-                print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
-                return None
-
-        except Exception as e:
-            print(f"Unexpected error during attempt {attempt} command execution: {e}")
-            if attempt <= retries:
-                print(f"Retrying in {2 * attempt} second...")
-                await asyncio.sleep(2 * attempt)
-            else:
-                print(f"All {retries} attempts failed.")
-                raise
-
-    #return
-
-async def getStatusBluetti(myDevice: str):
-    address = myDevice.address
-    myData={
-    }
-
-    try:
-        # devices = await check_addresses({address})
-        # #if len(devices) == 0:
-        #   #  sys.exit('Could not find the given device to connect to')
-        # device = devices[0]
-        device = build_device(myDevice.address, myDevice.name)
-
-        print(f'Connecting to {device.address}')
-        client = BluetoothClient(device.address)
-        #await client.run()
-        asyncio.get_running_loop().create_task(client.run())
-
-        # Wait for device connection
-        maxTries = 10
-        t = 0
-        while not client.is_ready:
-            print('Waiting for connection...')
-            await asyncio.sleep(1)
-            t = t +1
-            if t > 10:
-                break
-            continue
-
-        # Poll device
-        for command in device.logging_commands:
-            commandResponse = await log_command(client, device, command)
-            for k,v in commandResponse.items():
-                myData[k]=v
-        #print(myData)
-        return myData
-
-        #client.client.disconnect()
-
-    except Exception as e:
-        print(f"Unexpected error during command execution: {e}")
-
-async def log_command(client: BluetoothClient, device: BluettiDevice, command: DeviceCommand):
-    response_future = await client.perform(command)
-    try:
-        response = cast(bytes, await response_future)
-        if isinstance(command, ReadHoldingRegisters):
-            body = command.parse_response(response)
-            parsed = device.parse(command.starting_address, body)
-            return parsed #print(parsed.keys())
-        #log_packet(log_file, response, command)
-    except (BadConnectionError, BleakError, ModbusError, ParseError) as err:
-        print(f'Got an error running command {command}: {err}')
-        #log_invalid(log_file, err, command)
-
-def packageData(d, r, t):
-    try:
-        if d[1]['manufacturer'].lower() == 'bluetti':
-            #print('bluetti!')
-            t["powerstation_percentage"] = r['total_battery_percent']
-            t["powerstation_inputWAC"] = r['ac_input_power']
-            t["powerstation_inputWDC"] = r['dc_input_power']
-            t["powerstation_outputWAC"] = r['ac_output_power']
-            t["powerstation_outputWDC"] = r['dc_output_power']
-            t["powerstation_outputMode"] = r['output_mode']
-            t["powerstation_deviceType"] = r['device_type']
-        elif 'Shelly'.lower() in d[1]['name'].lower():
-            if '1PM'.lower() in d[1]['name'].lower():
-                #print('1pm!')
-                if d[1]['assignment0'] == 1:
-                    t['relay1_power'] = r[0]["apower"]
-                    t['relay1_current'] =r[0]["current"]
-                    t['relay1_voltage'] =r[0]["voltage"]
-                    t['relay1_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
-                    t['relay1_device'] = d[1]['name']
-                else:
-                    t['relay2_power'] = r[0]["apower"]
-                    t['relay2_current'] =r[0]["current"]
-                    t['relay2_voltage'] =r[0]["voltage"]
-                    t['relay2_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
-                    t['relay2_device'] = d[1]['name']
-            elif '2PM'.lower() in d[1]['name'].lower():
-                #print('2pm!')
-                t['relay1_power'] = r[0]["apower"]
-                t['relay1_current'] =r[0]["current"]
-                t['relay1_voltage'] =r[0]["voltage"]
-                t['relay1_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
-                t['relay1_device'] = d[1]['name']
-                t['relay2_power'] = r[1]["apower"]
-                t['relay2_current'] =r[1]["current"]
-                t['relay2_voltage'] =r[1]["voltage"]
-                t['relay2_status'] =str(r[1]["output"]) #must be cast to str because the dict interprets the bool as an int
-                t['relay2_device'] = d[1]['name']
-    except Exception as e:
-        print(e)
-
-    return t
-
-async def writeData(fn, df):
-    # create a new file daily to save data
-    # or append if the file already exists
-    try:
-        with open(fn) as csvfile:
-            savedDf = pd.read_csv(fn)
-            savedDf = pd.concat([savedDf,df], ignore_index = True)
-            #df = df.append(newDF, ignore_index = True)
-            savedDf.to_csv(fn, sep=',',index=False)
-    except Exception as err:
-        print(err)
-        df.to_csv(fn, sep=',',index=False)
-
-    print("csv writing: " + str(datetime.datetime.now()))
 
 if __name__ == "__main__":
     # Suppress FutureWarnings

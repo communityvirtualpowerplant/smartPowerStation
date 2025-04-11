@@ -77,71 +77,75 @@ def handle_signal(signal_num: int, frame: Any) -> None:
 # Main
 # ============================        
 async def main(SPS: SmartPowerStation) -> None:
-    SPS.reset_bluetooth()
+    while True:
+        SPS.reset_bluetooth()
 
-    location = SPS.location
-    print(location)
+        location = SPS.location
+        print(location)
 
-    scan_duration = 5
-    # Read data from a JSON file
-    try:
-        with open(deviceFile, "r") as json_file:
-            savedDevices = json.load(json_file)
-    except Exception as e:
-        log_error(f"Error during reading devices.json file: {e}")
-        savedDevices = []
+        scan_duration = 5
+        # Read data from a JSON file
+        try:
+            with open(deviceFile, "r") as json_file:
+                savedDevices = json.load(json_file)
+        except Exception as e:
+            log_error(f"Error during reading devices.json file: {e}")
+            savedDevices = []
 
-    filteredEntries = []
-    for entry in savedDevices:
-        if entry['location'] == location:
-            filteredEntries.append(entry)
+        filteredEntries = []
+        for entry in savedDevices:
+            if entry['location'] == location:
+                filteredEntries.append(entry)
 
-    try:
-        devices = await scan_devices(scan_duration, filteredEntries)
-    except Exception as e:
-        log_error(f"Error during scanning: {e}")
-        return
+        try:
+            devices = await scan_devices(scan_duration, filteredEntries)
+        except Exception as e:
+            log_error(f"Error during scanning: {e}")
+            return
 
-    if not devices:
-        log_error("No devices found. Exiting")
-        sys.exit(0)
+        if not devices:
+            log_error("No devices found. Exiting")
+            sys.exit(0)
 
-    # tasks = [statusUpdate(e) for e in devices]
-    # for task in tasks:
-    #     await task
+        # tasks = [statusUpdate(e) for e in devices]
+        # for task in tasks:
+        #     await task
 
-    tempResults = {
-                    "datetime" : datetime.datetime.now(),
-                    "powerstation_percentage": '',
-                    "powerstation_inputWAC": '',
-                    "powerstation_inputWDC": '',
-                    "powerstation_outputWAC": '',
-                    "powerstation_outputWDC":'',
-                    "powerstation_outputMode":'',
-                    "powerstation_deviceType":'',
-                    "relay1_power": '',
-                    "relay1_current":'',
-                    "relay1_voltage": '',
-                    "relay1_status": '',
-                    "relay1_device": '',
-                    "relay2_power": '',
-                    "relay2_current":'',
-                    "relay2_voltage": '',
-                    "relay2_status": '',
-                    "relay2_device": ''}
+        tempResults = {
+                        "datetime" : datetime.datetime.now(),
+                        "powerstation_percentage": '',
+                        "powerstation_inputWAC": '',
+                        "powerstation_inputWDC": '',
+                        "powerstation_outputWAC": '',
+                        "powerstation_outputWDC":'',
+                        "powerstation_outputMode":'',
+                        "powerstation_deviceType":'',
+                        "relay1_power": '',
+                        "relay1_current":'',
+                        "relay1_voltage": '',
+                        "relay1_status": '',
+                        "relay1_device": '',
+                        "relay2_power": '',
+                        "relay2_current":'',
+                        "relay2_voltage": '',
+                        "relay2_status": '',
+                        "relay2_device": ''}
 
-    #results = []
-    for d in devices:
-        print(d)
-        result = await statusUpdate(d)
-        if result:
-            print(result)
-            tempResults = SPS.packageData(d, result, tempResults)
-            #results.append(result)
-    
-    fileName = dataDirectory + location + 'sps_'+str(datetime.date.today())+'.csv'
+        #results = []
+        for d in devices:
+            print(d)
+            result = await statusUpdate(d)
+            if result:
+                print(result)
+                tempResults = SPS.packageData(d, result, tempResults)
+                #results.append(result)
+        
+        fileName = dataDirectory + location + 'sps_'+str(datetime.date.today())+'.csv'
 
-    await writeData(fileName, pd.DataFrame([tempResults]))
+        await writeData(fileName, pd.DataFrame([tempResults]))
+
+        print('************ SLEEPING **************')
+        await asyncio.sleep(120)
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):

@@ -88,7 +88,6 @@ def index():
     file_pattern = os.path.join(filePath, f"*.csv")
     files = sorted(glob.glob(file_pattern))
     fileName = files[-1]
-    fileName = filePath + fileName +'.csv'
     with open(fileName, newline='') as f:
         reader = csv.reader(f)
         next(reader)  # skip header

@@ -105,7 +105,7 @@ def index():
 
 @app.route("/api/discover")
 def discover():
-    return jsonify({'name': config['location']}), 404
+    return jsonify({'name': config['location']}), 200
 
 @app.route("/api/data")
 def get_csv_for_date():

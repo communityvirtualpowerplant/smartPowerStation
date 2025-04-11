@@ -57,3 +57,49 @@ class SmartPowerStation():
 	def log_print(self, message:str, b:bool):
 	    if b:
 	        print(message)
+
+	# ============================
+	# Data
+	# ============================
+	def packageData(self, d, r, t):
+	    try:
+	        if d[1]['manufacturer'].lower() == 'bluetti':
+	            #print('bluetti!')
+	            t["powerstation_percentage"] = r['total_battery_percent']
+	            t["powerstation_inputWAC"] = r['ac_input_power']
+	            t["powerstation_inputWDC"] = r['dc_input_power']
+	            t["powerstation_outputWAC"] = r['ac_output_power']
+	            t["powerstation_outputWDC"] = r['dc_output_power']
+	            t["powerstation_outputMode"] = r['output_mode']
+	            t["powerstation_deviceType"] = r['device_type']
+	        elif 'Shelly'.lower() in d[1]['name'].lower():
+	            if '1PM'.lower() in d[1]['name'].lower():
+	                #print('1pm!')
+	                if d[1]['assignment0'] == 1:
+	                    t['relay1_power'] = r[0]["apower"]
+	                    t['relay1_current'] =r[0]["current"]
+	                    t['relay1_voltage'] =r[0]["voltage"]
+	                    t['relay1_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
+	                    t['relay1_device'] = d[1]['name']
+	                else:
+	                    t['relay2_power'] = r[0]["apower"]
+	                    t['relay2_current'] =r[0]["current"]
+	                    t['relay2_voltage'] =r[0]["voltage"]
+	                    t['relay2_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
+	                    t['relay2_device'] = d[1]['name']
+	            elif '2PM'.lower() in d[1]['name'].lower():
+	                #print('2pm!')
+	                t['relay1_power'] = r[0]["apower"]
+	                t['relay1_current'] =r[0]["current"]
+	                t['relay1_voltage'] =r[0]["voltage"]
+	                t['relay1_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
+	                t['relay1_device'] = d[1]['name']
+	                t['relay2_power'] = r[1]["apower"]
+	                t['relay2_current'] =r[1]["current"]
+	                t['relay2_voltage'] =r[1]["voltage"]
+	                t['relay2_status'] =str(r[1]["output"]) #must be cast to str because the dict interprets the bool as an int
+	                t['relay2_device'] = d[1]['name']
+	    except Exception as e:
+	        print(e)
+
+	    return t

@@ -9,7 +9,7 @@ import textwrap
 import time
 from typing import cast
 from bluetti_mqtt.bluetooth import (
-    check_addresses, scan_devices, BluetoothClient, ModbusError,
+    check_addresses, build_device, scan_devices, BluetoothClient, ModbusError,
     ParseError, BadConnectionError
 )
 from bluetti_mqtt.core import (
@@ -73,3 +73,44 @@ class Bluetti():
                 #print(k + ": " + str(v))
                 self.data[k]=v
             #await asyncio.sleep(freq)
+
+    async def getStatus(self):
+        address = self.address
+        myData={
+        }
+
+        try:
+            # devices = await check_addresses({address})
+            # #if len(devices) == 0:
+            #   #  sys.exit('Could not find the given device to connect to')
+            # device = devices[0]
+            device = build_device(self.address, self.name)
+
+            print(f'Connecting to {self.address}')
+            client = BluetoothClient(self.address)
+            #await client.run()
+            asyncio.get_running_loop().create_task(client.run())
+
+            # Wait for device connection
+            maxTries = 10
+            t = 0
+            while not client.is_ready:
+                print('Waiting for connection...')
+                await asyncio.sleep(1)
+                t = t +1
+                if t > 10:
+                    break
+                continue
+
+            # Poll device
+            for command in device.logging_commands:
+                commandResponse = await log_command(client, device, command)
+                for k,v in commandResponse.items():
+                    myData[k]=v
+            #print(myData)
+            return myData
+
+            #client.client.disconnect()
+
+        except Exception as e:
+            print(f"Unexpected error during command execution: {e}")

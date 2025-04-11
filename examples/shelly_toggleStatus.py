@@ -96,6 +96,7 @@ async def main(SPS: SmartPowerStation) -> None:
     for e in devices:
         try:
             sDevice = ShellyDevice(e[1]["address"], e[1]["name"])
+            print(sDevice)
             c = list(range(sDevice.channels))
             print('channels: ' + str(c))
             await sDevice.execute_command(10,c) 

@@ -103,7 +103,9 @@ async def main(SPS: SmartPowerStation) -> None:
         shDevice = await statusUpdate(d)
         if shDevice:
             print(shDevice.status)
-            await execute_command(shDevice, 10) 
+            c = list(range(shDevice.channels))
+            print('channels: ' + str(c))
+            await shDevice.execute_command(10,c) 
 
 async def execute_command(device: ShellyDevice, command: int) -> None:
 
@@ -187,34 +189,6 @@ async def statusUpdate(device):
             log_error(f"Error getting Shelly status: {e}")
     
     return savedDev['device']
-
-# get status
-async def getStatusShelly(device: ShellyDevice):
-
-    #id_input = 0
-    params = None
-    rpc_method='Shelly.GetStatus'
-    
-    retries = 4
-    for attempt in range(1, retries + 1):
-        try:
-            result = await device.call_rpc(rpc_method, params=params)
-            if result:
-                print(f"RPC Method '{rpc_method}' executed successfully. Result:")
-                result = device.parse_response(result)
-                return result
-            else:
-                print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
-                return None
-
-        except Exception as e:
-            print(f"Unexpected error during attempt {attempt} command execution: {e}")
-            if attempt <= retries:
-                print(f"Retrying in {2 * attempt} second...")
-                await asyncio.sleep(2 * attempt)
-            else:
-                print(f"All {retries} attempts failed.")
-                raise
 
 if __name__ == "__main__":
     # Suppress FutureWarnings

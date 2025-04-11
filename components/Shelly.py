@@ -29,7 +29,6 @@ from bleak.backends.scanner import AdvertisementData
 
 class ShellyDevice:
     """Represents a Shelly BLE device and handles RPC communication."""
-
     def __init__(self, address: str, name: str):
         self.address = address
         self.name = name
@@ -70,6 +69,8 @@ class ShellyDevice:
             return 1
         elif '2PM'.lower() in n.lower():
             return 2
+        else:
+            return 0
 
     # get status
     async def getStatus(self):

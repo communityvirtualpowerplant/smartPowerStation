@@ -18,11 +18,6 @@ app = Flask(__name__)
 # but could be removed for security purposes or to more easily enforce throttling without straining the Pi Zeros.
 CORS(app)  
 
-filePath = '/home/alex/data/'
-filePrefix = str(location) + '_'
-
-configFile = '../config/config.json'
-
 HTML = """
 <!DOCTYPE html>
 <html>
@@ -51,20 +46,12 @@ HTML = """
             <td>{{ row[3] }}</td>
         </tr>
         {% endfor %}
-
-        {% for row in data %}
-        <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td>
-        </tr>
-        {% endfor %}
     </table>
     <p>Auto-refreshes every 60 seconds</p>
 </body>
 </html>
 """
+
 # reads json config file and returns it as dict
 def getConfig(fn:str) -> dict:
     # Read data from a JSON file
@@ -75,7 +62,12 @@ def getConfig(fn:str) -> dict:
         self.log_error(f"Error during reading config file: {e}")
         return {}
 
+configFile = '../config/config.json'
 config = getConfig(configFile)
+
+filePath = '/home/alex/data/'
+filePrefix = str(config['location']) + '_'
+
 
 def getMostRecent():
     # Get all CSV files in the data/ directory

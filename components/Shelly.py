@@ -73,7 +73,7 @@ class ShellyDevice:
             return 0
 
     # get status
-    async def getStatus(self):
+    async def getStatus(self)-> dict:
 
         #id_input = 0
         params = None
@@ -101,7 +101,9 @@ class ShellyDevice:
                     raise
 
 
-    async def execute_command(self, command: int, channels: list) -> None:
+    async def execute_command(self, command: int, channels: list) -> list[dict]:
+        print(channels)
+        cR=[]
         for i in channels:
             print(i)
             id_input = 0
@@ -115,11 +117,13 @@ class ShellyDevice:
                     if result:
                         print(f"RPC Method '{rpc_method}' executed successfully. Result:")
                         result = self.parse_response(result)
-                        return result
+                        print(result)
+                        cR.append(result)
+                        break
                     else:
                         print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
-                        return None
-
+                        cR.append(True)
+                        break
                 except Exception as e:
                     print(f"Unexpected error during attempt {attempt} command execution: {e}")
                     if attempt <= retries:
@@ -128,6 +132,7 @@ class ShellyDevice:
                     else:
                         print(f"All {retries} attempts failed.")
                         raise
+            return cR
 
     async def call_rpc(
         self,

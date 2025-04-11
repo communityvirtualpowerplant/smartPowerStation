@@ -106,7 +106,7 @@ def list_csv_files():
     #fileName = filePrefix +str(datetime.date.today())+'.csv'
 
     # Get all CSV files in the data/ directory
-    file_pattern = os.path.join(filePath, f"{filePrefix}*.csv")
+    file_pattern = os.path.join(filePath, f"*.csv")
     files = sorted(glob.glob(file_pattern))
 
     # Return just the filenames (without full paths)

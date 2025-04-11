@@ -115,7 +115,7 @@ class ShellyDevice:
                     result = await self.call_rpc(rpc_method, params=params)
                     if result:
                         print(f"RPC Method '{rpc_method}' executed successfully. Result:")
-                        result = self.parse_response(result)
+                        #result = self.parse_response(result)
                         #print(result)
                         cR.append(result)
                         break

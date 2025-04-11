@@ -104,7 +104,7 @@ class Bluetti():
 
             # Poll device
             for command in device.logging_commands:
-                commandResponse = await log_command(client, device, command)
+                commandResponse = await self.log_command(client, device, command)
                 for k,v in commandResponse.items():
                     myData[k]=v
             #print(myData)

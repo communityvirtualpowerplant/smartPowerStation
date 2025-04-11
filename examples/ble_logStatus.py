@@ -254,18 +254,18 @@ async def statusUpdate(device):
 #     except Exception as e:
 #         print(f"Unexpected error during command execution: {e}")
 
-async def log_command(client: BluetoothClient, device: BluettiDevice, command: DeviceCommand):
-    response_future = await client.perform(command)
-    try:
-        response = cast(bytes, await response_future)
-        if isinstance(command, ReadHoldingRegisters):
-            body = command.parse_response(response)
-            parsed = device.parse(command.starting_address, body)
-            return parsed #print(parsed.keys())
-        #log_packet(log_file, response, command)
-    except (BadConnectionError, BleakError, ModbusError, ParseError) as err:
-        print(f'Got an error running command {command}: {err}')
-        #log_invalid(log_file, err, command)
+# async def log_command(client: BluetoothClient, device: BluettiDevice, command: DeviceCommand):
+#     response_future = await client.perform(command)
+#     try:
+#         response = cast(bytes, await response_future)
+#         if isinstance(command, ReadHoldingRegisters):
+#             body = command.parse_response(response)
+#             parsed = device.parse(command.starting_address, body)
+#             return parsed #print(parsed.keys())
+#         #log_packet(log_file, response, command)
+#     except (BadConnectionError, BleakError, ModbusError, ParseError) as err:
+#         print(f'Got an error running command {command}: {err}')
+#         #log_invalid(log_file, err, command)
 
 # def packageData(d, r, t):
 #     try:

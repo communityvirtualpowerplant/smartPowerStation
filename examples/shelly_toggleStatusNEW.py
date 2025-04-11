@@ -107,36 +107,6 @@ async def main(SPS: SmartPowerStation) -> None:
             print('channels: ' + str(c))
             await shDevice.execute_command(10,c) 
 
-async def execute_command(device: ShellyDevice, command: int) -> None:
-
-    for i in range(ShellyDevice.channels+1):
-        print(i)
-        id_input = 0
-        params = {"id": i}
-        #'Switch.Toggle'
-        rpc_method= device.commands[command]
-        
-        retries = 4
-        for attempt in range(1, retries + 1):
-            try:
-                result = await device.call_rpc(rpc_method, params=params)
-                if result:
-                    print(f"RPC Method '{rpc_method}' executed successfully. Result:")
-                    result = device.parse_response(result)
-                    return result
-                else:
-                    print(f"RPC Method '{rpc_method}' executed successfully. No data returned.")
-                    return None
-
-            except Exception as e:
-                print(f"Unexpected error during attempt {attempt} command execution: {e}")
-                if attempt <= retries:
-                    print(f"Retrying in {2 * attempt} second...")
-                    await asyncio.sleep(2 * attempt)
-                else:
-                    print(f"All {retries} attempts failed.")
-                    raise
-
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):
     filteredDevices = []
@@ -172,12 +142,11 @@ async def statusUpdate(device):
     bleDev = device[0]
     savedDev = device[1]
 
-    print("")
     if savedDev['manufacturer'] == 'shelly':
 
         savedDev['device'] = ShellyDevice(savedDev["address"], savedDev["name"])
         try:
-            result = await getStatusShelly(savedDev['device'])
+            result = await savedDev['device'].getStatus()
 
             if result:
                 print(f"RPC Method executed successfully. Result:")
@@ -188,7 +157,7 @@ async def statusUpdate(device):
         except Exception as e:
             log_error(f"Error getting Shelly status: {e}")
     
-    return savedDev['device']
+        return savedDev['device']
 
 if __name__ == "__main__":
     # Suppress FutureWarnings

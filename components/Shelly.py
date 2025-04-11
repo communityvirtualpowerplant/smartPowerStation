@@ -102,7 +102,6 @@ class ShellyDevice:
 
 
     async def execute_command(self, command: int, channels: list) -> list[dict]:
-        print(channels)
         cR=[]
         for i in channels:
             print(i)
@@ -117,7 +116,7 @@ class ShellyDevice:
                     if result:
                         print(f"RPC Method '{rpc_method}' executed successfully. Result:")
                         result = self.parse_response(result)
-                        print(result)
+                        #print(result)
                         cR.append(result)
                         break
                     else:
@@ -132,7 +131,7 @@ class ShellyDevice:
                     else:
                         print(f"All {retries} attempts failed.")
                         raise
-            return cR
+        return cR
 
     async def call_rpc(
         self,

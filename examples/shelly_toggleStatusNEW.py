@@ -105,7 +105,7 @@ async def main(SPS: SmartPowerStation) -> None:
             print(shDevice.status)
             c = list(range(shDevice.channels))
             print('channels: ' + str(c))
-            await shDevice.execute_command(10,c) 
+            print(await shDevice.execute_command(10,c))
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):

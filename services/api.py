@@ -26,7 +26,7 @@ HTML = """
     <meta http-equiv="refresh" content="60" />
     <style>
         body { font-family: sans-serif; margin: 2em; }
-        table { border-collapse: collapse; }
+        table { border-collapse: collapse; max-width:90%}
         td, th { padding: 0.5em; border: 1px solid #ccc; }
     </style>
 </head>

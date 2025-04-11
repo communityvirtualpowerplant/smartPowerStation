@@ -65,7 +65,7 @@ def getConfig(fn:str) -> dict:
 configFile = '../config/config.json'
 config = getConfig(configFile)
 
-filePath = '/home/alex/data/'
+filePath = '../data/'
 filePrefix = str(config['location']) + '_'
 
 
@@ -95,7 +95,7 @@ def index():
         rows = list(reader)#[-10:]  # last 10 readings
     return render_template_string(HTML, data=rows)
 
-@app.route("/api/discover")
+@app.route("/api/discoverSPS")
 def discover():
     return jsonify({'name': config['location']}), 200
 

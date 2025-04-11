@@ -18,7 +18,7 @@ app = Flask(__name__)
 # but could be removed for security purposes or to more easily enforce throttling without straining the Pi Zeros.
 CORS(app)  
 
-filePath = '/home/alex/smartPowerStation/data/'
+filePath = '/home/alex/data/'
 
 HTML = """
 <!DOCTYPE html>
@@ -48,6 +48,15 @@ HTML = """
             <td>{{ row[3] }}</td>
         </tr>
         {% endfor %}
+
+        {% for row in data %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+        </tr>
+        {% endfor %}
     </table>
     <p>Auto-refreshes every 60 seconds</p>
 </body>
@@ -66,14 +75,14 @@ def index():
 
 @app.route("/api/data")
 def get_csv_for_date():
-    date = request.args.get("date")
-    if not date:
-        return "Please provide a date using ?date=YYYY-MM-DD or ?date=now for most recent data", 400
+    file = request.args.get("file")
+    if not file:
+        return "Please provide file name in proper form (see api/files) or date=now for most recent data", 400
 
-    if date == 'now':
+    if file == 'now':
         pass
         try:
-            fileName = filePrefix +str(datetime.date.today())+'.csv'
+            fileName = file+'.csv'
             fullFilePath = filePath + fileName #os.path.join(fileName)
             df = pd.read_csv(fullFilePath)  # Update path as needed
 
@@ -87,17 +96,12 @@ def get_csv_for_date():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
     else:
-        # untested
-        # test = date.split('-')
-        # for i in test:
-        #     if type(i) != int:
-        #         return "Please provide a date using ?date=YYYY-MM-DD or use ?date=now for most recent data", 400
 
-        fileName = filePrefix +date+'.csv'
+        fileName = file+'.csv'
         fullFilePath = filePath + fileName #os.path.join(fileName)
 
         if not os.path.exists(fullFilePath):
-            return f"No data found for {date}", 404
+            return f"No data found for {file}", 404
 
         return send_file(fullFilePath, as_attachment=True, download_name=fileName)
 

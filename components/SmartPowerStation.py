@@ -12,6 +12,7 @@ class SmartPowerStation():
 		self.printInfo = True
 		self.printDebug = True
 		self.printError = True
+		self.dataFilePrefix = 'sps'
 
 	######### SETUP ###############
 

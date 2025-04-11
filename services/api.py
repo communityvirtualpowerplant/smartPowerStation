@@ -37,13 +37,16 @@ HTML = """
         View file list with /api/files
     </p>
     <table>
-        <tr><th>Timestamp</th><th>Temp (°C)</th><th>Temp (°F)</th><th>Humidity (%)</th></tr>
+        <tr>
+        {% for c in cols %}
+            <th>{{ c }}</th>
+        {% endfor %}
+        </tr>
         {% for row in data %}
         <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td>
+            {% for d in row %}
+                <td>{{ d }}</td>
+            {% endfor %}
         </tr>
         {% endfor %}
     </table>
@@ -90,9 +93,9 @@ def index():
     fileName = files[-1]
     with open(fileName, newline='') as f:
         reader = csv.reader(f)
-        next(reader)  # skip header
+        cols = next(reader)  # skip header
         rows = list(reader)#[-10:]  # last 10 readings
-    return render_template_string(HTML, data=rows)
+    return render_template_string(HTML, cols = cols, data=rows)
 
 @app.route("/api/discoverSPS")
 def discover():

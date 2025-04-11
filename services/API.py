@@ -7,10 +7,10 @@ import glob
 import json
 import pandas as pd
 
-with open("/home/case/CASE_sensor_network/rpi_zero_sensor/config.json") as f:
-    config = json.load(f)
+# with open("/home/case/CASE_sensor_network/rpi_zero_sensor/config.json") as f:
+#     config = json.load(f)
 
-deviceNum = config["sensor"]["number"]
+# deviceNum = config["sensor"]["number"]
 
 app = Flask(__name__)
 
@@ -18,8 +18,7 @@ app = Flask(__name__)
 # but could be removed for security purposes or to more easily enforce throttling without straining the Pi Zeros.
 CORS(app)  
 
-filePath = '/home/case/data/'
-filePrefix = 'sensor' + str(deviceNum) + '_'
+filePath = '/home/alex/smartPowerStation/data/'
 
 HTML = """
 <!DOCTYPE html>

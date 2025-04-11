@@ -1,5 +1,5 @@
 [Unit]
-Description=Run as service
+Description=Log data as service
 After=network.target
 Wants=network.target
 

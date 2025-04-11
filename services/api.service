@@ -1,0 +1,21 @@
+[Unit]
+Description=API for data as service
+After=network.target
+Wants=network.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+ExecStart=/home/alex/venv/bin/python -m /home/alex/smartPowerStation/services.api
+WorkingDirectory=/home/alex
+Restart=always
+RestartSec=5
+User=case
+# Hard memory limit (50MB)
+# MemoryMax=50M
+
+# Soft CPU limit (40% of 1 core)
+CPUQuota=40%
+
+[Install]
+WantedBy=multi-user.target

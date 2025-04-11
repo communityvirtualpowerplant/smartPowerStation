@@ -26,14 +26,14 @@ HTML = """
     <meta http-equiv="refresh" content="60" />
     <style>
         body { font-family: sans-serif; margin: 2em; }
-        table { border-collapse: collapse; max-width:90%}
+        table { border-collapse: collapse; max-width:90%;}
         td, th { padding: 0.5em; border: 1px solid #ccc; }
     </style>
 </head>
 <body>
-    <h1>Pi Zero W2 SHT31D Sensor Dashboard</h1>
+    <h1>Smart Power Station</h1>
     <p>
-        Download CSV file with /api/data?date=YYYY-MM-DD<br>
+        Download CSV file with /api/data?file=FILENAME_WITH_NO_SUFFIX<br>
         View file list with /api/files
     </p>
     <table>

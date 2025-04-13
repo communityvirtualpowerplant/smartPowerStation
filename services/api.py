@@ -26,7 +26,8 @@ HTML = """
     <meta http-equiv="refresh" content="60" />
     <style>
         body { font-family: sans-serif; margin: 2em;}
-        table { border-collapse: collapse; width:90%;}
+        .data-table{ width:90%; }
+        table { border-collapse: collapse;}
         td, th { padding: 0.5em; border: 1px solid #ccc; }
     </style>
 </head>
@@ -36,20 +37,22 @@ HTML = """
         Download CSV file with /api/data?file=FILENAME_WITH_NO_SUFFIX<br>
         View file list with /api/files
     </p>
-    <table>
-        <tr>
-        {% for c in cols %}
-            <th>{{ c }}</th>
-        {% endfor %}
-        </tr>
-        {% for row in data %}
-        <tr>
-            {% for d in row %}
-                <td>{{ d }}</td>
+    <div class='data-table'>
+        <table>
+            <tr>
+            {% for c in cols %}
+                <th>{{ c }}</th>
             {% endfor %}
-        </tr>
-        {% endfor %}
-    </table>
+            </tr>
+            {% for row in data %}
+            <tr>
+                {% for d in row %}
+                    <td>{{ d }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
     <p>Auto-refreshes every 60 seconds</p>
 </body>
 </html>

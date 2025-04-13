@@ -26,8 +26,8 @@ HTML = """
     <meta http-equiv="refresh" content="60" />
     <style>
         body { font-family: sans-serif; margin: 2em;}
-        .data-table{ width:90%; }
-        table { border-collapse: collapse;}
+        .data-table{ width:100%; }
+        table { border-collapse: collapse; table-layout:fixed; width: 100%; font-size:9px;}
         td, th { padding: 0.5em; border: 1px solid #ccc; }
     </style>
 </head>

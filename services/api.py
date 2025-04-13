@@ -28,7 +28,7 @@ HTML = """
         body { font-family: sans-serif; margin: 2em;}
         .data-table{ width:100%; }
         table { border-collapse: collapse; table-layout:fixed; width: 100%; font-size:9px;}
-        td, th { padding: 0.5em; border: 1px solid #ccc; }
+        td, th { padding: 0.5em; border: 1px solid #ccc; word-break: break-all;}
     </style>
 </head>
 <body>

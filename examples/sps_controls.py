@@ -43,8 +43,8 @@ if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)
 
     # Setup signal handlers for graceful shutdown
-    signal.signal(signal.SIGINT, handle_signal)
-    signal.signal(signal.SIGTERM, handle_signal)
+    signal.signal(signal.SIGINT, SPS.handle_signal)
+    signal.signal(signal.SIGTERM, SPS.handle_signal)
 
     try:
         asyncio.run(main(SPS))

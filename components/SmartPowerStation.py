@@ -41,8 +41,13 @@ class SmartPowerStation():
 		pass
 
 	# ============================
-	# Logging Helper
+	# Utilities
 	# ============================
+	def handle_signal(self, signal_num: int, frame: Any) -> None:
+	    """Handles termination signals for graceful shutdown."""
+	    self.log_info(f"Received signal {signal_num}, shutting down gracefully...")
+	    sys.exit(0)
+
 	def log_info(self, message: str) -> None:
 	    """Logs an info message."""
 	    logging.info(message)

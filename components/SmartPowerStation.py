@@ -1,6 +1,8 @@
 import json
 import subprocess
 import logging
+from typing import cast
+from typing import Any, Dict, Optional, Tuple, List
 
 class SmartPowerStation():
 	def __init__(self, conf: str):
@@ -17,7 +19,7 @@ class SmartPowerStation():
 	######### SETUP ###############
 
 	# reads json config file and returns it as dict
-	def getConfig(self, fn:str) -> dict:
+	def getConfig(self, fn:str) -> Any:
 		# Read data from a JSON file
 		try:
 			with open(fn, "r") as json_file:
@@ -30,7 +32,7 @@ class SmartPowerStation():
 				return {}
 
 	######### BLUETOOTH ############
-	def reset_bluetooth(self):
+	def reset_bluetooth(self) -> None:
 		try:
 			subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
 			subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
@@ -63,14 +65,14 @@ class SmartPowerStation():
 	    logging.debug(message)
 	    self.log_print(message, self.printDebug)
 
-	def log_print(self, message:str, b:bool):
+	def log_print(self, message:str, b:bool) -> None:
 	    if b:
 	        print(message)
 
 	# ============================
 	# Data
 	# ============================
-	def packageData(self, d, r, t):
+	def packageData(self, d, r, t) -> Dict:
 	    try:
 	        if d[1]['manufacturer'].lower() == 'bluetti':
 	            #print('bluetti!')

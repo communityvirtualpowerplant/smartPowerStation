@@ -43,7 +43,7 @@ class SmartPowerStation():
 			self.log_error(f"Bluetooth interface reset failed: {e}")
 
 	# get list of devices from device file, filtered by location
-	def getDevices(self, dF:str, location=self.Location:str)->list:
+	def getDevices(self, dF:str, location:str =self.Location)->list:
 
 		self.reset_bluetooth()
 

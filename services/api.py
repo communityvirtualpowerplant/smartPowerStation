@@ -58,7 +58,7 @@ HTML = """
 </html>
 """
 
-# reads json config file and returns it as dict
+# reads json and returns it as dict
 def getConfig(fn:str) -> dict:
     # Read data from a JSON file
     try:
@@ -70,6 +70,9 @@ def getConfig(fn:str) -> dict:
 
 configFile = '../config/config.json'
 config = getConfig(configFile)
+
+devicesFile = '../config/devices.json'
+devices = getConfig(devicesFile)
 
 filePath = '../data/'
 filePrefix = str(config['location']) + '_'
@@ -151,6 +154,11 @@ def list_csv_files():
     filenames = [os.path.basename(f) for f in files]
 
     return jsonify(filenames)
+
+# returns hardward names, locations, and channels
+@app.route("/api/system")
+def getSystem():
+    return devices
 
 @app.route("/api/disk")
 def get_disk_usage():

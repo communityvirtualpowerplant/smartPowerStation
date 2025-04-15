@@ -23,8 +23,11 @@ class SmartPowerStation():
 			with open(fn, "r") as json_file:
 				return json.load(json_file)
 		except Exception as e:
-			self.log_error(f"Error during reading config file: {e}")
-			return {}
+			self.log_error(f"Error during reading {fn} file: {e}")
+			if 'devices' in fn.lower():
+				return []
+			else:
+				return {}
 
 	######### BLUETOOTH ############
 	def reset_bluetooth(self):

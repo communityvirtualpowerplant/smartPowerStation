@@ -5,6 +5,8 @@ import signal
 import requests
 import json
 from components.SmartPowerStation import SmartPowerStation
+from typing import cast
+from typing import Any, Dict, Optional, Tuple, List
 
 eventUpcoming = False
 eventOngoing = False

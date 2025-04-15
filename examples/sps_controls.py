@@ -23,22 +23,22 @@ def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1):
         response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)
         return response
     except Exception as e:
-    	SPS.log_error(e)
+        SPS.log_error(e)
         return None
 
 def main(SPS):
 
-	rules = SPS.getConfig(rulesFile)
-	print(rules)
-	
-	while True:
-		print(send_get_request(URL, PORT, ENDPOINT))
+    rules = SPS.getConfig(rulesFile)
+    print(rules)
 
-		print('************ SLEEPING **************')
+    while True:
+        print(send_get_request(URL, PORT, ENDPOINT))
+
+        print('************ SLEEPING **************')
         await asyncio.sleep(60)
 
 if __name__ == "__main__":
-	SPS = SmartPowerStation(configFile)
+    SPS = SmartPowerStation(configFile)
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, handle_signal)

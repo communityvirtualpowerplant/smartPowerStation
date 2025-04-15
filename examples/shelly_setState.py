@@ -78,35 +78,37 @@ def handle_signal(signal_num: int, frame: Any) -> None:
 async def main(SPS: SmartPowerStation) -> None:
     SPS.reset_bluetooth()
 
-    location = SPS.location
-    print(location)
+    savedDevices = SPS.getDevices(deviceFile,SPS.location)
+    # location = SPS.location
+    # print(location)
 
-    scan_duration = 5
-    # Read data from a JSON file
+    # scan_duration = 5
+    # # Read data from a JSON file
+    # try:
+    #     with open(deviceFile, "r") as json_file:
+    #         savedDevices = json.load(json_file)
+    # except Exception as e:
+    #     log_error(f"Error during reading devices.json file: {e}")
+    #     savedDevices = []
+
+    # filteredEntries = []
+    # for entry in savedDevices:
+    #     if entry['location'] == location:
+    #         filteredEntries.append(entry)
+
     try:
-        with open(deviceFile, "r") as json_file:
-            savedDevices = json.load(json_file)
-    except Exception as e:
-        log_error(f"Error during reading devices.json file: {e}")
-        savedDevices = []
-
-    filteredEntries = []
-    for entry in savedDevices:
-        if entry['location'] == location:
-            filteredEntries.append(entry)
-
-    try:
-        devices = await scan_devices(scan_duration, filteredEntries)
+        #devices = await scan_devices(scan_duration, filteredEntries)
+        devices = await SPS.scan_devices(savedDevices)
     except Exception as e:
         log_error(f"Error during scanning: {e}")
         return
 
     if not devices:
-        log_error("No devices found. Exiting")
+        SPS.log_error("No devices found. Exiting")
         sys.exit(0)
 
     for d in devices:
-        print(d)
+        SPS.log_debug(d)
         # shDevice = await statusUpdate(d)
         # if shDevice:
         #     print(shDevice.status)
@@ -123,36 +125,36 @@ async def main(SPS: SmartPowerStation) -> None:
             except Exception as e:
                 log_error(f"Error setting state")
 
-# returns list of BLE objects and matching saved devices i.e. [BLE, saved]
-async def scan_devices(scan_duration: int, saved_devices: Dict):
-    filteredDevices = []
+# # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
+# async def scan_devices(scan_duration: int, saved_devices: Dict):
+#     filteredDevices = []
 
-    addressList = []
-    def discovery_handler(device: BLEDevice, advertisement_data: AdvertisementData):
-        # mf = ''
-        # notFound = 1
+#     addressList = []
+#     def discovery_handler(device: BLEDevice, advertisement_data: AdvertisementData):
+#         # mf = ''
+#         # notFound = 1
 
-        if device.name is None:
-            return
+#         if device.name is None:
+#             return
 
-        for sd in saved_devices:
-            #print(sd)
-            if device.address == sd['address'] and device.address not in addressList:    
-                print(device)
-                addressList.append(device.address)
-                filteredDevices.append([device,sd])
+#         for sd in saved_devices:
+#             #print(sd)
+#             if device.address == sd['address'] and device.address not in addressList:    
+#                 print(device)
+#                 addressList.append(device.address)
+#                 filteredDevices.append([device,sd])
 
-    log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
+#     log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
 
-    async with BleakScanner(adapter=bleAdapter, detection_callback=discovery_handler) as scanner:
-        await asyncio.sleep(scan_duration)
+#     async with BleakScanner(adapter=bleAdapter, detection_callback=discovery_handler) as scanner:
+#         await asyncio.sleep(scan_duration)
     
-    print(addressList)
+#     print(addressList)
 
-    # Some BLE chipsets (especially on Raspberry Pi) need a few seconds between scanning and connecting.
-    await asyncio.sleep(2)
+#     # Some BLE chipsets (especially on Raspberry Pi) need a few seconds between scanning and connecting.
+#     await asyncio.sleep(2)
     
-    return filteredDevices
+#     return filteredDevices
     
 if __name__ == "__main__":
     # Suppress FutureWarnings

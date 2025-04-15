@@ -15,6 +15,9 @@ class SmartPowerStation():
 		self.printDebug = True
 		self.printError = True
 		self.dataFilePrefix = 'sps'
+		self.shellySTR = 'Shelly'
+		self.bluettiSTR = ['AC180','AC2']
+		self.devices = []
 
 	######### SETUP ###############
 
@@ -39,8 +42,61 @@ class SmartPowerStation():
 		except subprocess.CalledProcessError as e:
 			self.log_error(f"Bluetooth interface reset failed: {e}")
 
-	def broadcastIP(self):
-		pass
+	# get list of devices from device file, filtered by location
+	def getDevices(self, dF:str, location=self.Location:str)->list:
+
+		self.reset_bluetooth()
+
+        self.log_debug(location)
+
+        # Read data from a JSON file
+        try:
+            with open(dF, "r") as json_file:
+                savedDevices = json.load(json_file)
+        except Exception as e:
+            log_error(f"Error during reading devices.json file: {e}")
+            savedDevices = []
+
+        filteredEntries = []
+        for entry in savedDevices:
+            if entry['location'] == location:
+                filteredEntries.append(entry)
+
+        self.devices=filteredEntries
+
+        return self.devices
+
+	# returns list of BLE objects and matching saved devices i.e. [BLE, saved]
+	async def scan_devices(self, saved_devices: Dict):
+	    filteredDevices = []
+        scan_duration = 5
+
+	    addressList = []
+	    def discovery_handler(device: BLEDevice, advertisement_data: AdvertisementData):
+	        # mf = ''
+	        # notFound = 1
+
+	        if device.name is None:
+	            return
+
+	        for sd in saved_devices:
+	            #print(sd)
+	            if device.address == sd['address'] and device.address not in addressList:    
+	                self.log_debug(device)
+	                addressList.append(device.address)
+	                filteredDevices.append([device,sd])
+
+	    self.log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
+
+	    async with BleakScanner(adapter=bleAdapter, detection_callback=discovery_handler) as scanner:
+	        await asyncio.sleep(scan_duration)
+	    
+	    self.log_debug(addressList)
+
+	    # Some BLE chipsets (especially on Raspberry Pi) need a few seconds between scanning and connecting.
+	    await asyncio.sleep(2)
+	    
+	    return filteredDevices
 
 	# ============================
 	# Utilities
@@ -72,6 +128,13 @@ class SmartPowerStation():
 	# ============================
 	# Data
 	# ============================
+	#Check if the timestamp is within the last 10 minutes.
+	def isRecent(ts, seconds=600)->bool
+		if isinstance(ts, str):
+			ts = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
+	    now = datetime.now()
+	    return now - ts <= timedelta(seconds)
+
 	def packageData(self, d, r, t) -> Dict:
 	    try:
 	        if d[1]['manufacturer'].lower() == 'bluetti':
@@ -114,3 +177,69 @@ class SmartPowerStation():
 	        print(e)
 
 	    return t
+
+    # ============================
+	# Control
+	# ============================
+
+	def gridToBattery(self, state: bool) -> None:
+	    SPS.reset_bluetooth()
+
+	    location = SPS.location
+	    print(location)
+
+	    scan_duration = 5
+	    # Read data from a JSON file
+	    try:
+	        with open(deviceFile, "r") as json_file:
+	            savedDevices = json.load(json_file)
+	    except Exception as e:
+	        log_error(f"Error during reading devices.json file: {e}")
+	        savedDevices = []
+
+	    filteredEntries = []
+	    for entry in savedDevices:
+	        if entry['location'] == location:
+	            filteredEntries.append(entry)
+
+	    try:
+	        devices = await scan_devices(scan_duration, filteredEntries)
+	    except Exception as e:
+	        log_error(f"Error during scanning: {e}")
+	        return
+
+	    if not devices:
+	        log_error("No devices found. Exiting")
+	        sys.exit(0)
+
+	    for d in devices:
+	        print(d)
+	        # shDevice = await statusUpdate(d)
+	        # if shDevice:
+	        #     print(shDevice.status)
+	        #     c = list(range(shDevice.channels))
+	        #     print(await shDevice.execute_command(10,c))
+	        bleDev = d[0]
+	        savedDev = d[1]
+
+	        if savedDev['manufacturer'] == 'shelly':
+
+	            shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
+	            try:
+	                await shDevice.setState(toState,0)
+	            except Exception as e:
+	                log_error(f"Error setting state")
+
+
+	# turn grid to load connection on or off
+	def gridToLoad(self, state: bool) -> None:
+	    # go through device list
+
+	    #grab device assigned to position 2
+
+
+	    #set state based on bool
+	    if state:
+	        #turn on
+	    else:
+	        #turn off 

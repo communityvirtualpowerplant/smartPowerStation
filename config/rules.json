@@ -1,0 +1,5 @@
+{
+    "battery":{"min":20,"cycle": "daily","description":"Don't let the battery deplete below 20%. Cycle the battery daily."},
+    "event":{"upcoming":0, "ongoing":0, "description":"0 indications not upcoming or ongoing. 1 indicates event is upcoming or ongoing."},
+    "status":{"lastFull":"","lastEmpty":"","direction":1, "Tracks the date and time of control mode changes."}
+}

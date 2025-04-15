@@ -3,6 +3,9 @@ import subprocess
 import logging
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
+from bleak import BleakClient, BleakError, BleakScanner
+from bleak.backends.device import BLEDevice
+from bleak.backends.scanner import AdvertisementData
 
 class SmartPowerStation():
     def __init__(self, conf: str):
@@ -43,7 +46,7 @@ class SmartPowerStation():
             self.log_error(f"Bluetooth interface reset failed: {e}")
 
     # get list of devices from device file, filtered by location
-    def getDevices(self, dF:str, location:str =self.Location)->list:
+    def getDevices(self, dF:str, location:str)->list:
 
         self.reset_bluetooth()
 
@@ -182,7 +185,7 @@ class SmartPowerStation():
     # Control
     # ============================
 
-    def gridToBattery(self, state: bool) -> None:
+    async def gridToBattery(self, state: bool) -> None:
         SPS.reset_bluetooth()
 
         location = SPS.location
@@ -232,7 +235,7 @@ class SmartPowerStation():
 
 
     # turn grid to load connection on or off
-    def gridToLoad(self, state: bool) -> None:
+    async def gridToLoad(self, state: bool) -> None:
         # go through device list
 
         #grab device assigned to position 2

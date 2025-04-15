@@ -32,7 +32,7 @@ deviceFile = '../config/devices.json'
 configFile = '../config/config.json'
 
 #changed based on hardware
-bleAdapter = "hci0"
+# bleAdapter = "hci0"
 
 #if an arg has been passed
 if len(sys.argv) > 1:

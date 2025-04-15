@@ -21,6 +21,7 @@ class SmartPowerStation():
         self.shellySTR = 'Shelly'
         self.bluettiSTR = ['AC180','AC2']
         self.devices = []
+        self.bleAdapter = "hci0" #changed based on hardware
 
     ######### SETUP ###############
 
@@ -91,7 +92,7 @@ class SmartPowerStation():
 
         self.log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
 
-        async with BleakScanner(adapter=bleAdapter, detection_callback=discovery_handler) as scanner:
+        async with BleakScanner(adapter=self.bleAdapter, detection_callback=discovery_handler) as scanner:
             await asyncio.sleep(scan_duration)
         
         self.log_debug(addressList)

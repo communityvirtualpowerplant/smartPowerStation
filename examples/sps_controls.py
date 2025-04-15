@@ -83,7 +83,7 @@ async def main(SPS) -> None:
                 rules['status']['lastEmpty']== datetime.now()
                 rules['status']['direction']==1 #set to charge
 
-        setMode(rules['status']['direction'])
+        #setMode(rules['status']['direction'])
 
     try:
         devices = await scan_devices(scan_duration, filteredEntries)

@@ -129,7 +129,7 @@ class SmartPowerStation():
     # Data
     # ============================
     #Check if the timestamp is within the last 10 minutes.
-    def isRecent(ts, seconds=600)->bool
+    def isRecent(ts, seconds=600)->bool:
         if isinstance(ts, str):
             ts = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
         now = datetime.now()
@@ -241,5 +241,7 @@ class SmartPowerStation():
         #set state based on bool
         if state:
             #turn on
+            pass
         else:
             #turn off 
+            pass

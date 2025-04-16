@@ -86,10 +86,10 @@ async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
                         SPS.log_error(f"Error setting state")
 
                 if savedDev['relay1'] in [1,2,3]:
-                    SPS.log_debug('trying to set relay 1')
+                    SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
                     trySetState(assign[savedDev['relay1'],0])
                 if savedDev['relay2'] in [1,2,3]:
-                    SPS.log_debug('trying to set relay 2')
+                    SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
                     trySetState(assign[savedDev['relay2'],1])
 
         writeMode(assign)

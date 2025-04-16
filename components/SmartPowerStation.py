@@ -82,9 +82,9 @@ class SmartPowerStation():
 
         #filter by position
         for entry in saved_devices:
-            if entry['relay1'] == assignment['pos']:
+            if entry['relay1'] == assignment[0]['pos']:
                 filteredEntries.append(entry)
-            elif entry['relay2'] == assignment['pos']:
+            elif entry['relay2'] == assignment[0]['pos']:
                 filteredEntries.append(entry)
         return filteredEntries
 

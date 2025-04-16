@@ -76,7 +76,7 @@ async def setMode(mode: int, SPS=SPS)-> Any:
 
                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
-                def trySetState(tostate,ch):
+                async def trySetState(tostate,ch):
                     try:
                         # set relay state
                         await shDevice.setState(toState,ch)

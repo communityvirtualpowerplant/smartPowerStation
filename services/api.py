@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, send_file, abort, jsonify
+from flask import Flask, render_template, request, send_file, abort, jsonify
 from flask_cors import CORS
 import csv
 import datetime
@@ -29,7 +29,7 @@ def getConfig(fn:str) -> dict:
         with open(fn, "r") as json_file:
             return json.load(json_file)
     except Exception as e:
-        self.log_error(f"Error during reading config file: {e}")
+        print(f"Error during reading config file: {e}")
         return {}
 
 configFile = '../config/config.json'
@@ -65,7 +65,7 @@ def index():
         reader = csv.reader(f)
         cols = next(reader)  # skip header
         rows = list(reader)#[-10:]  # last 10 readings
-    return render_template_string(data.html, cols = cols, data=rows)
+    return render_template('data.html', cols = cols, data=rows)
 
 @app.route("/api/discoverSPS")
 def discover():

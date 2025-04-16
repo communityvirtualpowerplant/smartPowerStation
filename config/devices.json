@@ -6,8 +6,8 @@
         "rssi": -30,
         "timestamp": "2025-03-31T21:22:49.313183",
         "location": "home",
-        "ch1": "",
-        "ch2": ""
+        "relay1": "",
+        "relay2": ""
     },
     {
         "name": "Shelly1PMG3-5432045886C8",
@@ -16,8 +16,9 @@
         "rssi": -31,
         "timestamp": "2025-04-09T19:40:57.003678",
         "location": "CASE",
-        "ch1": 1,
-        "ch2": ""
+        "role":"relay",
+        "relay1": 1,
+        "relay2": ""
     },
     {
         "name": "AC1802339003249506",
@@ -26,8 +27,9 @@
         "rssi": -43,
         "timestamp": "2025-04-09T19:40:58.689538",
         "location": "CASE",
-        "ch1": "ps",
-        "ch2": ""
+        "role":"ps",
+        "relay1": "",
+        "relay2": ""
     },
     {
         "name": "Shelly2PMG3-34CDB0770E28",
@@ -36,8 +38,8 @@
         "rssi": -48,
         "timestamp": "2025-03-31T21:22:47.419844",
         "location": "home",
-        "ch1": 1,
-        "ch2": 2
+        "relay1": 1,
+        "relay2": 2
     },
     {
         "name": "ShellyPlus1PM-B8D61A8897D4",
@@ -46,7 +48,7 @@
         "rssi": -53,
         "timestamp": "2025-04-09T19:40:58.097875",
         "location": "CASE",
-        "ch1": 2,
-        "ch2": ""
+        "relay1": 2,
+        "relay2": ""
     }
 ]

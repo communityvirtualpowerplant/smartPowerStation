@@ -77,39 +77,41 @@ async def main(SPS: SmartPowerStation) -> None:
 
     savedDevices = SPS.getDevices(deviceFile,SPS.location)
 
-    assign = {"ch1": 1, "state":toState}
+    assign = {"pos": 1, "state":toState}
 
     SPS.log_debug(assign.keys())
     savedDevices = SPS.filterDevices(savedDevices, assign)
 
-    try:
-        #devices = await scan_devices(scan_duration, filteredEntries)
-        devices = await SPS.scan_devices(savedDevices)
-    except Exception as e:
-        log_error(f"Error during scanning: {e}")
-        return
+    if len(savedDevices) >= 1:
+        try:
+            #devices = await scan_devices(scan_duration, filteredEntries)
+            devices = await SPS.scan_devices(savedDevices)
+        except Exception as e:
+            log_error(f"Error during scanning: {e}")
+            return
 
-    if not devices:
-        SPS.log_error("No devices found. Exiting")
-        sys.exit(0)
+        if not devices:
+            SPS.log_error("No devices found. Exiting")
+            sys.exit(0)
 
-    for d in devices:
-        SPS.log_debug(d)
-        # shDevice = await statusUpdate(d)
-        # if shDevice:
-        #     print(shDevice.status)
-        #     c = list(range(shDevice.channels))
-        #     print(await shDevice.execute_command(10,c))
-        bleDev = d[0]
-        savedDev = d[1]
+        for d in devices:
+            SPS.log_debug(d)
+            bleDev = d[0]
+            savedDev = d[1]
 
-        if savedDev['manufacturer'] == 'shelly':
+            if savedDev['manufacturer'] == 'shelly':
 
-            shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
-            try:
-                await shDevice.setState(toState,0)
-            except Exception as e:
-                SPS.log_error(f"Error setting state")
+                shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
+
+                if savedDev['relay1']==assign['pos']:
+                    r =1 
+                elif savedDev['relay2']==assign['pos']:
+                    r =2
+
+                try:
+                    await shDevice.setState(toState,r)
+                except Exception as e:
+                    SPS.log_error(f"Error setting state")
     
 if __name__ == "__main__":
     # Suppress FutureWarnings

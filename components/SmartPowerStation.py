@@ -79,9 +79,11 @@ class SmartPowerStation():
 
         ch = list(assignment.keys())[0]
 
-        #filter by location
+        #filter by position
         for entry in saved_devices:
-            if entry[ch] == assignment[ch]:
+            if entry['relay1'] == assignment['pos']:
+                filteredEntries.append(entry)
+            elif entry['relay2'] == assignment['pos']:
                 filteredEntries.append(entry)
         return filteredEntries
 

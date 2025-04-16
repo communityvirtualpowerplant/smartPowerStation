@@ -143,12 +143,11 @@ function drawSystem(data) {
     stroke(200, 150, 255);
     strokeWeight(6);
     if (posOne > 0){
- 
-    } else if (posThree > 0){ 
       angleS = 0
-      angleE = HALF_PI
-      //angleE = 0
-      //angleS = PI+HALF_PI
+      angleE = HALF_PI 
+    } else if (posThree > 0){ 
+      angleE = 0
+      angleS = PI+HALF_PI
     }
     arc(500, centerH, 40, 40, angleS,angleE);
     stroke(0)

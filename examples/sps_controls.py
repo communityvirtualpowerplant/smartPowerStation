@@ -8,6 +8,7 @@ from components.SmartPowerStation import SmartPowerStation
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from datetime import datetime
+from components.Shelly import ShellyDevice
 
 eventUpcoming = False
 eventOngoing = False
@@ -47,7 +48,7 @@ async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
     SPS.reset_bluetooth()
 
     # get saved devicecs, filtered by location
-    savedDevices = SPS.getDevices(deviceFile,SPS.location)
+    savedDevices = SPS.getDevices(devicesFile,SPS.location)
 
     # filter devices by role
     filteredDevices = []
@@ -86,14 +87,14 @@ async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
 
                 if savedDev['relay1'] in [1,2,3]:
                     SPS.log_debug('trying to set relay 1')
-                    trySetState(assign[savedDev['relay1'],1])
-                if savedDev['relay2'] in [1,2,3]:
-                    SPS.log_debug('trying to set relay 1')
                     trySetState(assign[savedDev['relay1'],0])
+                if savedDev['relay2'] in [1,2,3]:
+                    SPS.log_debug('trying to set relay 2')
+                    trySetState(assign[savedDev['relay2'],1])
 
-        saveMode(assign)
+        writeMode(assign)
 
-def writeMode():
+def writeMode(a):
     pass
 
 async def main(SPS) -> None:
@@ -121,16 +122,16 @@ async def main(SPS) -> None:
         if  (rules['event']['upcoming'] == 0) and (rules['event']['ongoing'] == 0):
             if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] == 1):
                 toMode = 5
-                SPS.log_debug(f'Mode changed to {toMode} from {rules['status']['mode']}.')
+                SPS.log_debug(f"Mode changed to {toMode} from {rules['status']['mode']}.")
                 lastFull== datetime.now()
                 rules['status']['mode']==toMode #set to discharge
             elif (now['powerstation_percentage'] <= 20) and (rules['status']['mode'] == 5):
                 toMode = 1
-                SPS.log_debug(f'Mode changed to {toMode} from {rules['status']['mode']}.')
+                SPS.log_debug(f"Mode changed to {toMode} from {rules['status']['mode']}.")
                 lastEmpty== datetime.now()
                 rules['status']['mode']==toMode #set to charge
             else:
-                SPS.log_debug(f'Mode {rules['status']['mode']} not changed.')
+                SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
 
         await setMode(rules['status']['mode'],SPS)
         print('************ SLEEPING **************')

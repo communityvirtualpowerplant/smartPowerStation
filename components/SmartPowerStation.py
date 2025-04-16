@@ -74,7 +74,7 @@ class SmartPowerStation():
         return self.devices
 
     #filter by assignment
-    def filterDevices(self, saved_devices:list[Dict], assignment:Dict)->list[Dict]:
+    def filterDevices(self, saved_devices:list[Dict], assignment:list[Dict])->list[Dict]:
         filteredEntries = []
 
         ch = list(assignment.keys())[0]

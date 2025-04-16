@@ -75,16 +75,16 @@ def handle_signal(signal_num: int, frame: Any) -> None:
 async def main(SPS: SmartPowerStation) -> None:
     SPS.reset_bluetooth()
 
+    assign = [{"pos": 1, "state":toState}]
+
+    # get saved devicecs, filtered by location
     savedDevices = SPS.getDevices(deviceFile,SPS.location)
-
-    assign = {"pos": 1, "state":toState}
-
-    SPS.log_debug(assign.keys())
+    # filter devices list by assigned position
     savedDevices = SPS.filterDevices(savedDevices, assign)
 
     if len(savedDevices) >= 1:
         try:
-            #devices = await scan_devices(scan_duration, filteredEntries)
+            # scan devices to get BLE object
             devices = await SPS.scan_devices(savedDevices)
         except Exception as e:
             log_error(f"Error during scanning: {e}")
@@ -99,15 +99,18 @@ async def main(SPS: SmartPowerStation) -> None:
             bleDev = d[0]
             savedDev = d[1]
 
+            # filter by shelly device
             if savedDev['manufacturer'] == 'shelly':
 
                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
+                # set ID based on position
                 if savedDev['relay1']==assign['pos']:
                     r =0 
                 elif savedDev['relay2']==assign['pos']:
                     r =1
                 try:
+                    # set relay state
                     await shDevice.setState(toState,r)
                 except Exception as e:
                     SPS.log_error(f"Error setting state")

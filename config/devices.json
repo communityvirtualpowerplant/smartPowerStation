@@ -6,6 +6,7 @@
         "rssi": -30,
         "timestamp": "2025-03-31T21:22:49.313183",
         "location": "home",
+        "role":"ps",
         "relay1": "",
         "relay2": ""
     },
@@ -38,6 +39,7 @@
         "rssi": -48,
         "timestamp": "2025-03-31T21:22:47.419844",
         "location": "home",
+        "role":"relay",
         "relay1": 1,
         "relay2": 2
     },
@@ -48,6 +50,7 @@
         "rssi": -53,
         "timestamp": "2025-04-09T19:40:58.097875",
         "location": "CASE",
+        "role":"relay",
         "relay1": 2,
         "relay2": ""
     }

@@ -30,36 +30,65 @@ def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
         return None
 
 def setMode(mode: int, SPS=SPS)-> Any:
-    # reset bluetooth
-
-    filteredEntries = SPS.devices
-
-    try:
-        devices = await scan_devices(scan_duration, filteredEntries)
-    except Exception as e:
-        log_error(f"Error during scanning: {e}")
-        return
-
-    if not devices:
-        SPS.log_error("No devices found. Exiting")
-        sys.exit(0)
-
-    for d in devices:
-        SPS.log_debug(d)
-        bleDev = d[0]
-        savedDev = d[1]
-
-        if savedDev['manufacturer'] == 'shelly':
-
-            shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
-            try:
-                await shDevice.setState(toState,0)
-            except Exception as e:
-                SPS.log_error(f"Error setting state")
-
     if mode == 1:
+        assign = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
+    elif mode == 2:
+        assign = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
+    elif mode == 3:
+        assign = {1:0,2:1,3:1}
+    elif mode == 4:
+        assign = {1:0,2:1,3:0}
+    elif mode == 5:
+        assign = {1:0,2:0,3:1}
+    elif mode == 6:
+        assign = {1:0,2:0,3:0}
 
-    elif mode == -1:
+    SPS.reset_bluetooth()
+
+    # get saved devicecs, filtered by location
+    savedDevices = SPS.getDevices(deviceFile,SPS.location)
+
+    # filter devices by role
+    filteredDevices = []
+    for entry in savedDevices:
+        if entry['role'] == 'relay':
+            filteredDevices.append(entry)
+
+    if len(filteredDevices) >= 1:
+        try:
+            # scan devices to get BLE object
+            devices = await SPS.scan_devices(filteredDevices)
+        except Exception as e:
+            log_error(f"Error during scanning: {e}")
+            return
+
+        if not devices:
+            SPS.log_error("No devices found. Exiting")
+            sys.exit(0)
+
+        for d in devices:
+            SPS.log_debug(d)
+            bleDev = d[0]
+            savedDev = d[1]
+
+            # filter by shelly device
+            if savedDev['manufacturer'] == 'shelly':
+
+                shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
+
+                def trySetState(tostate,ch):
+                    try:
+                        # set relay state
+                        await shDevice.setState(toState,ch)
+                    except Exception as e:
+                        SPS.log_error(f"Error setting state")
+
+                if savedDev['relay1'] in [1,2,3]:
+                    SPS.log_debug('trying to set relay 1')
+                    trySetState(assign[savedDev['relay1'],1])
+                if savedDev['relay2'] in [1,2,3]:
+                    SPS.log_debug('trying to set relay 1')
+                    trySetState(assign[savedDev['relay1'],0])
 
 async def main(SPS) -> None:
 
@@ -78,42 +107,12 @@ async def main(SPS) -> None:
         if  (rules['event']['eventUpcoming'] == 0) and (rules['event']['eventOngoing'] == 0)
             if (now['powerstation_percentage'] == 100) and (rules['status']['direction'] == 1):
                 rules['status']['lastFull']== datetime.now()
-                rules['status']['direction']==-1 #set to discharge
+                rules['status']['mode']==5 #set to discharge
             elif (now['powerstation_percentage'] <= 20) and (rules['status']['direction'] == -1):
                 rules['status']['lastEmpty']== datetime.now()
-                rules['status']['direction']==1 #set to charge
+                rules['status']['mode']==1 #set to charge
 
-        #setMode(rules['status']['direction'])
-
-    try:
-        devices = await scan_devices(scan_duration, filteredEntries)
-    except Exception as e:
-        log_error(f"Error during scanning: {e}")
-        return
-
-    if not devices:
-        log_error("No devices found. Exiting")
-        sys.exit(0)
-
-    for d in devices:
-        print(d)
-        # shDevice = await statusUpdate(d)
-        # if shDevice:
-        #     print(shDevice.status)
-        #     c = list(range(shDevice.channels))
-        #     print(await shDevice.execute_command(10,c))
-        bleDev = d[0]
-        savedDev = d[1]
-
-        if savedDev['manufacturer'] == 'shelly':
-
-            shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
-            try:
-                await shDevice.setState(toState,0)
-            except Exception as e:
-                log_error(f"Error setting state")
-
-
+        setMode(rules['status']['mode'])
         print('************ SLEEPING **************')
         await asyncio.sleep(60)
 

@@ -66,7 +66,7 @@ class SmartPowerStation():
 
         return self.devices
 
-    def writeDevices(self, data:list[Dict], fn:str)-> None:
+    def writeJSON(self, data:Any, fn:str)-> None:
         # Save data to a JSON file
         try:
             with open(fn, "w") as json_file:

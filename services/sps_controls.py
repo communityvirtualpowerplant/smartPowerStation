@@ -92,10 +92,8 @@ async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
                     await trySetState(assign[savedDev['relay2']],1)
 
-        writeMode(assign)
-
-def writeMode(a):
-    pass
+def writeMode(data):
+    SPS.writeJSON(d,rulesFile)
 
 async def main(SPS) -> None:
 
@@ -132,6 +130,8 @@ async def main(SPS) -> None:
                 rules['status']['mode']=toMode #set to charge
             else:
                 SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
+
+        writeMode(rules)
 
         await setMode(rules['status']['mode'],SPS)
         print('************ SLEEPING **************')

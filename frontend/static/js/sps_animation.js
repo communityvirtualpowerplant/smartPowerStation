@@ -1,12 +1,31 @@
 function setup() {
   let canvas = createCanvas(700, 500);
   canvas.parent('statusCanvasContainer'); // Attach to the specific div
+
+}
+
+function getData(){
+  fetch('/api/data?file=now')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not OK');
+      }
+      return response.json(); // or response.text() if it's plain text
+    })
+    .then(data => {
+      console.log('Data received:', data);
+      drawSystem(data);
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch:', error);
+    });
 }
 
 function draw() {
   background(220);
-  drawSystem();
+  //drawSystem();
   //animateResponse();
+  setTimeout(getData(),60000);
 }
 
 function drawSystem() {

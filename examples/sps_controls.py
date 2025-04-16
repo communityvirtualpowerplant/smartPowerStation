@@ -104,7 +104,7 @@ async def main(SPS) -> None:
             SPS.log_debug('data is fresh')
 
         #ensure there isn't an ongoing or upcoming event
-        if  (rules['event']['eventUpcoming'] == 0) and (rules['event']['eventOngoing'] == 0)
+        if  (rules['event']['eventUpcoming'] == 0) and (rules['event']['eventOngoing'] == 0):
             if (now['powerstation_percentage'] == 100) and (rules['status']['direction'] == 1):
                 rules['status']['lastFull']== datetime.now()
                 rules['status']['mode']==5 #set to discharge

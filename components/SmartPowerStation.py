@@ -39,11 +39,11 @@ class SmartPowerStation():
                 return []
             else:
                 return {}
-	
-	# get list of saved devices from device file, filtered by location
+    
+    # get list of saved devices from device file, filtered by location
     def getDevices(self, dF:str, location:Optional[str] = None)->list[Dict]:
-    	if location is None:
-        	location = self.location
+        if location is None:
+            location = self.location
 
         self.log_debug(location)
 
@@ -67,14 +67,14 @@ class SmartPowerStation():
         return self.devices
 
     def writeDevices(self, data:list[Dict], fn:str)-> None:
-	    # Save data to a JSON file
-	    try:
-		    with open(fn, "w") as json_file:
-		        json.dump(data, json_file, indent=4)
+        # Save data to a JSON file
+        try:
+            with open(fn, "w") as json_file:
+                json.dump(data, json_file, indent=4)
 
-		    print(f"JSON file saved successfully at {fn}")
-		except Exception as e:
-			self.log_error(f"Error during saving {fn} file: {e}")
+            print(f"JSON file saved successfully at {fn}")
+        except Exception as e:
+            self.log_error(f"Error during saving {fn} file: {e}")
 
     ######### BLUETOOTH ############
     def reset_bluetooth(self) -> None:

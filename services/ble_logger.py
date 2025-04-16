@@ -84,19 +84,21 @@ async def main(SPS: SmartPowerStation) -> None:
         print(location)
 
         scan_duration = 5
-        # Read data from a JSON file
-        try:
-            with open(deviceFile, "r") as json_file:
-                savedDevices = json.load(json_file)
-        except Exception as e:
-            log_error(f"Error during reading devices.json file: {e}")
-            savedDevices = []
+        
+        # # Read data from a JSON file
+        # try:
+        #     with open(deviceFile, "r") as json_file:
+        #         savedDevices = json.load(json_file)
+        # except Exception as e:
+        #     log_error(f"Error during reading devices.json file: {e}")
+        #     savedDevices = []
 
-        filteredEntries = []
-        for entry in savedDevices:
-            if entry['location'] == location:
-                filteredEntries.append(entry)
-
+        # filteredEntries = []
+        # for entry in savedDevices:
+        #     if entry['location'] == location:
+        #         filteredEntries.append(entry)
+        filteredEntries = SPS.getDevices(deviceFile)
+        
         try:
             devices = await scan_devices(scan_duration, filteredEntries)
         except Exception as e:

@@ -48,7 +48,7 @@ async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
     SPS.reset_bluetooth()
 
     # get saved devicecs, filtered by location
-    savedDevices = SPS.getDevices(devicesFile,SPS.location)
+    savedDevices = SPS.getDevices(devicesFile)
 
     # filter devices by role
     filteredDevices = []
@@ -138,7 +138,7 @@ async def main(SPS) -> None:
         await asyncio.sleep(60)
 
 if __name__ == "__main__":
-    SPS = SmartPowerStation(configFile, devicesFile)
+    SPS = SmartPowerStation(configFile)
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, SPS.handle_signal)

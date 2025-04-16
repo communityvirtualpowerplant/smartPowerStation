@@ -39,19 +39,9 @@ class SmartPowerStation():
                 return []
             else:
                 return {}
-
-    ######### BLUETOOTH ############
-    def reset_bluetooth(self) -> None:
-        try:
-            subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
-            subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
-        except subprocess.CalledProcessError as e:
-            self.log_error(f"Bluetooth interface reset failed: {e}")
-
-    # get list of saved devices from device file, filtered by location
-    def getDevices(self, dF:str, location:str)->list[Dict]:
-
-        self.reset_bluetooth()
+	
+	# get list of saved devices from device file, filtered by location
+    def getDevices(self, dF:str, location=self.location:str)->list[Dict]:
 
         self.log_debug(location)
 
@@ -74,19 +64,23 @@ class SmartPowerStation():
 
         return self.devices
 
-    # #filter by position assignment
-    # def filterDevices(self, saved_devices:list[Dict], assignment:list[Dict])->list[Dict]:
-    #     filteredEntries = []
+    def writeDevices(self, data:list[Dict], fn:str)-> None:
+	    # Save data to a JSON file
+	    try:
+		    with open(fn, "w") as json_file:
+		        json.dump(data, json_file, indent=4)
 
-    #     #ch = list(assignment[0].keys())[0]
+		    print(f"JSON file saved successfully at {fn}")
+		except Exception as e:
+			self.log_error(f"Error during saving {fn} file: {e}")
 
-    #     #filter by position
-    #     for entry in saved_devices:
-    #         if entry['relay1'] == assignment[0]['pos']:
-    #             filteredEntries.append(entry)
-    #         elif entry['relay2'] == assignment[0]['pos']:
-    #             filteredEntries.append(entry)
-    #     return filteredEntries
+    ######### BLUETOOTH ############
+    def reset_bluetooth(self) -> None:
+        try:
+            subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
+            subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
+        except subprocess.CalledProcessError as e:
+            self.log_error(f"Bluetooth interface reset failed: {e}")
 
     # scans for BLE devices and filters them by the saved device list (already filtered by location)
     # returns list of BLE objects and matching saved devices i.e. [BLE, saved]

@@ -41,7 +41,7 @@ function drawSystem(data) {
   let batCenterX = width/2
   let batHeight = 75
   let batCenterY = height/2-batHeight*1.25;
-  let batP=data['powerstation_percentage']
+  let batP=data['powerstation_percentage']*0.01
   let batH = 160
   let relay1H = batCenterY
   let smCenterY = height/2+batHeight*1.25;

@@ -1,4 +1,4 @@
-setInterval(getData(),60000);
+setInterval(()=>{getData()},60000);
 
 function setup() {
   let canvas = createCanvas(700, 500);

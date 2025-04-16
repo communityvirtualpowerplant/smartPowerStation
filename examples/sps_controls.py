@@ -7,7 +7,7 @@ import json
 from components.SmartPowerStation import SmartPowerStation
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
-from datetime import datetime, timedelta
+from datetime import datetime
 
 eventUpcoming = False
 eventOngoing = False

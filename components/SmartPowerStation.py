@@ -41,7 +41,9 @@ class SmartPowerStation():
                 return {}
 	
 	# get list of saved devices from device file, filtered by location
-    def getDevices(self, dF:str, location=self.location:str)->list[Dict]:
+    def getDevices(self, dF:str, location:Optional[str] = None)->list[Dict]:
+    	if location is None:
+        	location = self.location
 
         self.log_debug(location)
 

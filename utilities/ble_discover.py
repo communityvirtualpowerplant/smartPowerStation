@@ -85,6 +85,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
         # Exclude devices with weak signal
         # if advertisement_data.rssi < -80:
         #     return
+        print('found device:')
         print(device)
         
         #update rssi and timestamp if device is already known

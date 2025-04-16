@@ -133,9 +133,9 @@ class ShellyDevice:
         #print('channel: ' + str(channel))
 
         if channel == 0:
-            o = bool(s[channel-1]['output'])
+            o = bool(s[channel]['output'])
         else:
-            o = bool(s[channel-1]['output'])
+            o = bool(s[channel]['output'])
 
         if o != bool(state):
             print('changing state!')

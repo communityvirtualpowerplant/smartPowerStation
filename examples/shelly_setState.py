@@ -104,10 +104,9 @@ async def main(SPS: SmartPowerStation) -> None:
                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
                 if savedDev['relay1']==assign['pos']:
-                    r =1 
+                    r =0 
                 elif savedDev['relay2']==assign['pos']:
-                    r =2
-
+                    r =1
                 try:
                     await shDevice.setState(toState,r)
                 except Exception as e:

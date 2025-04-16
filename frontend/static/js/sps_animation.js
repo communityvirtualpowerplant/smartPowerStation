@@ -45,6 +45,11 @@ function drawSystem(data) {
   let batH = 160
   let relay1H = batCenterY
   let smCenterY = height/2+batHeight*1.25;
+  let gridV = data['relay1_voltage']
+  let posOne =data['relay1_power']
+  let posTwo = data['relay2_power']
+  let posThree = data['powerstation_outputWAC']
+  let loadW = posThree;
 
   // Draw wires and connections
   drawWire([[100, centerH, 200, centerH],[200, centerH, 200, batCenterY],[200, batCenterY, batCenterX-batWidth/2, batCenterY]],true); // Grid to battery
@@ -57,14 +62,12 @@ function drawSystem(data) {
   fill(150);
   circle(90, centerH, 20); // Grid Source Box
   fill(0);
-  let gridV = 120
   underText("Grid\n"+ gridV +" VAC", 90, centerH+20);
   
   // Draw load
   fill(150);
   circle(600, centerH, 20); // Grid Source Box
   fill(0);
-  let loadW = 23
   underText("Load\n" +loadW +" Watts", 600, centerH+20);
  
   // Draw battery system
@@ -84,7 +87,7 @@ function drawSystem(data) {
   rectMode(CENTER);
   fill(255)
   rect(200, batCenterY, 10,10); // Battery Box
-  leftText("130W", 190, batCenterY);
+  leftText(posTwo +"W", 190, batCenterY);
   fill(200)
   triangle(195, batCenterY+5, 200, batCenterY-5, 205, batCenterY+5);
 
@@ -92,7 +95,7 @@ function drawSystem(data) {
   rectMode(CENTER);
   fill(255)
   rect(200, smCenterY, 10,10); // Battery Box
-  leftText("0W", 190, smCenterY);
+  leftText(posOne + "W", 190, smCenterY);
   fill(200)
   triangle(195, smCenterY+5, 200, smCenterY-5, 205, smCenterY+5);
 

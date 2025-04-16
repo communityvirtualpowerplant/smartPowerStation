@@ -26,7 +26,7 @@ function getData(){
 //   //animateResponse();
 // }
 
-function drawSystem() {
+function drawSystem(data) {
   background(220);
 
   let centerH = height/2;
@@ -41,7 +41,7 @@ function drawSystem() {
   let batCenterX = width/2
   let batHeight = 75
   let batCenterY = height/2-batHeight*1.25;
-  let batP=.76
+  let batP=data['powerstation_percentage']
   let batH = 160
   let relay1H = batCenterY
   let smCenterY = height/2+batHeight*1.25;

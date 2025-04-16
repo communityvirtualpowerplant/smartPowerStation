@@ -11,3 +11,7 @@ This can reset bluetooth: (might be good to do periodically if running into erro
 ## Error Logs
 
 error logs from services can often be found here: `nano /var/log/syslog`
+
+or 
+
+`journalctl -u your-service-name.service`

@@ -1,7 +1,8 @@
+setInterval(getData(),60000);
+
 function setup() {
   let canvas = createCanvas(700, 500);
-  canvas.parent('statusCanvasContainer'); // Attach to the specific div
-  setInterval(getData(),60000);
+  canvas.parent('statusCanvasContainer'); // Attach to the specific div 
 }
 
 function getData(){

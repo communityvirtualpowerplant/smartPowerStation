@@ -17,10 +17,12 @@
 Make scripts executable
 `chmod +x smartPowerStation/services/api.py`
 `chmod +x smartPowerStation/services/ble_logger.py`
+`chmod +x smartPowerStation/services/sps_controls.py`
 
 Copy service files
 `sudo cp smartPowerStation/services/api.service /etc/systemd/system/api.service`
 `sudo cp smartPowerStation/services/ble_logger.service /etc/systemd/system/ble_logger.service`
+`sudo cp smartPowerStation/services/sps_controls.service /etc/systemd/system/sps_controls.service`
 
 Reload and enable
 `sudo systemctl daemon-reexec`

@@ -93,7 +93,7 @@ async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
                     await trySetState(assign[savedDev['relay2']],1)
 
 def writeMode(data):
-    SPS.writeJSON(d,rulesFile)
+    SPS.writeJSON(data,rulesFile)
 
 async def main(SPS) -> None:
 
@@ -123,7 +123,7 @@ async def main(SPS) -> None:
                 SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
                 lastFull== datetime.now()
                 rules['status']['mode']=toMode #set to discharge
-            elif (now['powerstation_percentage'] <= 20) and (rules['status']['mode'] == 5):
+            elif (now['powerstation_percentage'] <= rules['battery']['min']) and (rules['status']['mode'] == 5):
                 toMode = 1
                 SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
                 lastEmpty== datetime.now()
@@ -135,7 +135,7 @@ async def main(SPS) -> None:
 
         await setMode(rules['status']['mode'],SPS)
         print('************ SLEEPING **************')
-        await asyncio.sleep(60)
+        await asyncio.sleep(60*5)
 
 if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)

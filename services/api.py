@@ -14,8 +14,8 @@ import pandas as pd
 
 app = Flask(
     __name__,
-    static_folder='frontend/static',       # custom static folder
-    template_folder='frontend/templates'   # custom templates folder
+    static_folder='../frontend/static',       # custom static folder
+    template_folder='../frontend/templates'   # custom templates folder
 )
 
 # CORS is enabled for all routes. This simplifies the frontend visualization,

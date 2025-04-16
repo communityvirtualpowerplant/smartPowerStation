@@ -79,7 +79,7 @@ async def main(SPS: SmartPowerStation) -> None:
 
     assign = {"ch1": 1, "state":toState}
 
-    SPS.printDebug(assign.keys())
+    SPS.log_Debug(assign.keys())
     savedDevices = SPS.filterDevices(savedDevices, assign)
 
     try:

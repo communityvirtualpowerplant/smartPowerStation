@@ -75,9 +75,9 @@ class SmartPowerStation():
 
     #filter by assignment
     def filterDevices(self, saved_devices:list[Dict], assignment:Dict)->list[Dict]:
-         filteredEntries = []
+        filteredEntries = []
 
-         ch = assignment.keys()[0]
+        ch = assignment.keys()[0]
 
         #filter by location
         for entry in savedDevices:

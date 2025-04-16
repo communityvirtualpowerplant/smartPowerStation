@@ -46,31 +46,31 @@ bleAdapter = "hci0"
 # ============================
 # Logging Helper
 # ============================
-def log_info(message: str) -> None:
-    """Logs an info message."""
-    logging.info(message)
-    log_print(message, printInfo)
+# def log_info(message: str) -> None:
+#     """Logs an info message."""
+#     logging.info(message)
+#     log_print(message, printInfo)
 
-def log_error(message: str) -> None:
-    """Logs an error message."""
-    logging.error(message)
-    log_print(message, printError)
+# def log_error(message: str) -> None:
+#     """Logs an error message."""
+#     logging.error(message)
+#     log_print(message, printError)
 
-def log_debug(message: str) -> None:
-    """Logs a debug message."""
-    logging.debug(message)
-    log_print(message, printDebug)
+# def log_debug(message: str) -> None:
+#     """Logs a debug message."""
+#     logging.debug(message)
+#     log_print(message, printDebug)
 
-def log_print(message:str, b:bool):
-    if b:
-        print(message)
+# def log_print(message:str, b:bool):
+#     if b:
+#         print(message)
 
 # ============================
 # Utilities
 # ============================
 def handle_signal(signal_num: int, frame: Any) -> None:
     """Handles termination signals for graceful shutdown."""
-    log_info(f"Received signal {signal_num}, shutting down gracefully...")
+    SPS.log_info(f"Received signal {signal_num}, shutting down gracefully...")
     sys.exit(0)
 
 # ============================
@@ -81,7 +81,7 @@ async def main(SPS: SmartPowerStation) -> None:
         SPS.reset_bluetooth()
 
         location = SPS.location
-        print(location)
+        SPS.log_info(location)
 
         scan_duration = 5
         
@@ -98,15 +98,15 @@ async def main(SPS: SmartPowerStation) -> None:
         #     if entry['location'] == location:
         #         filteredEntries.append(entry)
         filteredEntries = SPS.getDevices(deviceFile)
-        
+
         try:
             devices = await scan_devices(scan_duration, filteredEntries)
         except Exception as e:
-            log_error(f"Error during scanning: {e}")
+            SPS.log_error(f"Error during scanning: {e}")
             return
 
         if not devices:
-            log_error("No devices found. Exiting")
+            SPS.log_error("No devices found. Exiting")
             sys.exit(0)
 
         # tasks = [statusUpdate(e) for e in devices]
@@ -168,7 +168,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
                 addressList.append(device.address)
                 filteredDevices.append([device,sd])
 
-    log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
+    SPS.log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
 
     async with BleakScanner(adapter=bleAdapter, detection_callback=discovery_handler) as scanner:
         await asyncio.sleep(scan_duration)
@@ -197,17 +197,17 @@ async def statusUpdate(device):
             # else:
             #     print(f"RPC Method executed successfully. No data returned.")
         except Exception as e:
-            log_error(f"Error getting Shelly status: {e}")
+            SPS.log_error(f"Error getting Shelly status: {e}")
 
     elif savedDev['manufacturer'] == 'bluetti':
         savedDev['device'] = Bluetti(savedDev["address"],savedDev["name"])
         try:
             result = await savedDev['device'].getStatus() #getStatusBluetti(savedDev['device'])
         except Exception as e:
-            log_error(f"Error getting Bluetti status: {e}")
+            SPS.log_error(f"Error getting Bluetti status: {e}")
 
         if result:
-            print(f"Method executed successfully. Result:")
+            SPS.log_debug(f"Method executed successfully. Result:")
             #print(result)
             
         #   for k,v in commandResponse.items():
@@ -215,7 +215,7 @@ async def statusUpdate(device):
         #     myData[k]=v
 
         else:
-            print(f"Method executed successfully. No data returned.")
+            SPS.log_debug(f"Method executed successfully. No data returned.")
 
     return result
 
@@ -223,7 +223,7 @@ async def writeData(fn, df):
     # create a new file daily to save data
     # or append if the file already exists
 
-    log_debug(df)
+    SPS.log_debug(df)
 
     try:
         with open(fn) as csvfile:
@@ -232,10 +232,10 @@ async def writeData(fn, df):
             #df = df.append(newDF, ignore_index = True)
             savedDf.to_csv(fn, sep=',',index=False)
     except Exception as err:
-        print(err)
+        SPS.log_error(err)
         df.to_csv(fn, sep=',',index=False)
 
-    print("csv writing: " + str(datetime.datetime.now()))
+    SPS.log_debug("csv writing: " + str(datetime.datetime.now()))
 
 if __name__ == "__main__":
     # Suppress FutureWarnings
@@ -252,6 +252,6 @@ if __name__ == "__main__":
     try:
         asyncio.run(main(SPS))
     except KeyboardInterrupt:
-        log_info("Script interrupted by user via KeyboardInterrupt.")
+        SPS.log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:
-        log_error(f"Unexpected error in main: {e}")
+        SPS.log_error(f"Unexpected error in main: {e}")

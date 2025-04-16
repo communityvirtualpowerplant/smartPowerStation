@@ -12,51 +12,15 @@ import pandas as pd
 
 # deviceNum = config["sensor"]["number"]
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder='frontend/static',       # custom static folder
+    template_folder='frontend/templates'   # custom templates folder
+)
 
 # CORS is enabled for all routes. This simplifies the frontend visualization,
 # but could be removed for security purposes or to more easily enforce throttling without straining the Pi Zeros.
 CORS(app)  
-
-HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Smart Power Station</title>
-    <meta http-equiv="refresh" content="60" />
-    <style>
-        body { font-family: sans-serif; margin: 2em;}
-        .data-table{ width:100%; }
-        table { border-collapse: collapse; table-layout:fixed; width: 100%; font-size:9px;}
-        td, th { padding: 0.5em; border: 1px solid #ccc; word-break: break-all;}
-    </style>
-</head>
-<body>
-    <h1>Smart Power Station</h1>
-    <p>
-        Download CSV file with /api/data?file=FILENAME_WITH_NO_SUFFIX<br>
-        View file list with /api/files
-    </p>
-    <div class='data-table'>
-        <table>
-            <tr>
-            {% for c in cols %}
-                <th>{{ c }}</th>
-            {% endfor %}
-            </tr>
-            {% for row in data %}
-            <tr>
-                {% for d in row %}
-                    <td>{{ d }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-    <p>Auto-refreshes every 60 seconds</p>
-</body>
-</html>
-"""
 
 # reads json and returns it as dict
 def getConfig(fn:str) -> dict:
@@ -101,7 +65,7 @@ def index():
         reader = csv.reader(f)
         cols = next(reader)  # skip header
         rows = list(reader)#[-10:]  # last 10 readings
-    return render_template_string(HTML, cols = cols, data=rows)
+    return render_template_string(data.html, cols = cols, data=rows)
 
 @app.route("/api/discoverSPS")
 def discover():

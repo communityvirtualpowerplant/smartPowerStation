@@ -74,19 +74,19 @@ class SmartPowerStation():
 
         return self.devices
 
-    #filter by assignment
-    def filterDevices(self, saved_devices:list[Dict], assignment:list[Dict])->list[Dict]:
-        filteredEntries = []
+    # #filter by position assignment
+    # def filterDevices(self, saved_devices:list[Dict], assignment:list[Dict])->list[Dict]:
+    #     filteredEntries = []
 
-        ch = list(assignment[0].keys())[0]
+    #     #ch = list(assignment[0].keys())[0]
 
-        #filter by position
-        for entry in saved_devices:
-            if entry['relay1'] == assignment[0]['pos']:
-                filteredEntries.append(entry)
-            elif entry['relay2'] == assignment[0]['pos']:
-                filteredEntries.append(entry)
-        return filteredEntries
+    #     #filter by position
+    #     for entry in saved_devices:
+    #         if entry['relay1'] == assignment[0]['pos']:
+    #             filteredEntries.append(entry)
+    #         elif entry['relay2'] == assignment[0]['pos']:
+    #             filteredEntries.append(entry)
+    #     return filteredEntries
 
     # scans for BLE devices and filters them by the saved device list (already filtered by location)
     # returns list of BLE objects and matching saved devices i.e. [BLE, saved]

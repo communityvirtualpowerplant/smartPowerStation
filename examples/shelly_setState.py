@@ -77,15 +77,24 @@ async def main(SPS: SmartPowerStation) -> None:
 
     assign = [{"pos": 1, "state":toState}]
 
+    positions = []
+    for a in assign:
+        positions.append(a['pos'])
+
     # get saved devicecs, filtered by location
     savedDevices = SPS.getDevices(deviceFile,SPS.location)
     # filter devices list by assigned position
-    savedDevices = SPS.filterDevices(savedDevices, assign)
+    filteredEntries = []
+    for entry in savedDevices:
+            if entry['relay1'] in positions:
+                filteredEntries.append(entry)
+            elif entry['relay2'] in positions:
+                filteredEntries.append(entry)
 
-    if len(savedDevices) >= 1:
+    if len(filteredEntries) >= 1:
         try:
             # scan devices to get BLE object
-            devices = await SPS.scan_devices(savedDevices)
+            devices = await SPS.scan_devices(filteredEntries)
         except Exception as e:
             log_error(f"Error during scanning: {e}")
             return

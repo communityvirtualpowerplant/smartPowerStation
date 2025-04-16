@@ -4,7 +4,7 @@ import asyncio
 import signal
 import requests
 import json
-from components.SmartPowerStation import SmartPowerStation, SPS_BLE
+from components.SmartPowerStation import SmartPowerStation
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from datetime import datetime, timedelta
@@ -30,6 +30,7 @@ def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
         return None
 
 async def setMode(mode: int, SPS=SPS)-> Any:
+    # these assignments should be listed in the rules file
     if mode == 1:
         assign = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
     elif mode == 2:
@@ -112,7 +113,7 @@ async def main(SPS) -> None:
                 rules['status']['lastEmpty']== datetime.now()
                 rules['status']['mode']==1 #set to charge
 
-        await setMode(rules['status']['mode'])
+        await setMode(rules['status']['mode'],SPS)
         print('************ SLEEPING **************')
         await asyncio.sleep(60)
 

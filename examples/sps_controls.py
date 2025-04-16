@@ -29,7 +29,7 @@ def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
         SPS.log_error(e)
         return None
 
-async def setMode(mode: int, SPS=SPS)-> Any:
+async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
     # these assignments should be listed in the rules file
     if mode == 1:
         assign = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off

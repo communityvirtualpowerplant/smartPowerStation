@@ -42,31 +42,31 @@ print('Setting state: ' + str(toState))
 # ============================
 # Logging Helper
 # ============================
-def log_info(message: str) -> None:
-    """Logs an info message."""
-    logging.info(message)
-    log_print(message, printInfo)
+# def log_info(message: str) -> None:
+#     """Logs an info message."""
+#     logging.info(message)
+#     log_print(message, printInfo)
 
-def log_error(message: str) -> None:
-    """Logs an error message."""
-    logging.error(message)
-    log_print(message, printError)
+# def log_error(message: str) -> None:
+#     """Logs an error message."""
+#     logging.error(message)
+#     log_print(message, printError)
 
-def log_debug(message: str) -> None:
-    """Logs a debug message."""
-    logging.debug(message)
-    log_print(message, printDebug)
+# def log_debug(message: str) -> None:
+#     """Logs a debug message."""
+#     logging.debug(message)
+#     log_print(message, printDebug)
 
-def log_print(message:str, b:bool):
-    if b:
-        print(message)
+# def log_print(message:str, b:bool):
+#     if b:
+#         print(message)
 
 # ============================
 # Utilities
 # ============================
 def handle_signal(signal_num: int, frame: Any) -> None:
     """Handles termination signals for graceful shutdown."""
-    log_info(f"Received signal {signal_num}, shutting down gracefully...")
+    SPS.log_info(f"Received signal {signal_num}, shutting down gracefully...")
     sys.exit(0)
 
 # ============================
@@ -84,17 +84,17 @@ async def main(SPS: SmartPowerStation) -> None:
     # get saved devicecs, filtered by location
     savedDevices = SPS.getDevices(deviceFile,SPS.location)
     # filter devices list by assigned position
-    filteredEntries = []
-    for entry in savedDevices:
-            if entry['relay1'] in positions:
-                filteredEntries.append(entry)
-            elif entry['relay2'] in positions:
-                filteredEntries.append(entry)
+    #filteredEntries = []
+    # for entry in savedDevices:
+    #         if entry['relay1'] in positions:
+    #             filteredEntries.append(entry)
+    #         elif entry['relay2'] in positions:
+    #             filteredEntries.append(entry)
 
-    if len(filteredEntries) >= 1:
+    if len(savedDevices) >= 1:
         try:
             # scan devices to get BLE object
-            devices = await SPS.scan_devices(filteredEntries)
+            devices = await SPS.scan_devices(savedDevices)
         except Exception as e:
             log_error(f"Error during scanning: {e}")
             return
@@ -139,6 +139,6 @@ if __name__ == "__main__":
     try:
         asyncio.run(main(SPS))
     except KeyboardInterrupt:
-        log_info("Script interrupted by user via KeyboardInterrupt.")
+        SPS.log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:
-        log_error(f"Unexpected error in main: {e}")
+        SPS.log_error(f"Unexpected error in main: {e}")

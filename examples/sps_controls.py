@@ -78,19 +78,19 @@ async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
 
                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
-                async def trySetState(toState,ch):
+                async def trySetState(toState:bool,ch: int):
                     try:
                         # set relay state
                         await shDevice.setState(toState,ch)
                     except Exception as e:
                         SPS.log_error(f"Error setting state")
-
+ 
                 if savedDev['relay1'] in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
-                    trySetState(assign[savedDev['relay1'],0])
+                    await trySetState(assign[savedDev['relay1']],0)
                 if savedDev['relay2'] in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
-                    trySetState(assign[savedDev['relay2'],1])
+                    await trySetState(assign[savedDev['relay2']],1)
 
         writeMode(assign)
 

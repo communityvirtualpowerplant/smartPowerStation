@@ -143,15 +143,17 @@ function drawSystem(data) {
     stroke(200, 150, 255);
     strokeWeight(6);
     if (posOne > 0){
-      angle = PI+HALF_PI
+ 
     } else if (posThree > 0){ 
-      angle = HALF_PI
-      //angle = PI+HALF_PI
+      angleS = 0
+      angleE = HALF_PI
+      //angleE = 0
+      //angleS = PI+HALF_PI
     }
-    arc(500, centerH, 40, 40, angle,0);
+    arc(500, centerH, 40, 40, angleS,angleE);
     stroke(0)
     strokeWeight(2);
-    arc(500, centerH, 40, 40, angle,0);
+    arc(500, centerH, 40, 40, angleS,angleE);
     leftText("Transfer\n Switch", 470, centerH);
   pop()
 

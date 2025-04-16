@@ -6,17 +6,18 @@ from typing import Any, Dict, Optional, Tuple, List
 from bleak import BleakClient, BleakError, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
+import asyncio
 
 class SmartPowerStation():
-    def __init__(self, conf: str):
+    def __init__(self, conf: str,info=True, debug=True,error=True):
         self.config = self.getConfig(conf)
         self.name = self.config['location']
         self.location = self.config['location']
         self.promise = self.config['promise']
         self.network = self.config['network']
-        self.printInfo = True
-        self.printDebug = True
-        self.printError = True
+        self.printInfo = info
+        self.printDebug = debug
+        self.printError = error
         self.dataFilePrefix = 'sps'
         self.shellySTR = 'Shelly'
         self.bluettiSTR = ['AC180','AC2']
@@ -46,8 +47,8 @@ class SmartPowerStation():
         except subprocess.CalledProcessError as e:
             self.log_error(f"Bluetooth interface reset failed: {e}")
 
-    # get list of devices from device file, filtered by location
-    def getDevices(self, dF:str, location:str)->list:
+    # get list of saved devices from device file, filtered by location
+    def getDevices(self, dF:str, location:str)->list[Dict]:
 
         self.reset_bluetooth()
 
@@ -62,6 +63,8 @@ class SmartPowerStation():
             savedDevices = []
 
         filteredEntries = []
+
+        #filter by location
         for entry in savedDevices:
             if entry['location'] == location:
                 filteredEntries.append(entry)
@@ -70,8 +73,21 @@ class SmartPowerStation():
 
         return self.devices
 
+    #filter by assignment
+    def filterDevices(self, saved_devices:list[Dict], assignment:Dict)->list[Dict]:
+         filteredEntries = []
+
+         ch = assignment.keys()[0]
+
+        #filter by location
+        for entry in savedDevices:
+            if entry[ch] == assignment[ch]:
+                filteredEntries.append(entry)
+        return filteredEntries
+
+    # scans for BLE devices and filters them by the saved device list (already filtered by location)
     # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
-    async def scan_devices(self, saved_devices: Dict):
+    async def scan_devices(self, saved_devices: list[Dict])->list[Dict]:
         filteredDevices = []
         scan_duration = 5
 

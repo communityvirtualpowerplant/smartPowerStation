@@ -103,7 +103,7 @@ function drawSystem(data) {
   rectMode(CENTER);
   fill(255)
   rect(500, batCenterY, 10,10); // Battery Box
-  leftText("23W", 500, batCenterY-20);
+  leftText(posThree+"W", 500, batCenterY-20);
 
   // Draw Transfer Switch
   push()

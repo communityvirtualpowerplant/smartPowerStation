@@ -22,8 +22,6 @@ function getData(){
 }
 
 // function draw() {
-//   //drawSystem();
-//   //animateResponse();
 // }
 
 function drawSystem(data) {
@@ -52,10 +50,35 @@ function drawSystem(data) {
   let loadW = posThree;
 
   // Draw wires and connections
-  drawWire([[100, centerH, 200, centerH],[200, centerH, 200, batCenterY],[200, batCenterY, batCenterX-batWidth/2, batCenterY]],true); // Grid to battery
-  drawWire([[100, centerH, 200, centerH],[200, centerH, 200, smCenterY],[200, smCenterY, 500, smCenterY],[500, smCenterY, 500, centerH+25]],false);// Grid to transfer switch
-  drawWire([[batCenterX+batWidth/2, batCenterY, 500, batCenterY],[500, batCenterY, 500, centerH-25]],true); // Battery to transfer switch
-  drawWire([[525, centerH, 590, centerH]],true); // transfer switch to Load
+  let wireBool;
+  
+  if (posOne > 0){
+    wireBool = true;
+  } else{
+    wireBool = false;
+  }
+  drawWire([[100, centerH, 200, centerH],[200, centerH, 200, smCenterY],[200, smCenterY, 500, smCenterY],[500, smCenterY, 500, centerH+25]],wireBool);// Grid to transfer switch
+
+  if (posTwo > 0){
+    wireBool = true;
+  } else{
+    wireBool = false;
+  }
+  drawWire([[100, centerH, 200, centerH],[200, centerH, 200, batCenterY],[200, batCenterY, batCenterX-batWidth/2, batCenterY]],wireBool); // Grid to battery
+ 
+  if (posThree > 0){
+    wireBool = true;
+  } else{
+    wireBool = false;
+  }
+  drawWire([[batCenterX+batWidth/2, batCenterY, 500, batCenterY],[500, batCenterY, 500, centerH-25]],wireBool); // Battery to transfer switch
+  
+  if (posOne > 0 || posThree > 0 ){
+    wireBool = true;
+  } else{
+    wireBool = false;
+  }
+  drawWire([[525, centerH, 590, centerH]],wireBool); // transfer switch to Load
   
   
   // Draw grid power source
@@ -72,7 +95,6 @@ function drawSystem(data) {
  
   // Draw battery system
   push()
-  
     rectMode(CORNER);
     fill(255)
     noStroke()
@@ -127,17 +149,8 @@ function drawSystem(data) {
   textSize(20)
   text("Demand Response Behind-The-Meter (BTM) System", centerW, 50);
   
-//   text(gridV + "VAC", 50, centerH)
-  
-//   let invV = 120
-//   text(invV + "VAC", 500, batCenterY)
-  
     drawKey()
 }
-
-// let batteryDischarge = false;
-// let dotX = 110;
-// let dotY = 230;
 
 function drawKey(){
   push()
@@ -204,20 +217,3 @@ function drawWire(a,state){
       }
   pop()
 }
-
-// function animateResponse() {
-//   fill(255, 0, 0);
-//   ellipse(dotX, dotY, 10, 10); // Power flow indicator
-  
-//   if (batteryDischarge) {
-//     dotX += 2; // Move dot from battery to load
-//     if (dotX > 550) {
-//       dotX = 380;
-//     }
-//   } else {
-//     dotX += 2; // Move dot from grid to load
-//     if (dotX > 550) {
-//       dotX = 110;
-//     }
-//   }
-// }

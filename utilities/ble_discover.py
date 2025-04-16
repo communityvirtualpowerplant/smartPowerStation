@@ -108,8 +108,8 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
                         "timestamp":datetime.now().isoformat(),
                         "location": location, #site
                         "role":entry["role"],
-                        "relay1": entry["ch1"], #indiciates position in system (by channel if applicable)
-                        "relay2": entry["ch2"] #indiciates position in system (by channel if applicable)
+                        "relay1": entry["relay1"], #indiciates position in system (by channel if applicable)
+                        "relay2": entry["relay2"] #indiciates position in system (by channel if applicable)
                     })
                     print(advertisement_data)
                     break

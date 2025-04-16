@@ -58,6 +58,10 @@ def getMostRecent():
 
 @app.route("/")
 def index():
+    return render_template('index.html')
+
+@app.route("/data")
+def index():
     file_pattern = os.path.join(filePath, f"*.csv")
     files = sorted(glob.glob(file_pattern))
     fileName = files[-1]

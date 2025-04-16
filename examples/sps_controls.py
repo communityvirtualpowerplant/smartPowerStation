@@ -101,16 +101,23 @@ async def main(SPS) -> None:
         now = send_get_request(URL, PORT, ENDPOINT)
 
         #check if data is fresh
-        if SPS.isRecent(now):
+        if SPS.isRecent(now['datetime']):
             SPS.log_debug('data is fresh')
 
         #ensure there isn't an ongoing or upcoming event
+        lastFull = rules['status']['lastFull']
+        if isinstance(lastFull, str):
+            lastFull = datetime.strptime(lastFull, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
+        lastEmpty = rules['status']['lastEmpty']
+        if isinstance(lastEmpty, str):
+            lastEmpty = datetime.strptime(lastEmpty, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
+
         if  (rules['event']['eventUpcoming'] == 0) and (rules['event']['eventOngoing'] == 0):
             if (now['powerstation_percentage'] == 100) and (rules['status']['direction'] == 1):
-                rules['status']['lastFull']== datetime.now()
+                lastFull== datetime.now()
                 rules['status']['mode']==5 #set to discharge
             elif (now['powerstation_percentage'] <= 20) and (rules['status']['direction'] == -1):
-                rules['status']['lastEmpty']== datetime.now()
+                lastEmpty== datetime.now()
                 rules['status']['mode']==1 #set to charge
 
         await setMode(rules['status']['mode'],SPS)

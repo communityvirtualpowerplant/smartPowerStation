@@ -124,12 +124,12 @@ async def main(SPS) -> None:
                 toMode = 5
                 SPS.log_debug(f"Mode changed to {toMode} from {rules['status']['mode']}.")
                 lastFull== datetime.now()
-                rules['status']['mode']==toMode #set to discharge
+                rules['status']['mode']=toMode #set to discharge
             elif (now['powerstation_percentage'] <= 20) and (rules['status']['mode'] == 5):
                 toMode = 1
                 SPS.log_debug(f"Mode changed to {toMode} from {rules['status']['mode']}.")
                 lastEmpty== datetime.now()
-                rules['status']['mode']==toMode #set to charge
+                rules['status']['mode']=toMode #set to charge
             else:
                 SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
 

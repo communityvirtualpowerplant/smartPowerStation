@@ -47,7 +47,13 @@ function drawSystem(data) {
   let posOne =data['relay1_power']
   let posTwo = data['relay2_power']
   let posThree = data['powerstation_outputWAC']
-  let loadW = posThree;
+
+  let loadW
+  if (posOne > 0){
+    loadW = posOne;
+  } else if (posThree > 0){ 
+    loadW = posThree;
+  }
 
   // Draw wires and connections
   let wireBool;
@@ -136,10 +142,16 @@ function drawSystem(data) {
     noFill()
     stroke(200, 150, 255);
     strokeWeight(6);
-    arc(500, centerH, 40, 40, PI+HALF_PI,0);
+    if (posOne > 0){
+      angle = PI+HALF_PI
+    } else if (posThree > 0){ 
+      angle = HALF_PI
+      //angle = PI+HALF_PI
+    }
+    arc(500, centerH, 40, 40, angle,0);
     stroke(0)
     strokeWeight(2);
-    arc(500, centerH, 40, 40, PI+HALF_PI,0);
+    arc(500, centerH, 40, 40, angle,0);
     leftText("Transfer\n Switch", 470, centerH);
   pop()
 

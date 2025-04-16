@@ -91,6 +91,11 @@ async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
                     SPS.log_debug('trying to set relay 1')
                     trySetState(assign[savedDev['relay1'],0])
 
+        saveMode(assign)
+
+def writeMode():
+    pass
+
 async def main(SPS) -> None:
 
     rules = SPS.getConfig(rulesFile)
@@ -113,13 +118,19 @@ async def main(SPS) -> None:
         if (lastEmpty != "") and (isinstance(lastEmpty, str)):
             lastEmpty = datetime.strptime(lastEmpty, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
 
-        if  (rules['event']['eventUpcoming'] == 0) and (rules['event']['eventOngoing'] == 0):
-            if (now['powerstation_percentage'] == 100) and (rules['status']['direction'] == 1):
+        if  (rules['event']['upcoming'] == 0) and (rules['event']['ongoing'] == 0):
+            if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] == 1):
+                toMode = 5
+                SPS.log_debug(f'Mode changed to {toMode} from {rules['status']['mode']}.')
                 lastFull== datetime.now()
-                rules['status']['mode']==5 #set to discharge
-            elif (now['powerstation_percentage'] <= 20) and (rules['status']['direction'] == -1):
+                rules['status']['mode']==toMode #set to discharge
+            elif (now['powerstation_percentage'] <= 20) and (rules['status']['mode'] == 5):
+                toMode = 1
+                SPS.log_debug(f'Mode changed to {toMode} from {rules['status']['mode']}.')
                 lastEmpty== datetime.now()
-                rules['status']['mode']==1 #set to charge
+                rules['status']['mode']==toMode #set to charge
+            else:
+                SPS.log_debug(f'Mode {rules['status']['mode']} not changed.')
 
         await setMode(rules['status']['mode'],SPS)
         print('************ SLEEPING **************')

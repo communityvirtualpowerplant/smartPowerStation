@@ -1,7 +1,7 @@
 function setup() {
   let canvas = createCanvas(700, 500);
   canvas.parent('statusCanvasContainer'); // Attach to the specific div
-
+  setInterval(getData(),60000);
 }
 
 function getData(){
@@ -21,14 +21,14 @@ function getData(){
     });
 }
 
-function draw() {
-  background(220);
-  //drawSystem();
-  //animateResponse();
-  setTimeout(getData(),60000);
-}
+// function draw() {
+//   //drawSystem();
+//   //animateResponse();
+// }
 
 function drawSystem() {
+  background(220);
+
   let centerH = height/2;
   let centerW = width/2;
   

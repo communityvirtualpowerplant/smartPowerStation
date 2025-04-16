@@ -77,10 +77,10 @@ class SmartPowerStation():
     def filterDevices(self, saved_devices:list[Dict], assignment:Dict)->list[Dict]:
         filteredEntries = []
 
-        ch = assignment.keys()[0]
+        ch = list(assignment.keys())[0]
 
         #filter by location
-        for entry in savedDevices:
+        for entry in saved_devices:
             if entry[ch] == assignment[ch]:
                 filteredEntries.append(entry)
         return filteredEntries

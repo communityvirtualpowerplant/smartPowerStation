@@ -110,23 +110,23 @@ async def main(SPS) -> None:
             #SPS.log_debug('data is fresh')
 
         #ensure there isn't an ongoing or upcoming event
-        lastFull = rules['status']['lastFull']
-        if (lastFull != "") and (isinstance(lastFull, str)):
-            lastFull = datetime.strptime(lastFull, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
-        lastEmpty = rules['status']['lastEmpty']
-        if (lastEmpty != "") and (isinstance(lastEmpty, str)):
-            lastEmpty = datetime.strptime(lastEmpty, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
+        # lastFull = rules['status']['lastFull']
+        # if (lastFull != "") and (isinstance(lastFull, str)):
+        #     lastFull = datetime.strptime(lastFull, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
+        # lastEmpty = rules['status']['lastEmpty']
+        # if (lastEmpty != "") and (isinstance(lastEmpty, str)):
+        #     lastEmpty = datetime.strptime(lastEmpty, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
 
         if  (rules['event']['upcoming'] == 0) and (rules['event']['ongoing'] == 0):
             if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] == 1):
                 toMode = 5
                 SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
-                lastFull== datetime.now()
+                rules['status']['lastFull']== datetime.now()
                 rules['status']['mode']=toMode #set to discharge
             elif (now['powerstation_percentage'] <= rules['battery']['min']) and (rules['status']['mode'] == 5):
                 toMode = 1
                 SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
-                lastEmpty== datetime.now()
+                rules['status']['lastEmpty']== datetime.now()
                 rules['status']['mode']=toMode #set to charge
             else:
                 SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")

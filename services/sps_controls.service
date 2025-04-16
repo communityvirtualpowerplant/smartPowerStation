@@ -1,5 +1,5 @@
 [Unit]
-Description=Log data as service
+Description=Control the system based on specified conditions
 After=network.target
 Wants=network.target
 

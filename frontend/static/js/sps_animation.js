@@ -15,7 +15,7 @@ function getData(){
       return response.json(); // or response.text() if it's plain text
     })
     .then(data => {
-      console.log('Data received:', data);
+      //console.log('Data received:', data);
       drawSystem(data);
     })
     .catch(error => {

@@ -15,3 +15,7 @@ error logs from services can often be found here: `nano /var/log/syslog`
 or 
 
 `journalctl -u your-service-name.service`
+
+
+## Check is a python program is running:
+`ps aux | grep .py`

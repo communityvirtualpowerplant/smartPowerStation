@@ -99,17 +99,18 @@ async def main(SPS) -> None:
     while True:
         # get most recent data
         now = send_get_request(URL, PORT, ENDPOINT)
+        SPS.log_debug(now['datetime'])
 
         #check if data is fresh
-        if SPS.isRecent(now['datetime']):
-            SPS.log_debug('data is fresh')
+        #if SPS.isRecent(now['datetime']):
+            #SPS.log_debug('data is fresh')
 
         #ensure there isn't an ongoing or upcoming event
         lastFull = rules['status']['lastFull']
-        if isinstance(lastFull, str):
+        if (lastFull != "") and (isinstance(lastFull, str)):
             lastFull = datetime.strptime(lastFull, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
         lastEmpty = rules['status']['lastEmpty']
-        if isinstance(lastEmpty, str):
+        if (lastEmpty != "") and (isinstance(lastEmpty, str)):
             lastEmpty = datetime.strptime(lastEmpty, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
 
         if  (rules['event']['eventUpcoming'] == 0) and (rules['event']['eventOngoing'] == 0):

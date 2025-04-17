@@ -115,7 +115,7 @@ function drawSystem(data) {
     // Draw PV source
     if(posFour > 0){
       fill(200, 150, 255)
-      noStoke()
+      noStroke()
       circle(90, pvH, 26); // PV Source Box
     }
     fill(150);

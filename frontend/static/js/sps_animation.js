@@ -186,18 +186,17 @@ function drawSystem(data) {
     fill(150)
     rect(500, centerH, 50,50); // Battery Box
     noFill()
-    stroke(200, 150, 255);
-    strokeWeight(6);
-    let angleS = PI+HALF_PI;
+    let angleS = 0;
     let angleE = HALF_PI;
-    if (posOne > 0){
-      angleS = 0
-      angleE = HALF_PI 
-    } else if (posThree > 0){ 
+    if (posOne == 0 && posThree > 0){ 
       angleE = 0
       angleS = PI+HALF_PI
     }
-    arc(500, centerH, 40, 40, angleS,angleE);
+    if (posOne > 0 || posThree > 0){ 
+      stroke(200, 150, 255);
+      strokeWeight(6);
+      arc(500, centerH, 40, 40, angleS,angleE);
+    }
     stroke(0)
     strokeWeight(2);
     arc(500, centerH, 40, 40, angleS,angleE);

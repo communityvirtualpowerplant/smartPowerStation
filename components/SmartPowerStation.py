@@ -204,7 +204,7 @@ class SmartPowerStation():
     # Flexibility Estimation
 
     # Baseline Estimation
-    
+
     # PI Control
 
     # async def gridToBattery(self, state: bool) -> None:
@@ -270,3 +270,35 @@ class SmartPowerStation():
     #     else:
     #         #turn off 
     #         pass
+
+class Controls():
+    def __init__(self):
+        self.goalWh = 0
+        self.duration = 4
+        self.flexibilityWh = 0
+        self.baseline = 0
+        self.modeOne = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
+        self.modeTwo = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
+        self.modeThree = {1:0,2:1,3:1}
+        self.modeFour = {1:0,2:1,3:0}
+        self.modeFive = {1:0,2:0,3:1}
+        self.modeSix = {1:0,2:0,3:0}
+        self.Kp = Kp
+        self.Ki = Ki
+        #self.Kd = Kd
+        self.setpoint = setpoint
+        self.previous_error = 0
+        self.integral = 0
+
+    def pi_controller(self, pv, kp, ki,):
+        error = self.setpoint - pv
+        self.integral += error * dt
+        control = kp * error + ki * self.integral
+        return control, error, integral
+
+    def pid_controller(self, pv, kp, ki, kd, dt):
+        error = self.setpoint - pv
+        self.integral += error * dt
+        derivative = (error - self.previous_error) / dt
+        control = kp * error + ki * self.integral + kd * derivative
+        return control, error, integral

@@ -285,7 +285,6 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
 
-    app.run(host="0.0.0.0", port=5001, debug=False)
 
     SPS = SmartPowerStation(configFile)
 
@@ -295,6 +294,8 @@ if __name__ == "__main__":
         loop = asyncio.new_event_loop()
         t = threading.Thread(target=main, args=(SPS,loop))
         t.start()
+
+        app.run(host="0.0.0.0", port=5001, debug=False)
     except KeyboardInterrupt:
         SPS.log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

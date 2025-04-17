@@ -106,7 +106,6 @@ function drawSystem(data) {
     circle(90, centerH, 26); // PV Source Box
   }
   fill(150);
-  strokeWeight(4);
   stroke(0);
   circle(90, centerH, 20); // Grid Source Box
   fill(0);
@@ -119,7 +118,6 @@ function drawSystem(data) {
     circle(90, pvH, 26); // PV Source Box
   }
   fill(150);
-  strokeWeight(4);
   stroke(0);
   circle(90, pvH, 20); // PV Source Box
   fill(0);
@@ -132,7 +130,6 @@ function drawSystem(data) {
     circle(600, centerH, 26); // PV Source Box
   }
   fill(150);
-  strokeWeight(4);
   stroke(0);
   circle(600, centerH, 20); // Grid Source Box
   fill(0);

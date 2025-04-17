@@ -99,18 +99,31 @@ function drawSystem(data) {
   
   
   // Draw grid power source
+  // Draw PV source
+  if(posOne > 0 || posTwo > 0){
+    fill(200, 150, 255)
+    circle(90, centerH, 22); // PV Source Box
+  }
   fill(150);
   circle(90, centerH, 20); // Grid Source Box
   fill(0);
   underText("Grid\n"+ gridV +" VAC", 90, centerH+20);
 
   // Draw PV source
+  if(posFour > 0){
+    fill(200, 150, 255)
+    circle(90, pvH, 22); // PV Source Box
+  }
   fill(150);
   circle(90, pvH, 20); // PV Source Box
   fill(0);
   underText("PV", 90, pvH+20);
   
   // Draw load
+  if(posOne > 0 || posThree > 0){
+    fill(200, 150, 255)
+    circle(90, centerH, 22); // PV Source Box
+  }
   fill(150);
   circle(600, centerH, 20); // Grid Source Box
   fill(0);

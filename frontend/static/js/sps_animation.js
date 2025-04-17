@@ -155,7 +155,7 @@ function drawSystem(data) {
   rectMode(CENTER);
   fill(255)
   rect(200, batCenterY, 10,10); // Battery Box
-  leftText(posTwo +"W", 190, batCenterY);
+  leftText("P2: " + posTwo +"W", 190, batCenterY);
   fill(200)
   triangle(195, batCenterY+5, 200, batCenterY-5, 205, batCenterY+5);
 
@@ -163,7 +163,7 @@ function drawSystem(data) {
   rectMode(CENTER);
   fill(255)
   rect(200, smCenterY, 10,10); // Battery Box
-  leftText(posOne + "W", 190, smCenterY);
+  leftText("P1: " + posOne + "W", 190, smCenterY);
   fill(200)
   triangle(195, smCenterY+5, 200, smCenterY-5, 205, smCenterY+5);
 
@@ -171,13 +171,13 @@ function drawSystem(data) {
   rectMode(CENTER);
   fill(255)
   rect(500, batCenterY, 10,10); // Battery Box
-  leftText(posThree+"W", 500, batCenterY-20);
+  leftText("P3: " + posThree+"W", 500, batCenterY-20);
 
   // Draw Sensor 4
   rectMode(CENTER);
   fill(255)
   rect(200, pvH, 10,10); // Box
-  leftText(posFour+"W", 200, pvH-20);
+  leftText("P4: " + posFour+"W", 200, pvH-20);
 
   // Draw Transfer Switch
   push()

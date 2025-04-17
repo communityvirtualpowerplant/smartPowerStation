@@ -94,12 +94,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         # for task in tasks:
         #     await task
 
-        # move into setMode function
-        async with asyncio.Lock():
-            m = toMode['mode']
-            if m != 0:
-                await setMode(m,devices, SPS)
-                toMode['mode'] = 0
+        await setMode(devices, SPS)
 
         tempResults = {
                         "datetime" : datetime.datetime.now(),
@@ -134,10 +129,8 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
 
         await writeData(fileName, pd.DataFrame([tempResults]))
 
-        # check mode again before nap
-        # if toMode != 0:
-        #     setMode(toMode)
-        #     toMode = 0
+        # there is definitely a better way to do this - something where it forces a wakeup if the mode is changed...
+        await setMode(devices, SPS)
 
         print('************ SLEEPING **************')
         await asyncio.sleep(120)
@@ -230,7 +223,15 @@ async def writeData(fn, df):
 
     SPS.log_debug("csv writing: " + str(datetime.datetime.now()))
 
-async def setMode(mode: int, devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
+async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
+    # move into setMode function
+    async with asyncio.Lock():
+        mode = toMode['mode']
+        if mode != 0:
+            toMode['mode'] = 0
+        else:
+            return
+
     # these assignments should be listed in the rules file
     if mode == 1:
         assign = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off

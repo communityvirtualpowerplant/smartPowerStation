@@ -154,7 +154,7 @@ function drawSystem(data) {
   rectMode(CENTER);
   fill(255)
   rect(200, pvH, 10,10); // Box
-  leftText(posThree+"W", 500, pvH-20);
+  leftText(posThree+"W", 200, pvH-20);
 
   // Draw Transfer Switch
   push()

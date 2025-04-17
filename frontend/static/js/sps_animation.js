@@ -95,7 +95,7 @@ function drawSystem(data) {
   } else{
     wireBool = false;
   }
-  drawWire([[90, pvH, 590, pvH, batCenterX-batWidth/2]],wireBool); // PV to battery
+  drawWire([[90, pvH, batCenterX-batWidth/2, pvH]],wireBool); // PV to battery
   
   
   // Draw grid power source
@@ -108,7 +108,7 @@ function drawSystem(data) {
   fill(150);
   circle(90, pvH, 20); // PV Source Box
   fill(0);
-  underText("PV\n" +" DC", 90, pvH+20);
+  underText("PV", 90, pvH+20);
   
   // Draw load
   fill(150);

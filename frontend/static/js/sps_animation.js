@@ -101,10 +101,12 @@ function drawSystem(data) {
   // Draw grid power source
   // Draw PV source
   if(posOne > 0 || posTwo > 0){
-    stroke(200, 150, 255)
+    fill(200, 150, 255)
+    noStroke()
     circle(90, centerH, 26); // PV Source Box
   }
   fill(150);
+  strokeWeight(4);
   stroke(0);
   circle(90, centerH, 20); // Grid Source Box
   fill(0);
@@ -112,10 +114,12 @@ function drawSystem(data) {
 
   // Draw PV source
   if(posFour > 0){
-    stroke(200, 150, 255)
+    fill(200, 150, 255)
+    noStoke()
     circle(90, pvH, 26); // PV Source Box
   }
   fill(150);
+  strokeWeight(4);
   stroke(0);
   circle(90, pvH, 20); // PV Source Box
   fill(0);
@@ -123,10 +127,12 @@ function drawSystem(data) {
   
   // Draw load
   if(posOne > 0 || posThree > 0){
-    stroke(200, 150, 255)
+    fill(200, 150, 255)
+    noStroke();
     circle(600, centerH, 26); // PV Source Box
   }
   fill(150);
+  strokeWeight(4);
   stroke(0);
   circle(600, centerH, 20); // Grid Source Box
   fill(0);

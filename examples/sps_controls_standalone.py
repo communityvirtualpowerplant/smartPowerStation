@@ -9,6 +9,7 @@ from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from datetime import datetime
 from components.Shelly import ShellyDevice
+import sys
 
 eventUpcoming = False
 eventOngoing = False

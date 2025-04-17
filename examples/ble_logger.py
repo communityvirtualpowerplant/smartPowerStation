@@ -44,28 +44,6 @@ configFile = '../config/config.json'
 bleAdapter = "hci0"
 
 # ============================
-# Logging Helper
-# ============================
-# def log_info(message: str) -> None:
-#     """Logs an info message."""
-#     logging.info(message)
-#     log_print(message, printInfo)
-
-# def log_error(message: str) -> None:
-#     """Logs an error message."""
-#     logging.error(message)
-#     log_print(message, printError)
-
-# def log_debug(message: str) -> None:
-#     """Logs a debug message."""
-#     logging.debug(message)
-#     log_print(message, printDebug)
-
-# def log_print(message:str, b:bool):
-#     if b:
-#         print(message)
-
-# ============================
 # Utilities
 # ============================
 def handle_signal(signal_num: int, frame: Any) -> None:
@@ -246,6 +224,8 @@ if __name__ == "__main__":
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
+
+    app.run(host="0.0.0.0", port=5001, debug=False)
 
     SPS = SmartPowerStation(configFile)
 

@@ -4,11 +4,9 @@ import asyncio
 import signal
 import requests
 import json
-from components.SmartPowerStation import SmartPowerStation
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from datetime import datetime
-from components.Shelly import ShellyDevice
 import sys
 
 eventUpcoming = False
@@ -31,67 +29,67 @@ def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
         SPS.log_error(e)
         return None
 
-async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
-    # these assignments should be listed in the rules file
-    if mode == 1:
-        assign = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
-    elif mode == 2:
-        assign = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
-    elif mode == 3:
-        assign = {1:0,2:1,3:1}
-    elif mode == 4:
-        assign = {1:0,2:1,3:0}
-    elif mode == 5:
-        assign = {1:0,2:0,3:1}
-    elif mode == 6:
-        assign = {1:0,2:0,3:0}
+# async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
+#     # these assignments should be listed in the rules file
+#     if mode == 1:
+#         assign = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
+#     elif mode == 2:
+#         assign = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
+#     elif mode == 3:
+#         assign = {1:0,2:1,3:1}
+#     elif mode == 4:
+#         assign = {1:0,2:1,3:0}
+#     elif mode == 5:
+#         assign = {1:0,2:0,3:1}
+#     elif mode == 6:
+#         assign = {1:0,2:0,3:0}
 
-    SPS.reset_bluetooth()
+#     SPS.reset_bluetooth()
 
-    # get saved devicecs, filtered by location
-    savedDevices = SPS.getDevices(devicesFile)
+#     # get saved devicecs, filtered by location
+#     savedDevices = SPS.getDevices(devicesFile)
 
-    # filter devices by role
-    filteredDevices = []
-    for entry in savedDevices:
-        if entry['role'] == 'relay':
-            filteredDevices.append(entry)
+#     # filter devices by role
+#     filteredDevices = []
+#     for entry in savedDevices:
+#         if entry['role'] == 'relay':
+#             filteredDevices.append(entry)
 
-    if len(filteredDevices) >= 1:
-        try:
-            # scan devices to get BLE object
-            devices = await SPS.scan_devices(filteredDevices)
-        except Exception as e:
-            log_error(f"Error during scanning: {e}")
-            return
+#     if len(filteredDevices) >= 1:
+#         try:
+#             # scan devices to get BLE object
+#             devices = await SPS.scan_devices(filteredDevices)
+#         except Exception as e:
+#             log_error(f"Error during scanning: {e}")
+#             return
 
-        if not devices:
-            SPS.log_error("No devices found. Exiting")
-            sys.exit(0)
+#         if not devices:
+#             SPS.log_error("No devices found. Exiting")
+#             sys.exit(0)
 
-        for d in devices:
-            SPS.log_debug(d)
-            bleDev = d[0]
-            savedDev = d[1]
+#         for d in devices:
+#             SPS.log_debug(d)
+#             bleDev = d[0]
+#             savedDev = d[1]
 
-            # filter by shelly device
-            if savedDev['manufacturer'] == 'shelly':
+#             # filter by shelly device
+#             if savedDev['manufacturer'] == 'shelly':
 
-                shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
+#                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
-                async def trySetState(toState:bool,ch: int):
-                    try:
-                        # set relay state
-                        await shDevice.setState(toState,ch)
-                    except Exception as e:
-                        SPS.log_error(f"Error setting state")
+#                 async def trySetState(toState:bool,ch: int):
+#                     try:
+#                         # set relay state
+#                         await shDevice.setState(toState,ch)
+#                     except Exception as e:
+#                         SPS.log_error(f"Error setting state")
  
-                if savedDev['relay1'] in [1,2,3]:
-                    SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
-                    await trySetState(assign[savedDev['relay1']],0)
-                if savedDev['relay2'] in [1,2,3]:
-                    SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
-                    await trySetState(assign[savedDev['relay2']],1)
+#                 if savedDev['relay1'] in [1,2,3]:
+#                     SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
+#                     await trySetState(assign[savedDev['relay1']],0)
+#                 if savedDev['relay2'] in [1,2,3]:
+#                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
+#                     await trySetState(assign[savedDev['relay2']],1)
 
 def writeMode(data):
     SPS.writeJSON(data,rulesFile)

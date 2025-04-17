@@ -28,18 +28,18 @@ from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
 from components.SmartPowerStation import SmartPowerStation
 from flask import Flask, request, jsonify
-
+import threading
 
 app = Flask(__name__)
 
-toMode = 0
+toMode = {'mode':0}
+lock = threading.Lock()
 
 @app.route("/")
 def getCommand():
-    global toMode
-    toMode = request.args.get("mode")
-    #return 200
-
+    with lock:
+        toMode['mode'] = int(request.args.get("mode"))
+    return "Success", 200
 
 shellySTR = 'Shelly'
 bluettiSTR = ['AC180','AC2']
@@ -61,13 +61,15 @@ bleAdapter = "hci0"
 # ============================
 def handle_signal(signal_num: int, frame: Any) -> None:
     """Handles termination signals for graceful shutdown."""
-    SPS.log_info(f"Received signal {signal_num}, shutting down gracefully...")
+    print(f"Received signal {signal_num}, shutting down gracefully...")
     sys.exit(0)
 
 # ============================
 # Main
 # ============================        
-async def main(SPS: SmartPowerStation) -> None:
+async def bleLoop(SPS: SmartPowerStation) -> None:
+    #global toMode
+
     while True:
         SPS.reset_bluetooth()
 
@@ -92,9 +94,12 @@ async def main(SPS: SmartPowerStation) -> None:
         # for task in tasks:
         #     await task
 
-        if toMode != 0:
-            setMode(toMode)
-            toMode = 0
+        async with asyncio.Lock():
+            newMode = toMode['mode']
+        if newMode != 0:
+            setMode(newMode)
+            async with asyncio.Lock():
+                toMode['mode'] = 0
 
         tempResults = {
                         "datetime" : datetime.datetime.now(),
@@ -128,6 +133,11 @@ async def main(SPS: SmartPowerStation) -> None:
         fileName = dataDirectory + str(location) + '_' +str(datetime.date.today())+'.csv'
 
         await writeData(fileName, pd.DataFrame([tempResults]))
+
+        # check mode again before nap
+        # if toMode != 0:
+        #     setMode(toMode)
+        #     toMode = 0
 
         print('************ SLEEPING **************')
         await asyncio.sleep(120)
@@ -261,6 +271,10 @@ async def setMode(mode: int, devices: list[list[Dict]], SPS: SmartPowerStation)-
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
                     await trySetState(assign[savedDev['relay2']],1)
 
+def main(SPS: SmartPowerStation,loop)-> None:
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(bleLoop(SPS))
+
 if __name__ == "__main__":
     # Suppress FutureWarnings
     import warnings
@@ -276,7 +290,11 @@ if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)
 
     try:
-        asyncio.run(main(SPS))
+        #asyncio.run(main(SPS)) # old async code - now running async in seperate thread
+        # Create a new event loop for the async function
+        loop = asyncio.new_event_loop()
+        t = threading.Thread(target=main, args=(SPS,loop))
+        t.start()
     except KeyboardInterrupt:
         SPS.log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

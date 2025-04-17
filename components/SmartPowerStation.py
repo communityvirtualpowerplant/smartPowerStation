@@ -201,66 +201,72 @@ class SmartPowerStation():
     # Control
     # ============================
 
-    async def gridToBattery(self, state: bool) -> None:
-        SPS.reset_bluetooth()
+    # Flexibility Estimation
 
-        location = SPS.location
-        print(location)
+    # Baseline Estimation
+    
+    # PI Control
 
-        scan_duration = 5
-        # Read data from a JSON file
-        try:
-            with open(deviceFile, "r") as json_file:
-                savedDevices = json.load(json_file)
-        except Exception as e:
-            log_error(f"Error during reading devices.json file: {e}")
-            savedDevices = []
+    # async def gridToBattery(self, state: bool) -> None:
+    #     SPS.reset_bluetooth()
 
-        filteredEntries = []
-        for entry in savedDevices:
-            if entry['location'] == location:
-                filteredEntries.append(entry)
+    #     location = SPS.location
+    #     print(location)
 
-        try:
-            devices = await scan_devices(scan_duration, filteredEntries)
-        except Exception as e:
-            log_error(f"Error during scanning: {e}")
-            return
+    #     scan_duration = 5
+    #     # Read data from a JSON file
+    #     try:
+    #         with open(deviceFile, "r") as json_file:
+    #             savedDevices = json.load(json_file)
+    #     except Exception as e:
+    #         log_error(f"Error during reading devices.json file: {e}")
+    #         savedDevices = []
 
-        if not devices:
-            log_error("No devices found. Exiting")
-            sys.exit(0)
+    #     filteredEntries = []
+    #     for entry in savedDevices:
+    #         if entry['location'] == location:
+    #             filteredEntries.append(entry)
 
-        for d in devices:
-            print(d)
-            # shDevice = await statusUpdate(d)
-            # if shDevice:
-            #     print(shDevice.status)
-            #     c = list(range(shDevice.channels))
-            #     print(await shDevice.execute_command(10,c))
-            bleDev = d[0]
-            savedDev = d[1]
+    #     try:
+    #         devices = await scan_devices(scan_duration, filteredEntries)
+    #     except Exception as e:
+    #         log_error(f"Error during scanning: {e}")
+    #         return
 
-            if savedDev['manufacturer'] == 'shelly':
+    #     if not devices:
+    #         log_error("No devices found. Exiting")
+    #         sys.exit(0)
 
-                shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
-                try:
-                    await shDevice.setState(toState,0)
-                except Exception as e:
-                    log_error(f"Error setting state")
+    #     for d in devices:
+    #         print(d)
+    #         # shDevice = await statusUpdate(d)
+    #         # if shDevice:
+    #         #     print(shDevice.status)
+    #         #     c = list(range(shDevice.channels))
+    #         #     print(await shDevice.execute_command(10,c))
+    #         bleDev = d[0]
+    #         savedDev = d[1]
+
+    #         if savedDev['manufacturer'] == 'shelly':
+
+    #             shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
+    #             try:
+    #                 await shDevice.setState(toState,0)
+    #             except Exception as e:
+    #                 log_error(f"Error setting state")
 
 
-    # turn grid to load connection on or off
-    async def gridToLoad(self, state: bool) -> None:
-        # go through device list
+    # # turn grid to load connection on or off
+    # async def gridToLoad(self, state: bool) -> None:
+    #     # go through device list
 
-        #grab device assigned to position 2
+    #     #grab device assigned to position 2
 
 
-        #set state based on bool
-        if state:
-            #turn on
-            pass
-        else:
-            #turn off 
-            pass
+    #     #set state based on bool
+    #     if state:
+    #         #turn on
+    #         pass
+    #     else:
+    #         #turn off 
+    #         pass

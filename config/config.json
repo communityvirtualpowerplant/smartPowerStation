@@ -1,5 +1,7 @@
 {
     "location": "CASE",
     "network":"crown heights",
-    "promise":0
+    "promise":0,
+    "event_start":"",
+    "event_end":""
 }

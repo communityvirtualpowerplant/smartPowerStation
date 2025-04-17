@@ -49,6 +49,7 @@ function drawSystem(data) {
   let posOne =data['relay1_power']
   let posTwo = data['relay2_power']
   let posThree = data['powerstation_outputWAC']
+  let posFour = data['powerstation_inputWDC']
 
   let loadW
   if (posOne > 0){
@@ -87,6 +88,13 @@ function drawSystem(data) {
     wireBool = false;
   }
   drawWire([[525, centerH, 590, centerH]],wireBool); // transfer switch to Load
+
+  if (posFour > 0){
+    wireBool = true;
+  } else{
+    wireBool = false;
+  }
+  drawWire([[90, pvH, 590, pvH, batCenterX-batWidth/2]],wireBool); // PV to battery
   
   
   // Draw grid power source
@@ -94,6 +102,13 @@ function drawSystem(data) {
   circle(90, centerH, 20); // Grid Source Box
   fill(0);
   underText("Grid\n"+ gridV +" VAC", 90, centerH+20);
+
+  // Draw PV source
+  let pvH = batCenterY-(batHeight/3)
+  fill(150);
+  circle(90, pvH, 20); // PV Source Box
+  fill(0);
+  underText("PV\n" +" DC", 90, pvH+20);
   
   // Draw load
   fill(150);
@@ -135,6 +150,12 @@ function drawSystem(data) {
   rect(500, batCenterY, 10,10); // Battery Box
   leftText(posThree+"W", 500, batCenterY-20);
 
+  // Draw Sensor 4
+  rectMode(CENTER);
+  fill(255)
+  rect(200, pvH, 10,10); // Box
+  leftText(posThree+"W", 500, pvH-20);
+
   // Draw Transfer Switch
   push()
     rectMode(CENTER);
@@ -144,6 +165,8 @@ function drawSystem(data) {
     noFill()
     stroke(200, 150, 255);
     strokeWeight(6);
+    let angleS = PI+HALF_PI;
+    let angleE = HALF_PI;
     if (posOne > 0){
       angleS = 0
       angleE = HALF_PI 

@@ -102,7 +102,7 @@ function drawSystem(data) {
   // Draw PV source
   if(posOne > 0 || posTwo > 0){
     stroke(200, 150, 255)
-    circle(90, centerH, 23); // PV Source Box
+    circle(90, centerH, 26); // PV Source Box
   }
   fill(150);
   stroke(0);
@@ -113,7 +113,7 @@ function drawSystem(data) {
   // Draw PV source
   if(posFour > 0){
     stroke(200, 150, 255)
-    circle(90, pvH, 23); // PV Source Box
+    circle(90, pvH, 26); // PV Source Box
   }
   fill(150);
   stroke(0);
@@ -124,7 +124,7 @@ function drawSystem(data) {
   // Draw load
   if(posOne > 0 || posThree > 0){
     stroke(200, 150, 255)
-    circle(600, centerH, 23); // PV Source Box
+    circle(600, centerH, 26); // PV Source Box
   }
   fill(150);
   stroke(0);

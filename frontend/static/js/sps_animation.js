@@ -100,7 +100,7 @@ function drawSystem(data) {
   push()
     // Draw grid power source
     // Draw PV source
-    if(posOne > 0 || posTwo > 0){
+    if(posOne > 0 || posTwo > 0 || gridV > 0){
       fill(200, 150, 255)
       noStroke()
       circle(90, centerH, 26); // PV Source Box

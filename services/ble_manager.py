@@ -94,11 +94,10 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         # for task in tasks:
         #     await task
 
+        # move into setMode function
         async with asyncio.Lock():
-            newMode = toMode['mode']
-        if newMode != 0:
-            setMode(newMode['mode'],devices, SPS)
-            async with asyncio.Lock():
+            if toMode['mode'] != 0:
+                setMode(toMode['mode'],devices, SPS)
                 toMode['mode'] = 0
 
         tempResults = {

@@ -50,6 +50,7 @@ function drawSystem(data) {
   let posTwo = data['relay2_power']
   let posThree = data['powerstation_outputWAC']
   let posFour = data['powerstation_inputWDC']
+  let pvH = batCenterY-(batHeight/3)
 
   let loadW
   if (posOne > 0){
@@ -104,7 +105,6 @@ function drawSystem(data) {
   underText("Grid\n"+ gridV +" VAC", 90, centerH+20);
 
   // Draw PV source
-  let pvH = batCenterY-(batHeight/3)
   fill(150);
   circle(90, pvH, 20); // PV Source Box
   fill(0);

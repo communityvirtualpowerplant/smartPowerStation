@@ -97,43 +97,47 @@ function drawSystem(data) {
   }
   drawWire([[90, pvH, batCenterX-batWidth/2, pvH]],wireBool); // PV to battery
   
-  
-  // Draw grid power source
-  // Draw PV source
-  if(posOne > 0 || posTwo > 0){
-    fill(200, 150, 255)
-    noStroke()
-    circle(90, centerH, 26); // PV Source Box
-  }
-  fill(150);
-  stroke(0);
-  circle(90, centerH, 20); // Grid Source Box
-  fill(0);
-  underText("Grid\n"+ gridV +" VAC", 90, centerH+20);
+  push()
+    // Draw grid power source
+    // Draw PV source
+    if(posOne > 0 || posTwo > 0){
+      fill(200, 150, 255)
+      noStroke()
+      circle(90, centerH, 26); // PV Source Box
+    }
+    strokeWeight(2);
+    fill(150);
+    stroke(0);
+    circle(90, centerH, 20); // Grid Source Box
+    fill(0);
+    underText("Grid\n"+ gridV +" VAC", 90, centerH+20);
 
-  // Draw PV source
-  if(posFour > 0){
-    fill(200, 150, 255)
-    noStoke()
-    circle(90, pvH, 26); // PV Source Box
-  }
-  fill(150);
-  stroke(0);
-  circle(90, pvH, 20); // PV Source Box
-  fill(0);
-  underText("PV", 90, pvH+20);
-  
-  // Draw load
-  if(posOne > 0 || posThree > 0){
-    fill(200, 150, 255)
-    noStroke();
-    circle(600, centerH, 26); // PV Source Box
-  }
-  fill(150);
-  stroke(0);
-  circle(600, centerH, 20); // Grid Source Box
-  fill(0);
-  underText("Load\n" +loadW +" Watts", 600, centerH+20);
+    // Draw PV source
+    if(posFour > 0){
+      fill(200, 150, 255)
+      noStoke()
+      circle(90, pvH, 26); // PV Source Box
+    }
+    fill(150);
+    strokeWeight(2);
+    stroke(0);
+    circle(90, pvH, 20); // PV Source Box
+    fill(0);
+    underText("PV", 90, pvH+20);
+    
+    // Draw load
+    if(posOne > 0 || posThree > 0){
+      fill(200, 150, 255)
+      noStroke();
+      circle(600, centerH, 26); // PV Source Box
+    }
+    strokeWeight(2);
+    fill(150);
+    stroke(0);
+    circle(600, centerH, 20); // Grid Source Box
+    fill(0);
+    underText("Load\n" +loadW +" Watts", 600, centerH+20);
+  pop();
  
   // Draw battery system
   push()

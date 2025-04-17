@@ -29,6 +29,8 @@ def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
         SPS.log_error(e)
         return None
 
+ async def setMode(mode: int)-> Any:
+    send_get_request(URL,5001,'?mode='+mode)
 # async def setMode(mode: int, SPS: SmartPowerStation)-> Any:
 #     # these assignments should be listed in the rules file
 #     if mode == 1:
@@ -132,7 +134,7 @@ async def main(SPS) -> None:
 
         writeMode(rules)
 
-        await setMode(rules['status']['mode'],SPS)
+        await setMode(rules['status']['mode'])
         print('************ SLEEPING **************')
         await asyncio.sleep(60*5)
 

@@ -228,7 +228,7 @@ class Controls():
         self.fileList = []
 
     # type = json, text, or status_code
-    def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Dict:
+    async def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Dict:
         """Send GET request to the IP."""
         try:
             response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)
@@ -257,7 +257,7 @@ class Controls():
     #estimate when the PV will start producing and for how long
     def estSunWindow(self):
         # get recent files
-        self.fileList = self.send_get_request(self.url, self.port,'/api/files','json')
+        self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
 
         # start with todays date
         checkFile = date.today()

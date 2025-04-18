@@ -20,7 +20,7 @@ devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 
 async def setMode(mode: int)-> Any:
-    SPS.log_info(CONTROLS.send_get_request(URL,5001,f'?mode={mode}','status_code'))
+    SPS.log_info(await CONTROLS.send_get_request(URL,5001,f'?mode={mode}','status_code'))
 
 # def writeMode(data):
 #     SPS.writeJSON(data,rulesFile)
@@ -34,7 +34,7 @@ async def main(SPS) -> None:
     while True:
 
         # get most recent data
-        now = CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json')
+        now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json')
         SPS.log_debug(now['datetime'])
 
         #check if data is fresh

@@ -272,7 +272,7 @@ class Controls():
                     recentFileNames.append(f)
                     break
             checkFile = checkFile - timedelta(days=1)
-            if len(recentFileNames) >= 5:
+            if len(recentFileNames) >= 2:
                 break
 
         print(recentFileNames)
@@ -284,6 +284,8 @@ class Controls():
             return
 
         # get earliest, latest, and max sun times for each file
+        for f in recentFileNames:
+            self.fileList = await self.send_get_request(self.url, self.port,f'/api/data?files='{f},'json')
 
         # average
 

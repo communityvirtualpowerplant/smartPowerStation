@@ -100,43 +100,14 @@ def get_csv_for_date():
             return jsonify({'error': str(e)}), 500
 
     elif file == 'recent':
-
-        try:
-            df = getMostRecent()[0]
-            return jsonify(df)
-        except FileNotFoundError:
-            return jsonify({'error': 'CSV file not found'}), 404
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-    else:
-        try:
-            fileName = file+'.csv'
-            file_pattern = os.path.join(filePath, f"*.csv")
-            files = sorted(glob.glob(file_pattern))
-
-            for f in files:
-                if fileName in f:
-                    df = pd.read_csv(fileName) 
-                    return jsonify(df)
-        except FileNotFoundError:
-            return jsonify({'error': 'CSV file not found'}), 404
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-@app.route("/api/download", methods=['GET'])
-def get_csv_for_date():
-    file = request.args.get("file")
-    if not file:
-        return "Please provide file name in proper form (see api/files) or date=now for most recent data", 400
-        
-    if file == 'recent':
-
         try:
             file_pattern = os.path.join(filePath, f"*.csv")
             files = sorted(glob.glob(file_pattern))
             fileName = files[-1]
             dn = fileName.split('/')[-1]
-            return send_file(os.path.abspath(fileName), as_attachment=True, download_name=dn)
+            return send_file(os.path.abspath(fileName), as_attachment=True, download_name=dn, mimetype='text/csv')
+
+
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:
@@ -156,7 +127,7 @@ def get_csv_for_date():
 
             for f in files:
                 if fileName in f:
-                    return send_file(os.path.abspath(f), as_attachment=True, download_name=fileName)
+                    return send_file(os.path.abspath(f), as_attachment=True, download_name=fileName, mimetype='text/csv')
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:

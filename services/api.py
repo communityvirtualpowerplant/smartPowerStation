@@ -92,10 +92,12 @@ def get_csv_for_date():
             return jsonify({'error': str(e)}), 500
     elif file == 'recent':
         try:
-            df = getMostRecent()[0] # Update path as needed
+            r = getMostRecent() # Update path as needed
+            df = r[0]
+            dn = r[1]
             if df.empty:
                 return jsonify({'error': 'CSV is empty'}), 404
-            return send_file(df, as_attachment=True, download_name=df[1])
+            return send_file(df, as_attachment=True, download_name=dn)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:

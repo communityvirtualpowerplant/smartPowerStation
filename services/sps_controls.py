@@ -1,5 +1,3 @@
-# get most recent status
-
 import asyncio
 import signal
 import requests

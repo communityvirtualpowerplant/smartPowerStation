@@ -59,11 +59,11 @@ def getMostRecent():
     
     return [df, fileName]
 
-@app.route("/")
+@app.route("/", methods=['GET'])
 def index():
     return render_template('index.html')
 
-@app.route("/today")
+@app.route("/today", methods=['GET'])
 def today():
     file_pattern = os.path.join(filePath, f"*.csv")
     files = sorted(glob.glob(file_pattern))
@@ -74,11 +74,11 @@ def today():
         rows = list(reader)#[-10:]  # last 10 readings
     return render_template('data.html', cols = cols, data=rows)
 
-@app.route("/api/discoverSPS")
+@app.route("/api/discoverSPS", methods=['GET'])
 def discover():
     return jsonify({'name': config['location']}), 200
 
-@app.route("/api/data")
+@app.route("/api/data", methods=['GET'])
 def get_csv_for_date():
     file = request.args.get("file")
     if not file:
@@ -96,6 +96,12 @@ def get_csv_for_date():
     elif file == 'recent':
         try:
             f = getMostRecentPath() # Update path as needed
+
+            if not os.path.exists(f):
+                return f"No data found for {f}", 404
+            if not os.path.isfile(f):
+                return jsonify({'error': 'File not found'}), 404
+
             return send_file(os.path.join(filePath,f), as_attachment=True, download_name=f)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
@@ -108,6 +114,8 @@ def get_csv_for_date():
 
             if not os.path.exists(fullFilePath):
                 return f"No data found for {file}", 404
+            if not os.path.isfile(fullFilePath):
+                return jsonify({'error': 'File not found'}), 404
 
             return send_file(fullFilePath, as_attachment=True, download_name=fileName)
         except FileNotFoundError:
@@ -115,7 +123,7 @@ def get_csv_for_date():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-@app.route("/api/files")
+@app.route("/api/files", methods=['GET'])
 def list_csv_files():
     #fileName = filePrefix +str(datetime.date.today())+'.csv'
 
@@ -129,11 +137,11 @@ def list_csv_files():
     return jsonify(filenames)
 
 # returns hardward names, locations, and channels
-@app.route("/api/system")
+@app.route("/api/system", methods=['GET'])
 def getSystem():
     return devices
 
-@app.route("/api/disk")
+@app.route("/api/disk", methods=['GET'])
 def get_disk_usage():
     stat = os.statvfs("/")
 

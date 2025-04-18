@@ -197,85 +197,17 @@ class SmartPowerStation():
 
         return t
 
-    # ============================
-    # Control
-    # ============================
-
-    # Flexibility Estimation
-
-    # Baseline Estimation
-
-    # PI Control
-
-    # async def gridToBattery(self, state: bool) -> None:
-    #     SPS.reset_bluetooth()
-
-    #     location = SPS.location
-    #     print(location)
-
-    #     scan_duration = 5
-    #     # Read data from a JSON file
-    #     try:
-    #         with open(deviceFile, "r") as json_file:
-    #             savedDevices = json.load(json_file)
-    #     except Exception as e:
-    #         log_error(f"Error during reading devices.json file: {e}")
-    #         savedDevices = []
-
-    #     filteredEntries = []
-    #     for entry in savedDevices:
-    #         if entry['location'] == location:
-    #             filteredEntries.append(entry)
-
-    #     try:
-    #         devices = await scan_devices(scan_duration, filteredEntries)
-    #     except Exception as e:
-    #         log_error(f"Error during scanning: {e}")
-    #         return
-
-    #     if not devices:
-    #         log_error("No devices found. Exiting")
-    #         sys.exit(0)
-
-    #     for d in devices:
-    #         print(d)
-    #         # shDevice = await statusUpdate(d)
-    #         # if shDevice:
-    #         #     print(shDevice.status)
-    #         #     c = list(range(shDevice.channels))
-    #         #     print(await shDevice.execute_command(10,c))
-    #         bleDev = d[0]
-    #         savedDev = d[1]
-
-    #         if savedDev['manufacturer'] == 'shelly':
-
-    #             shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
-    #             try:
-    #                 await shDevice.setState(toState,0)
-    #             except Exception as e:
-    #                 log_error(f"Error setting state")
-
-
-    # # turn grid to load connection on or off
-    # async def gridToLoad(self, state: bool) -> None:
-    #     # go through device list
-
-    #     #grab device assigned to position 2
-
-
-    #     #set state based on bool
-    #     if state:
-    #         #turn on
-    #         pass
-    #     else:
-    #         #turn off 
-    #         pass
-
+# ============================
+# Control
+# ============================
 class Controls():
     def __init__(self):
         self.goalWh = 0
         self.duration = 4
-        self.flexibilityWh = 0
+        self.maxFlexibilityWh = 0
+        self.availableFlexibilityWh = 0
+        self.avgPvWh = 0 # recent daily average
+        self.maxPvWh = 0 # recent daily max
         self.baseline = 0
         self.modeOne = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
         self.modeTwo = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
@@ -289,6 +221,8 @@ class Controls():
         self.setpoint = setpoint
         self.previous_error = 0
         self.integral = 0
+        self.sunWindowStart = 10
+        self.sunWindowDuration = 2
 
     def pi_controller(self, pv, kp, ki,):
         error = self.setpoint - pv
@@ -302,3 +236,28 @@ class Controls():
         derivative = (error - self.previous_error) / dt
         control = kp * error + ki * self.integral + kd * derivative
         return control, error, integral
+
+    #estimate when the PV will start producing and for how long
+    def estSunWindow(self):
+        pass
+
+    # get tomorrows weather
+    def getWeather(self):
+        pass
+
+    #estimate recent daily average and max PV production(Wh)
+    def estPV(self):
+        # get 
+        pass
+
+    # maintains battery at level to utilize PV
+    def utilizePV(self):
+        pass
+
+    # estimate DR baseline
+    def estBaseline(self):
+        pass
+
+    #estimate max flexibility
+    def estFlexibility(self):
+        pass

@@ -8,7 +8,7 @@ from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from datetime import datetime
 import sys
-from components.SmartPowerStation import SmartPowerStation
+from components.SmartPowerStation import SmartPowerStation, Controls
 
 eventUpcoming = False
 eventOngoing = False
@@ -50,27 +50,32 @@ async def main(SPS) -> None:
         #if SPS.isRecent(now['datetime']):
             #SPS.log_debug('data is fresh')
 
-        #ensure there isn't an ongoing or upcoming event
-        # lastFull = rules['status']['lastFull']
-        # if (lastFull != "") and (isinstance(lastFull, str)):
-        #     lastFull = datetime.strptime(lastFull, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
-        # lastEmpty = rules['status']['lastEmpty']
-        # if (lastEmpty != "") and (isinstance(lastEmpty, str)):
-        #     lastEmpty = datetime.strptime(lastEmpty, "%Y-%m-%d %H:%M:%S") #check if the ts is a string and convert
-
         if  (rules['event']['upcoming'] == 0) and (rules['event']['ongoing'] == 0):
-            if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] == 1):
-                toMode = 5
-                SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
-                rules['status']['lastFull']== datetime.now()
-                rules['status']['mode']=toMode #set to discharge
-            elif (now['powerstation_percentage'] <= rules['battery']['min']) and (rules['status']['mode'] == 5):
-                toMode = 1
-                SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
-                rules['status']['lastEmpty']== datetime.now()
-                rules['status']['mode']=toMode #set to charge
-            else:
-                SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
+            # add code for PV priority - battery is depleted by the start of the sun window to ensure maximum PV utilization
+
+            # daily cycle - battery is depleted and charged up to once a day
+            if rules['battery']['cycle']=='daily':
+                pass
+            # constant cycle - battery is depleted and charged continuously. time of cycle depends on load
+            elif rules['battery']['cycle']=='constant':
+                if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] == 1):
+                    toMode = 5
+                    SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
+                    rules['status']['lastFull']== datetime.now()
+                    rules['status']['mode']=toMode #set to discharge
+                elif (now['powerstation_percentage'] <= rules['battery']['min']) and (rules['status']['mode'] == 5):
+                    toMode = 1
+                    SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
+                    rules['status']['lastEmpty']== datetime.now()
+                    rules['status']['mode']=toMode #set to charge
+                else:
+                    SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
+        elif(rules['event']['upcoming'] != 0):
+            # prep for event
+            pass
+        elif(rules['event']['ongoing'] != 0):
+            # manage event
+            pass
 
         writeMode(rules)
 

@@ -1,15 +1,12 @@
-# get most recent status
-
 import asyncio
 import signal
+import sys
 import requests
 import json
 from components.SmartPowerStation import SmartPowerStation
-from typing import cast
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict
 from datetime import datetime
 from components.Shelly import ShellyDevice
-import sys
 
 eventUpcoming = False
 eventOngoing = False

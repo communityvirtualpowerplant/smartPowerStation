@@ -48,7 +48,7 @@ async def main(SPS) -> None:
         #if SPS.isRecent(now['datetime']):
             #SPS.log_debug('data is fresh')
 
-        if  (rules['event']['upcoming'] == 0) and (rules['event']['ongoing'] == 0):
+        if (rules['event']['upcoming'] == 0) and (rules['event']['ongoing'] == 0):
             # add code for PV priority - battery is depleted by the start of the sun window to ensure maximum PV utilization
 
             # daily cycle - battery is depleted and charged up to once a day
@@ -68,10 +68,10 @@ async def main(SPS) -> None:
                     rules['status']['mode']=toMode #set to charge
                 else:
                     SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
-        elif(rules['event']['upcoming'] != 0):
+        elif rules['event']['upcoming'] != 0:
             # prep for event
             pass
-        elif(rules['event']['ongoing'] != 0):
+        elif rules['event']['ongoing'] != 0:
             # manage event
             pass
 

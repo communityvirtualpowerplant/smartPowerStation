@@ -1,7 +1,7 @@
 import socket
 import ipaddress
-import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import requests
 
 
 NUM_SUBNETS_AROUND = 2  # How many subnets above and below to scan
@@ -47,7 +47,7 @@ def send_get_request(ip, port=PORT,endpoint=ENDPOINT,timeout=1):
     try:
         response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)
         return ip, response.status_code
-    except Exception as e:
+    except:
         return ip, None
 
 def main():

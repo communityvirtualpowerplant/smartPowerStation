@@ -12,7 +12,6 @@ A0 & A1 = 1000101 =45
 INA260 datasheet w/ Address Table: https://www.ti.com/lit/ds/symlink/ina260.pdf 
 '''
 
-import time
 import board
 import busio
 

@@ -10,14 +10,14 @@ import asyncio
 #from bleak import BleakError, BleakScanner
 import logging
 import signal
-from bleak import BleakClient, BleakError, BleakScanner
+from bleak import BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
-import argparse
-from typing import Any, Dict, Optional, Tuple, List
+#import argparse
+from typing import Any, Dict, List
 from datetime import datetime
 import json
-from components.Shelly import ShellyDevice as Shelly
+#from components.Shelly import ShellyDevice as Shelly
 import sys
 
 deviceFile = '../config/devices.json'

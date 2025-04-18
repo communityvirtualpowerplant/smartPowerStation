@@ -227,7 +227,7 @@ class Controls():
         self.port = 5000
         self.fileList = self.send_get_request(self.url, self.port,'/api/files')
 
-    def send_get_request(ip=self.url, port=self.port,endpoint:str,timeout=1,type='json') -> Dict:
+    def send_get_request(ip=self.url, port=self.port,endpoint:str='api/data?file=now',timeout=1,type='json') -> Dict:
         """Send GET request to the IP."""
         try:
             response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)
@@ -275,7 +275,7 @@ class Controls():
                 break
 
         print(recentFileNames)
-        
+
         # if there are no recent files, set defaults and return
         if len(recentFileNames)==0:
             self.sunWindowStart = 10 

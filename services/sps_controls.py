@@ -3,7 +3,7 @@ import signal
 import requests
 import json
 from typing import cast
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, Optional, List
 from datetime import datetime
 import sys
 from components.SmartPowerStation import SmartPowerStation, Controls

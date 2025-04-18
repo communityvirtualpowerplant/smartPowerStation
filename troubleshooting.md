@@ -19,3 +19,7 @@ or
 
 ## Check is a python program is running:
 `ps aux | grep .py`
+
+## Memory
+
+`free -h`

@@ -6,6 +6,7 @@ import os
 import glob
 import json
 import pandas as pd
+import psutil
 
 # with open("/home/case/CASE_sensor_network/rpi_zero_sensor/config.json") as f:
 #     config = json.load(f)
@@ -170,6 +171,23 @@ def get_disk_usage():
         "free_mb": free_mb,
         "percent_used": percent_used
     })
+
+
+# hasn't been tested yet
+@app.route("/api/memory", methods=['GET'])
+def get_memory_usage():
+    mem = psutil.virtual_memory()
+
+    total = f"Total: {mem.total / 1024 ** 2:.2f} MB"
+    used = f"Used: {mem.used / 1024 ** 2:.2f} MB"
+    available = f"Available: {mem.available / 1024 ** 2:.2f} MB"
+
+    return jsonify({
+        "total": total,
+        "used": used,
+        "available": available
+    })
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)

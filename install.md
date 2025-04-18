@@ -38,7 +38,8 @@ Check if its running
 
 Set daily reboot
 `sudo crontab -e`<br>
-Add this line at the bottom of the file `0 3 * * * /sbin/reboot`
+Add this line at the bottom of the file to restart the server at midnight `@midnight sudo reboot`
+
 
 ### Smart Power Station
 

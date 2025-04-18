@@ -289,6 +289,11 @@ class Controls():
 
         # average
 
+        #temp
+        self.sunWindowStart = 10 
+        self.sunWindowDuration = 4
+        return
+
     # get tomorrows weather
     def getWeather(self):
         pass

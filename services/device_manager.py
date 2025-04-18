@@ -11,7 +11,7 @@ import json
 import signal
 import logging
 import time
-import datetime
+from dateimte import datetime, date
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from components.Shelly import ShellyDevice
@@ -97,7 +97,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         await setMode(devices, SPS)
 
         tempResults = {
-                        "datetime" : datetime.datetime.now(),
+                        "datetime" : datetime.now(),
                         "powerstation_percentage": '',
                         "powerstation_inputWAC": '',
                         "powerstation_inputWDC": '',
@@ -125,7 +125,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
                 tempResults = SPS.packageData(d, result, tempResults)
                 #results.append(result)
         
-        fileName = dataDirectory + str(location) + '_' +str(datetime.date.today())+'.csv'
+        fileName = dataDirectory + str(location) + '_' +str(date.today())+'.csv'
 
         await writeData(fileName, pd.DataFrame([tempResults]))
 
@@ -221,7 +221,7 @@ async def writeData(fn, df):
         SPS.log_error(err)
         df.to_csv(fn, sep=',',index=False)
 
-    SPS.log_debug("csv writing: " + str(datetime.datetime.now()))
+    SPS.log_debug("csv writing: " + str(datetime.now()))
 
 async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
     # move into setMode function

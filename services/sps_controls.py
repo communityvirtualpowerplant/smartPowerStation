@@ -19,30 +19,31 @@ configFile = '../config/config.json'
 devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 
-def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
-    """Send GET request to the IP."""
-    try:
-        response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)
-        return response #.json()
-    except Exception as e:
-        SPS.log_error(e)
-        return None
+# def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
+#     """Send GET request to the IP."""
+#     try:
+#         response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)
+#         return response #.json()
+#     except Exception as e:
+#         SPS.log_error(e)
+#         return None
 
 async def setMode(mode: int)-> Any:
-    SPS.log_info(send_get_request(URL,5001,f'?mode={mode}'))
+    SPS.log_info(CONTROLS.send_get_request(URL,5001,f'?mode={mode}','status_code'))
 
 # def writeMode(data):
 #     SPS.writeJSON(data,rulesFile)
 
 async def main(SPS) -> None:
+    CONTROLS = Controls()
 
     rules = SPS.getConfig(rulesFile)
         #print(rules)
-        
+
     while True:
 
         # get most recent data
-        now = send_get_request(URL, PORT, ENDPOINT).json()
+        now = CONTROLS.send_get_request(URL, PORT, ENDPOINT)
         SPS.log_debug(now['datetime'])
 
         #check if data is fresh

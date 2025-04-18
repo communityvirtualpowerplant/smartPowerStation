@@ -127,7 +127,7 @@ function drawSystem(data) {
     fill(0);
     underText("PV", 90, pvH+20);
     
-    // Draw load
+    // Draw load (maybe also highlight load if gridV is available and posOne is open)
     if(posOne > 0 || posThree > 0){
       fill(200, 150, 255)
       noStroke();

@@ -7,7 +7,7 @@ from bleak import BleakClient, BleakError, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 
 class SmartPowerStation():
     def __init__(self, conf: str,info=True, debug=True,error=True):
@@ -223,6 +223,23 @@ class Controls():
         self.integral = 0
         self.sunWindowStart = 10
         self.sunWindowDuration = 2
+        self.url = 'localhost'
+        self.port = 5000
+        self.fileList = self.send_get_request(self.url, self.port,'/api/files')
+
+    def send_get_request(ip=self.url, port=self.port,endpoint:str,timeout=1,type='json') -> Dict:
+        """Send GET request to the IP."""
+        try:
+            response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)
+            if type == 'json':
+                return response.json()
+            elif type == 'text':
+                return response.text
+            else:
+                return response.status_code
+        except Exception as e:
+            SPS.log_error(e)
+            return None
 
     def pi_controller(self, pv, kp, ki,):
         error = self.setpoint - pv
@@ -239,7 +256,35 @@ class Controls():
 
     #estimate when the PV will start producing and for how long
     def estSunWindow(self):
-        pass
+        # get recent files
+        self.fileList
+
+        # start with todays date
+        checkFile = date.today()
+        recentFileNames = [] #store most recent found file names
+
+        #look for files within the last 30 days
+        for d in range(1,30):
+            for f in self.fileList: # loop through file list to get recent
+                if str(checkFile) in f:
+                    # add file to recent files
+                    recentFileNames.append(f)
+                    break
+            checkFile = checkFile - timedelta(days=1)
+            if len(recentFileNames) >= 5:
+                break
+
+        print(recentFileNames)
+        
+        # if there are no recent files, set defaults and return
+        if len(recentFileNames)==0:
+            self.sunWindowStart = 10 
+            self.sunWindowDuration = 4
+            return
+
+        # get earliest, latest, and max sun times for each file
+
+        # average
 
     # get tomorrows weather
     def getWeather(self):

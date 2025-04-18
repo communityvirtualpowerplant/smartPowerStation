@@ -168,7 +168,7 @@ class SmartPowerStation():
             elif 'Shelly'.lower() in d[1]['name'].lower():
                 if '1PM'.lower() in d[1]['name'].lower():
                     #print('1pm!')
-                    if d[1]['assignment0'] == 1:
+                    if d[1]['relay1'] == 1:
                         t['relay1_power'] = r[0]["apower"]
                         t['relay1_current'] =r[0]["current"]
                         t['relay1_voltage'] =r[0]["voltage"]

@@ -225,7 +225,7 @@ class Controls():
         self.sunWindowDuration = 2
         self.url = 'localhost'
         self.port = 5000
-        self.fileList = self.send_get_request(self.url, self.port,'/api/files','json')
+        self.fileList = []
 
     # type = json, text, or status_code
     def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Dict:
@@ -257,7 +257,7 @@ class Controls():
     #estimate when the PV will start producing and for how long
     def estSunWindow(self):
         # get recent files
-        self.fileList
+        self.fileList = self.send_get_request(self.url, self.port,'/api/files','json')
 
         # start with todays date
         checkFile = date.today()

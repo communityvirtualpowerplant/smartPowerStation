@@ -227,7 +227,7 @@ class Controls():
         self.port = 5000
         self.fileList = self.send_get_request(self.url, self.port,'/api/files')
 
-    def send_get_request(ip=self.url, port=self.port,endpoint:str='api/data?file=now',timeout=1,type='json') -> Dict:
+    def send_get_request(self, ip=self.url, port=self.port,endpoint:str='api/data?file=now',timeout=1,type='json') -> Dict:
         """Send GET request to the IP."""
         try:
             response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)

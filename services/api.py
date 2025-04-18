@@ -42,12 +42,15 @@ filePath = '../data/'
 filePrefix = str(config['location']) + '_'
 
 
-def getMostRecent():
+def getMostRecentPath():
     # Get all CSV files in the data/ directory
     file_pattern = os.path.join(filePath, f"*.csv")
     files = sorted(glob.glob(file_pattern))
-
     fileName = files[-1]
+    return fileName
+
+def getMostRecent():
+    fileName = getMostRecentPath()
     fullFilePath = filePath + fileName #os.path.join(fileName)
     df = pd.read_csv(fullFilePath)  # Update path as needed
 
@@ -92,12 +95,8 @@ def get_csv_for_date():
             return jsonify({'error': str(e)}), 500
     elif file == 'recent':
         try:
-            r = getMostRecent() # Update path as needed
-            df = r[0]
-            dn = r[1]
-            if df.empty:
-                return jsonify({'error': 'CSV is empty'}), 404
-            return send_file(df, as_attachment=True, download_name=dn)
+            f = getMostRecentPath() # Update path as needed
+            return send_file(filePath + f, as_attachment=True, download_name=f)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:

@@ -8,6 +8,7 @@ from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from datetime import datetime
 import sys
+from components.SmartPowerStation import SmartPowerStation
 
 eventUpcoming = False
 eventOngoing = False
@@ -29,8 +30,8 @@ def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
         SPS.log_error(e)
         return None
 
- async def setMode(mode: int)-> Any:
-    SPS.log_info(send_get_request(URL,5001,'?mode='+mode))
+async def setMode(mode: int)-> Any:
+    SPS.log_info(send_get_request(URL,5001,f'?mode={mode}'))
 
 def writeMode(data):
     SPS.writeJSON(data,rulesFile)

@@ -31,8 +31,8 @@ def send_get_request(ip=URL, port=PORT,endpoint=ENDPOINT,timeout=1) -> Dict:
 async def setMode(mode: int)-> Any:
     SPS.log_info(send_get_request(URL,5001,f'?mode={mode}'))
 
-def writeMode(data):
-    SPS.writeJSON(data,rulesFile)
+# def writeMode(data):
+#     SPS.writeJSON(data,rulesFile)
 
 async def main(SPS) -> None:
 
@@ -59,12 +59,12 @@ async def main(SPS) -> None:
                 if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] == 1):
                     toMode = 5
                     SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
-                    rules['status']['lastFull']== datetime.now()
+                    rules['status']['lastFull']= datetime.now()
                     rules['status']['mode']=toMode #set to discharge
                 elif (now['powerstation_percentage'] <= rules['battery']['min']) and (rules['status']['mode'] == 5):
                     toMode = 1
                     SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
-                    rules['status']['lastEmpty']== datetime.now()
+                    rules['status']['lastEmpty']= datetime.now()
                     rules['status']['mode']=toMode #set to charge
                 else:
                     SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
@@ -75,7 +75,8 @@ async def main(SPS) -> None:
             # manage event
             pass
 
-        writeMode(rules)
+        #writeMode(rules)
+        SPS.writeJSON(rules,rulesFile)
 
         await setMode(rules['status']['mode'])
         print('************ SLEEPING **************')

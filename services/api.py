@@ -42,15 +42,19 @@ filePath = '../data/'
 filePrefix = str(config['location']) + '_'
 
 
-def getMostRecentPath():
-    # Get all CSV files in the data/ directory
+# def getMostRecentPath():
+#     # Get all CSV files in the data/ directory
+#     file_pattern = os.path.join(filePath, f"*.csv")
+#     files = sorted(glob.glob(file_pattern))
+#     fileName = files[-1]
+#     return fileName
+
+def getMostRecent():
+    #fileName = getMostRecentPath()
     file_pattern = os.path.join(filePath, f"*.csv")
     files = sorted(glob.glob(file_pattern))
     fileName = files[-1]
-    return fileName
 
-def getMostRecent():
-    fileName = getMostRecentPath()
     fullFilePath = os.path.join(filePath, fileName) #os.path.join(fileName)
     df = pd.read_csv(fullFilePath)  # Update path as needed
 
@@ -99,8 +103,8 @@ def get_csv_for_date():
             file_pattern = os.path.join(filePath, f"*.csv")
             files = sorted(glob.glob(file_pattern))
             fileName = files[-1]
-
-            return send_file(fileName, as_attachment=True, download_name='mostRecent.csv')
+            dn = fileName.split('/')[-1]
+            return send_file(os.path.abspath(fileName), as_attachment=True, download_name=dn)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:
@@ -120,7 +124,7 @@ def get_csv_for_date():
 
             for f in files:
                 if fileName in f:
-                    return send_file(f, as_attachment=True, download_name=fileName)
+                    return send_file(os.path.abspath(f), as_attachment=True, download_name=fileName)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:

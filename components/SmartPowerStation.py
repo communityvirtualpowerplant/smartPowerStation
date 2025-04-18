@@ -239,8 +239,7 @@ class Controls():
             else:
                 return response.status_code
         except Exception as e:
-            SPS.log_error(e)
-            return None
+            return e
 
     def pi_controller(self, pv, kp, ki,):
         error = self.setpoint - pv

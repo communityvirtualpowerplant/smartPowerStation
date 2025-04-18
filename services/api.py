@@ -94,15 +94,13 @@ def get_csv_for_date():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
     elif file == 'recent':
+
         try:
-            f = getMostRecentPath() # Update path as needed
+            file_pattern = os.path.join(filePath, f"*.csv")
+            files = sorted(glob.glob(file_pattern))
+            fileName = files[-1]
 
-            if not os.path.exists(f):
-                return f"No data found for {f}", 404
-            if not os.path.isfile(f):
-                return jsonify({'error': 'File not found'}), 404
-
-            return send_file(os.path.join(filePath,f), as_attachment=True, download_name=f)
+            return send_file(fileName, as_attachment=True, download_name='mostRecent.csv')
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:
@@ -110,14 +108,19 @@ def get_csv_for_date():
     else:
         try:
             fileName = file+'.csv'
-            fullFilePath = os.path.join(filePath, fileName) #os.path.join(fileName)
+            # fullFilePath = os.path.join(filePath, fileName) #os.path.join(fileName)
 
-            if not os.path.exists(fullFilePath):
-                return f"No data found for {file}", 404
-            if not os.path.isfile(fullFilePath):
-                return jsonify({'error': 'File not found'}), 404
+            # if not os.path.exists(fullFilePath):
+            #     return f"No data found for {file}", 404
+            # if not os.path.isfile(fullFilePath):
+            #     return jsonify({'error': 'File not found'}), 404
 
-            return send_file(fullFilePath, as_attachment=True, download_name=fileName)
+            file_pattern = os.path.join(filePath, f"*.csv")
+            files = sorted(glob.glob(file_pattern))
+
+            for f in files:
+                if fileName in f:
+                    return send_file(f, as_attachment=True, download_name=fileName)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:

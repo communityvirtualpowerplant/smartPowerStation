@@ -96,7 +96,7 @@ def get_csv_for_date():
     elif file == 'recent':
         try:
             f = getMostRecentPath() # Update path as needed
-            return send_file(filePath + f, as_attachment=True, download_name=f)
+            return send_file(os.path.join(filePath,f), as_attachment=True, download_name=f)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:
@@ -104,7 +104,7 @@ def get_csv_for_date():
     else:
         try:
             fileName = file+'.csv'
-            fullFilePath = filePath + fileName #os.path.join(fileName)
+            fullFilePath = os.path.join(filePath, fileName) #os.path.join(fileName)
 
             if not os.path.exists(fullFilePath):
                 return f"No data found for {file}", 404

@@ -34,7 +34,7 @@ async def main(SPS) -> None:
     while True:
 
         # get most recent data
-        now = CONTROLS.send_get_request(URL, PORT, ENDPOINT)
+        now = CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json')
         SPS.log_debug(now['datetime'])
 
         #check if data is fresh

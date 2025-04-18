@@ -215,17 +215,17 @@ class Controls():
         self.modeFour = {1:0,2:1,3:0}
         self.modeFive = {1:0,2:0,3:1}
         self.modeSix = {1:0,2:0,3:0}
-        self.Kp = Kp
-        self.Ki = Ki
+        self.Kp = 0
+        self.Ki = 0
         #self.Kd = Kd
-        self.setpoint = setpoint
+        self.setpoint = 0
         self.previous_error = 0
         self.integral = 0
         self.sunWindowStart = 10
         self.sunWindowDuration = 2
         self.url = 'localhost'
         self.port = 5000
-        self.fileList = self.send_get_request(self.url, self.port,'/api/files')
+        self.fileList = self.send_get_request(self.url, self.port,'/api/files','json')
 
     # type = json, text, or status_code
     def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Dict:

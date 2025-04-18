@@ -285,7 +285,7 @@ class Controls():
 
         # get earliest, latest, and max sun times for each file
         for f in recentFileNames:
-            self.fileList = await self.send_get_request(self.url, self.port,f'/api/data?files='{f},'json')
+            self.fileList = await self.send_get_request(self.url, self.port,f'/api/data?files='{f.split('.')[0]},'json')
 
         # average
 

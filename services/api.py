@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, send_file, abort, jsonify
 from flask_cors import CORS
 import csv
-import datetime
+#import datetime
 import os 
 import glob
 import json
@@ -61,7 +61,7 @@ def index():
     return render_template('index.html')
 
 @app.route("/today")
-def data():
+def today():
     file_pattern = os.path.join(filePath, f"*.csv")
     files = sorted(glob.glob(file_pattern))
     fileName = files[-1]
@@ -95,20 +95,24 @@ def get_csv_for_date():
             df = getMostRecent() # Update path as needed
             if df.empty:
                 return jsonify({'error': 'CSV is empty'}), 404
-            return send_file(fullFilePath, as_attachment=True, download_name=fileName)
+            return send_file(df, as_attachment=True, download_name=fileName)
         except FileNotFoundError:
             return jsonify({'error': 'CSV file not found'}), 404
         except Exception as e:
             return jsonify({'error': str(e)}), 500
     else:
+        try:
+            fileName = file+'.csv'
+            fullFilePath = filePath + fileName #os.path.join(fileName)
 
-        fileName = file+'.csv'
-        fullFilePath = filePath + fileName #os.path.join(fileName)
+            if not os.path.exists(fullFilePath):
+                return f"No data found for {file}", 404
 
-        if not os.path.exists(fullFilePath):
-            return f"No data found for {file}", 404
-
-        return send_file(fullFilePath, as_attachment=True, download_name=fileName)
+            return send_file(fullFilePath, as_attachment=True, download_name=fileName)
+        except FileNotFoundError:
+            return jsonify({'error': 'CSV file not found'}), 404
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
 @app.route("/api/files")
 def list_csv_files():

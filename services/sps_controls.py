@@ -36,10 +36,10 @@ async def setMode(mode: int)-> Any:
 
 async def main(SPS) -> None:
 
-    while True:
-
-        rules = SPS.getConfig(rulesFile)
+    rules = SPS.getConfig(rulesFile)
         #print(rules)
+        
+    while True:
 
         # get most recent data
         now = send_get_request(URL, PORT, ENDPOINT).json()

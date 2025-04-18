@@ -24,7 +24,7 @@ async def main(SPS) -> None:
     rules = SPS.getConfig(rulesFile)
         #print(rules)
 
-    CONTROLS.estSunWindow()
+    await CONTROLS.estSunWindow()
 
    
 if __name__ == "__main__":

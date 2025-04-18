@@ -255,7 +255,7 @@ class Controls():
         return control, error, integral
 
     #estimate when the PV will start producing and for how long
-    def estSunWindow(self):
+    async def estSunWindow(self):
         # get recent files
         self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
 

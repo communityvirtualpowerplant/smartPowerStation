@@ -60,12 +60,12 @@ async def main(SPS) -> None:
                 if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] == 1):
                     toMode = 5
                     SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
-                    rules['status']['lastFull']= datetime.now()
+                    rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     rules['status']['mode']=toMode #set to discharge
                 elif (now['powerstation_percentage'] <= rules['battery']['min']) and (rules['status']['mode'] == 5):
                     toMode = 1
                     SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
-                    rules['status']['lastEmpty']= datetime.now()
+                    rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     rules['status']['mode']=toMode #set to charge
                 else:
                     SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")

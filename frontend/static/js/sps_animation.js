@@ -57,6 +57,8 @@ function drawSystem(data) {
     loadW = posOne;
   } else if (posThree > 0){ 
     loadW = posThree;
+  } else {
+    loadW = 0
   }
 
   // Draw wires and connections

@@ -51,7 +51,7 @@ def getMostRecentPath():
 
 def getMostRecent():
     fileName = getMostRecentPath()
-    fullFilePath = filePath + fileName #os.path.join(fileName)
+    fullFilePath = os.path.join(filePath, fileName) #os.path.join(fileName)
     df = pd.read_csv(fullFilePath)  # Update path as needed
 
     # if df.empty:

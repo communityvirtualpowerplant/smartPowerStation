@@ -11,7 +11,7 @@ import json
 import signal
 import logging
 import time
-from dateimte import datetime, date
+from datetime import datetime, date
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from components.Shelly import ShellyDevice

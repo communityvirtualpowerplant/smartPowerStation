@@ -15,7 +15,8 @@ error logs from services can often be found here: `nano /var/log/syslog`
 or 
 all: `journalctl -u your-service-name.service -f`<br>
 recent: `journalctl -u your-service-name.service -f`<br>
-5 minutes:`journalctl -u sps_controls.service --since "5 minutes ago"`
+5 minutes:`journalctl -u sps_controls.service --since "5 minutes ago"`<br>
+live: `journalctl -f`
 
 ## Check is a python program is running:
 `ps aux | grep .py`

@@ -20,7 +20,7 @@ devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 
 async def setMode(mode: int)-> Any:
-    SPS.log_info(await CONTROLS.send_get_request(URL,5001,f'?mode={mode}','status_code'))
+    #SPS.log_info(await CONTROLS.send_get_request(URL,5001,f'?mode={mode}','status_code'))
 
 # def writeMode(data):
 #     SPS.writeJSON(data,rulesFile)
@@ -71,7 +71,8 @@ async def main(SPS) -> None:
         #writeMode(rules)
         SPS.writeJSON(rules,rulesFile)
 
-        await setMode(rules['status']['mode'])
+        #await setMode(rules['status']['mode'])
+        await CONTROLS.send_get_request(URL,5001,f'?mode={rules['status']['mode']}','status_code')
         print('************ SLEEPING **************')
         await asyncio.sleep(60*5)
 

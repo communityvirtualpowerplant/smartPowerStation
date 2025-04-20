@@ -1,5 +1,17 @@
 # Controls
 
+Modes refer to settings i.e. the state of relays
+
+Scenarios
+* wake up
+	if no response:
+		* turn on charger i.e. mode 1
+* cycle
+	* constant
+	* daily
+* event prep
+* event response
+
 ## Automation
 
 Control of the Smart Power Station is determined by the following rules:

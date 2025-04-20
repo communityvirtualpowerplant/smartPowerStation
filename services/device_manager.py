@@ -98,23 +98,23 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
 
         tempResults = {
                         "datetime" : datetime.now(),
-                        "powerstation_percentage": '',
-                        "powerstation_inputWAC": '',
-                        "powerstation_inputWDC": '',
-                        "powerstation_outputWAC": '',
-                        "powerstation_outputWDC":'',
-                        "powerstation_outputMode":'',
-                        "powerstation_deviceType":'',
-                        "relay1_power": '',
-                        "relay1_current":'',
-                        "relay1_voltage": '',
-                        "relay1_status": '',
-                        "relay1_device": '',
-                        "relay2_power": '',
-                        "relay2_current":'',
-                        "relay2_voltage": '',
-                        "relay2_status": '',
-                        "relay2_device": ''}
+                        "powerstation_percentage": "",
+                        "powerstation_inputWAC": "",
+                        "powerstation_inputWDC": "",
+                        "powerstation_outputWAC": "",
+                        "powerstation_outputWDC":"",
+                        "powerstation_outputMode":"",
+                        "powerstation_deviceType":"",
+                        "relay1_power": "",
+                        "relay1_current":"",
+                        "relay1_voltage": "",
+                        "relay1_status": "",
+                        "relay1_device": "",
+                        "relay2_power": "",
+                        "relay2_current":"",
+                        "relay2_voltage": "",
+                        "relay2_status": "",
+                        "relay2_device": ""}
 
         #results = []
         for d in devices:

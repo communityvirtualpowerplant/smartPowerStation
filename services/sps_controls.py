@@ -34,12 +34,13 @@ async def main(SPS) -> None:
     rules = SPS.getConfig(rulesFile)
         #print(rules)
 
-    filteredDevices = SPS.getDevices(deviceFile)
+    filteredDevices = SPS.getDevices(devicesFile)
 
     for d in filteredDevices:
-        if d["role"] == "ps"
-            CONTROLS.maxFlexibilityWh = d["capacityWh"]*.8
-            print(CONTROLS.maxFlexibilityWh)
+        if d["role"] == "ps":
+            CONTROLS.batCapWh = d["capacityWh"]
+            CONTROLS.maxFlexibilityWh = CONTROLS.getAvailableFlex(100)
+            print(f'Max flex: {CONTROLS.maxFlexibilityWh} Wh')
             break
 
     while True:
@@ -47,9 +48,13 @@ async def main(SPS) -> None:
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json')
         SPS.log_debug(now['datetime'])
+        try:
+            CONTROLS.availableFlexibilityWh = CONTROLS.getAvailableFlex(now['powerstation_percentage'])
+        except Exception as e:
+            print(e)
+            CONTROLS.availableFlexibilityWh = 0
 
-        CONTROLS.availableFlexibilityWh = CONTROLS.maxFlexibilityWh * now['powerstation_percentage']*.01
-        print(f'available flex: {CONTROLS.availableFlexibilityWh}')
+        print(f'Available flex: {CONTROLS.availableFlexibilityWh} Wh')
 
         #check if data is fresh
         #if SPS.isRecent(now['datetime']):

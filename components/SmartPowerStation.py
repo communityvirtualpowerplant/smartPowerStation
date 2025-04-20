@@ -205,8 +205,11 @@ class Controls():
     def __init__(self):
         self.goalWh = 0
         self.duration = 4
+        self.batCapWh = 0
         self.maxFlexibilityWh = 0
         self.availableFlexibilityWh = 0
+        self.invEff = .85 #assumes 85% efficient inverter
+        self.dod = .8 # assumes 80% depth of discharge
         self.avgPvWh = 0 # recent daily average
         self.maxPvWh = 0 # recent daily max
         self.baseline = 0
@@ -244,6 +247,13 @@ class Controls():
                 return response.status_code
         except Exception as e:
             return e
+
+    # returns the available flexibility in WhAC
+    # pass in battery percentage
+    def getAvailableFlex(self,perc):
+        if perc > 1.0:#convert percentage to decimal if needed
+            perc = perc * .01
+        return ((self.batCapWh * perc) - (self.batCapWh * (1-self.dod))) * self.invEff
 
     def pi_controller(self, pv, kp, ki,):
         error = self.setpoint - pv

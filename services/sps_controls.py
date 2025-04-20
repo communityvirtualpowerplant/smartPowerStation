@@ -22,12 +22,6 @@ rulesFile = '../config/rules.json'
 # loop frequency
 freqMin = 1
 
-#async def setMode(mode: int)-> Any:
-    #SPS.log_info(await CONTROLS.send_get_request(URL,5001,f'?mode={mode}','status_code'))
-
-# def writeMode(data):
-#     SPS.writeJSON(data,rulesFile)
-
 async def main(SPS) -> None:
     CONTROLS = Controls()
 

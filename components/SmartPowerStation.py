@@ -261,8 +261,8 @@ class Controls():
 
     # sets battery capacity and determines maximum automatable flexibility
     def setBatCap(self,Wh):
-        CONTROLS.batCapWh = Wh
-        CONTROLS.maxFlexibilityWh = CONTROLS.getAvailableFlex(100)
+        self.batCapWh = Wh
+        self.maxFlexibilityWh = self.getAvailableFlex(100)
 
     # returns the available flexibility in WhAC
     # pass in battery percentage

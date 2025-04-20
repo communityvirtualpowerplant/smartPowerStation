@@ -109,7 +109,8 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
                         "location": location, #site
                         "role":entry["role"],
                         "relay1": entry["relay1"], #indiciates position in system (by channel if applicable)
-                        "relay2": entry["relay2"] #indiciates position in system (by channel if applicable)
+                        "relay2": entry["relay2"], #indiciates position in system (by channel if applicable)
+                        "capacityWh":entry["capacityWh"]
                     })
                     print(advertisement_data)
                     break
@@ -121,9 +122,10 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
                     "rssi": advertisement_data.rssi,
                     "timestamp":datetime.now().isoformat(),
                     "location": location,
-                    "role":'',#this is manually entered
-                    "relay1":'', #this is manually entered
-                    "relay2":'' #this is manually entered
+                    "role":"",#this is manually entered
+                    "relay1":"", #this is manually entered
+                    "relay2":"", #this is manually entered
+                    "capacityWh":"" #this is manually entered
                 })
             addresses.add(device.address)
 

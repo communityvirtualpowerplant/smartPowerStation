@@ -8,7 +8,8 @@
         "location": "home",
         "role":"ps",
         "relay1": "",
-        "relay2": ""
+        "relay2": "",
+        "capacityWh":200
     },
     {
         "name": "Shelly1PMG3-5432045886C8",

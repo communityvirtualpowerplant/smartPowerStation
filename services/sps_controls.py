@@ -34,11 +34,22 @@ async def main(SPS) -> None:
     rules = SPS.getConfig(rulesFile)
         #print(rules)
 
+    filteredDevices = SPS.getDevices(deviceFile)
+
+    for d in filteredDevices:
+        if d["role"] == "ps"
+            CONTROLS.maxFlexibilityWh = d["capacityWh"]*.8
+            print(CONTROLS.maxFlexibilityWh)
+            break
+
     while True:
 
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json')
         SPS.log_debug(now['datetime'])
+
+        CONTROLS.availableFlexibilityWh = CONTROLS.maxFlexibilityWh * now['powerstation_percentage']*.01
+        print(f'available flex: {CONTROLS.availableFlexibilityWh}')
 
         #check if data is fresh
         #if SPS.isRecent(now['datetime']):
@@ -52,11 +63,13 @@ async def main(SPS) -> None:
                 pass
             # constant cycle - battery is depleted and charged continuously. time of cycle depends on load
             elif rules['battery']['cycle']=='constant':
-                if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] == 1):
+                # if it hits 100% and was in a charging state, switch to a draw down state
+                if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] in [1,3,4]):
                     toMode = 5
                     SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
                     rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     rules['status']['mode']=toMode #set to discharge
+                # if it hits 20% and was in a drawdown state, charge it up
                 elif (now['powerstation_percentage'] <= rules['battery']['min']) and (rules['status']['mode'] == 5):
                     toMode = 1
                     SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")

@@ -19,6 +19,9 @@ configFile = '../config/config.json'
 devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 
+# loop frequency
+freqMin = 1
+
 #async def setMode(mode: int)-> Any:
     #SPS.log_info(await CONTROLS.send_get_request(URL,5001,f'?mode={mode}','status_code'))
 
@@ -75,7 +78,7 @@ async def main(SPS) -> None:
         m=rules['status']['mode']
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}','status_code')
         print('************ SLEEPING **************')
-        await asyncio.sleep(60*5)
+        await asyncio.sleep(60*freqMin)
 
 if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)

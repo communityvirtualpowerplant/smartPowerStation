@@ -228,6 +228,9 @@ class Controls():
         self.port = 5000
         self.fileList = []
 
+    def checkMode():
+        pass
+
     # type = json, text, or status_code
     async def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Dict:
         """Send GET request to the IP."""
@@ -256,7 +259,6 @@ class Controls():
         return control, error, integral
 
     #estimate when the PV will start producing and for how long
-    '''
     async def estSunWindow(self):
         # get recent files
         self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
@@ -295,7 +297,6 @@ class Controls():
         self.sunWindowStart = 10 
         self.sunWindowDuration = 4
         return
-    '''
     
     # get tomorrows weather
     def getWeather(self):

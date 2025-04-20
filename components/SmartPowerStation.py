@@ -273,7 +273,7 @@ class Controls():
 
 
     # returns all file names within the last X days
-    def getRecentFileList(self,duration=30):
+    async def getRecentFileList(self,duration=30):
         self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
         self.fileList = sorted(self.fileList, reverse=True)
 
@@ -293,7 +293,7 @@ class Controls():
         return recentFileNames
 
     # estimate DR baseline for the specified event window
-    def estBaseline(self, d=30):
+    async def estBaseline(self, d=30):
         recentFileNames = self.getRecentFileList(d)
 
         # get earliest, latest, and max sun times for each file

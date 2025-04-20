@@ -159,7 +159,7 @@ class SmartPowerStation():
         try:
             if d[1]['manufacturer'].lower() == 'bluetti':
                 #print('bluetti!')
-                t["powerstation_percentage"] = r['total_battery_percent']
+                t["powerstation_percentage"] = round(r['total_battery_percent'], 2)
                 t["powerstation_inputWAC"] = r['ac_input_power']
                 t["powerstation_inputWDC"] = r['dc_input_power']
                 t["powerstation_outputWAC"] = r['ac_output_power']
@@ -212,6 +212,8 @@ class Controls():
         self.dod = .8 # assumes 80% depth of discharge
         self.avgPvWh = 0 # recent daily average
         self.maxPvWh = 0 # recent daily max
+        self.eventStartH = 0
+        self.eventDurationH = 4
         self.baseline = 0
         self.modeOne = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
         self.modeTwo = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
@@ -230,9 +232,18 @@ class Controls():
         self.url = 'localhost'
         self.port = 5000
         self.fileList = []
+        self.rules = {}
 
-    def checkMode():
-        pass
+    # reads json config file and returns it as dict
+    def getRules(self, fn:str) -> Any:
+        # Read data from a JSON file
+        try:
+            with open(fn, "r") as json_file:
+                self.rules = json.load(json_file)
+                return self.rules
+        except Exception as e:
+            print(f"Error during reading {fn} file: {e}")
+            return {}
 
     # type = json, text, or status_code
     async def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Dict:
@@ -248,12 +259,48 @@ class Controls():
         except Exception as e:
             return e
 
+    # sets battery capacity and determines maximum automatable flexibility
+    def setBatCap(self,Wh):
+        CONTROLS.batCapWh = Wh
+        CONTROLS.maxFlexibilityWh = CONTROLS.getAvailableFlex(100)
+
     # returns the available flexibility in WhAC
     # pass in battery percentage
     def getAvailableFlex(self,perc):
         if perc > 1.0:#convert percentage to decimal if needed
             perc = perc * .01
         return ((self.batCapWh * perc) - (self.batCapWh * (1-self.dod))) * self.invEff
+
+
+    # returns all file names within the last X days
+    def getRecentFileList(self,duration=30):
+        self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
+        self.fileList = sorted(self.fileList, reverse=True)
+
+        # start with todays date
+        checkFile = date.today()
+        recentFileNames = [] #store most recent found file names
+
+        #look for files within the last X days
+        for d in range(1,duration):
+            for f in self.fileList: # loop through file list to get recent
+                if str(checkFile) in f:
+                    # add file to recent files
+                    recentFileNames.append(f)
+                    break
+            checkFile = checkFile - timedelta(days=1)
+
+        return recentFileNames
+
+    # estimate DR baseline for the specified event window
+    def estBaseline(self, d=30):
+        recentFileNames = self.getRecentFileList(d)
+
+        # get earliest, latest, and max sun times for each file
+        data = []
+        for f in recentFileNames:
+            fn = f.split('.')[0]
+            data.append(await self.send_get_request(self.url, self.port,f"/api/data?files={fn}",'json'))
 
     def pi_controller(self, pv, kp, ki,):
         error = self.setpoint - pv
@@ -271,24 +318,10 @@ class Controls():
     #estimate when the PV will start producing and for how long
     async def estSunWindow(self):
         # get recent files
-        self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
+        recentFileNames = self.getRecentFileList()
 
-        # start with todays date
-        checkFile = date.today()
-        recentFileNames = [] #store most recent found file names
-
-        #look for files within the last 30 days
-        for d in range(1,30):
-            for f in self.fileList: # loop through file list to get recent
-                if str(checkFile) in f:
-                    # add file to recent files
-                    recentFileNames.append(f)
-                    break
-            checkFile = checkFile - timedelta(days=1)
-            if len(recentFileNames) >= 2:
-                break
-
-        print(recentFileNames)
+        # if len(recentFileNames) >= 2:
+        #     break
 
         # if there are no recent files, set defaults and return
         if len(recentFileNames)==0:
@@ -321,10 +354,5 @@ class Controls():
     def utilizePV(self):
         pass
 
-    # estimate DR baseline
-    def estBaseline(self):
-        pass
-
-    #estimate max flexibility
-    def estFlexibility(self):
+    def checkMode(self):
         pass

@@ -31,17 +31,18 @@ freqMin = 1
 async def main(SPS) -> None:
     CONTROLS = Controls()
 
-    rules = SPS.getConfig(rulesFile)
-        #print(rules)
+    # return is optional
+    rules = CONTROLS.getRules(rulesFile)
 
     filteredDevices = SPS.getDevices(devicesFile)
 
     for d in filteredDevices:
         if d["role"] == "ps":
-            CONTROLS.batCapWh = d["capacityWh"]
-            CONTROLS.maxFlexibilityWh = CONTROLS.getAvailableFlex(100)
-            print(f'Max flex: {CONTROLS.maxFlexibilityWh} Wh')
+            CONTROLS.setBatCap(d["capacityWh"])
+            print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
+
+    print(CONTROLS.getRecentFileList(7))
 
     while True:
 
@@ -54,7 +55,7 @@ async def main(SPS) -> None:
             print(e)
             CONTROLS.availableFlexibilityWh = 0
 
-        print(f'Available flex: {CONTROLS.availableFlexibilityWh} Wh')
+        print(f'Available flex: {CONTROLS.availableFlexibilityWh} WhAC')
 
         #check if data is fresh
         #if SPS.isRecent(now['datetime']):

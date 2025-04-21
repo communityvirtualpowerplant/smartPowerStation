@@ -27,7 +27,7 @@ async def main(SPS) -> None:
 
     # return is optional
     rules = CONTROLS.getRules(rulesFile)
-
+    CONTROLS.setEventTimes(rules['event']['start'],rules['event']['duration'])
     filteredDevices = SPS.getDevices(devicesFile)
 
     for d in filteredDevices:
@@ -36,7 +36,7 @@ async def main(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
-    print(CONTROLS.getRecentFileList(7))
+    print(await CONTROLS.estBaseline(7))
 
     while True:
 
@@ -55,16 +55,50 @@ async def main(SPS) -> None:
         #if SPS.isRecent(now['datetime']):
             #SPS.log_debug('data is fresh')
 
+        # if no event upcoming or ongoing
         if (rules['event']['upcoming'] == 0) and (rules['event']['ongoing'] == 0):
-            # add code for PV priority - battery is depleted by the start of the sun window to ensure maximum PV utilization
+
+            # charge time specification
+
+            # deplete specification
+
+            CONTROLS.setpoint = 100
 
             # daily cycle - battery is depleted and charged up to once a day
             if rules['battery']['cycle']=='daily':
-                pass
+                # if last empty was today
+                #lf = datetime.strptime(rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
+                le = datetime.strptime(rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
+                if (datetime.now() - le) <= timedelta(days=1):
+                    if (now['powerstation_percentage'] == setpoint) and (rules['status']['mode'] in [1,3,4]):
+                        toMode = 5
+                        SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
+                        rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        rules['status']['mode']=toMode #set to discharge
+                        # deplete!
+                        toMode = 5
+                elif (now['powerstation_percentage'] <= rules['battery']['min']) and (rules['status']['mode'] == 5):
+                    toMode = 1
+                    SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
+                    rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    rules['status']['mode']=toMode #set to charge
+                else:
+                    SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
+            # PV priority - battery is depleted by the start of the sun window to ensure maximum PV utilization
+            # the goal is to be at about 50% when the sun window begins (exact amount changes based on past PV production)
+            elif rules['battery']['cycle']=='pv':
+                if datetime.now().hour < 13: #before 1pm, dont charge from grid greater than 50% to ensure opportunity for PV
+                    CONTROLS.setpoint = 50
+                #if after PV window, charge it up
+                elif datetime.now().hour > 13: #after 1pm, charge from grid
+                    CONTROLS.setpoint = 100
+
+                #estimate discharge time
+
             # constant cycle - battery is depleted and charged continuously. time of cycle depends on load
             elif rules['battery']['cycle']=='constant':
                 # if it hits 100% and was in a charging state, switch to a draw down state
-                if (now['powerstation_percentage'] == 100) and (rules['status']['mode'] in [1,3,4]):
+                if (now['powerstation_percentage'] == setpoint) and (rules['status']['mode'] in [1,3,4]):
                     toMode = 5
                     SPS.log_debug(f"Mode changed from {rules['status']['mode']} to {toMode}.")
                     rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -78,7 +112,7 @@ async def main(SPS) -> None:
                 else:
                     SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
         elif rules['event']['upcoming'] != 0:
-            # prep for event
+            # prep for eventb
             pass
         elif rules['event']['ongoing'] != 0:
             # manage event
@@ -106,8 +140,3 @@ if __name__ == "__main__":
         SPS.log_info("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:
         SPS.log_error(f"Unexpected error in main: {e}")
-
-
-
-
-

@@ -12,3 +12,7 @@ venv/*
 .env
 
 .github/
+
+*.ipynb
+
+.ipynb_checkpoints/*

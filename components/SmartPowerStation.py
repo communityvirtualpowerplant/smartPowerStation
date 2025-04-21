@@ -7,8 +7,11 @@ from bleak import BleakClient, BleakError, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData
 import asyncio
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 import requests
+import pandas as pd
+from io import StringIO
+from scipy.integrate import trapezoid
 
 class SmartPowerStation():
     def __init__(self, conf: str,info=True, debug=True,error=True):
@@ -213,6 +216,7 @@ class Controls():
         self.avgPvWh = 0 # recent daily average
         self.maxPvWh = 0 # recent daily max
         self.eventStartH = 0
+        self.eventStartDT = time(self.eventStartH,00)
         self.eventDurationH = 4
         self.baseline = 0
         self.modeOne = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
@@ -259,10 +263,64 @@ class Controls():
         except Exception as e:
             return e
 
+    # this should be used, rather than setting directly because it converts to an hourly unit
+    # args: starting hour, optional duration argument
+    def setEventTimes(self,h,d=4):
+        self.eventStartH = h
+        self.eventDurationH = d
+        self.eventStartDT = time(h,00)
+        self.eventEndDT = time(h + d,00)
+
     # sets battery capacity and determines maximum automatable flexibility
     def setBatCap(self,Wh):
         self.batCapWh = Wh
         self.maxFlexibilityWh = self.getAvailableFlex(100)
+
+    # args: a dataframe with a datetime column with only one days worth of data
+    # returns a Tuple with the start and end times as datetime objects for a given day
+    def getStartEndDatetime(self, df)->Tuple:
+        df['datetime']=pd.to_datetime(df['datetime'])
+        fileDate = datetime.date(df['datetime'].iloc[0])
+        startDT = datetime.combine(fileDate,self.eventStartDT)
+        endDT = datetime.combine(fileDate,self.eventEndDT)
+        return (startDT, endDT)
+
+    #args: pass a dataframe with the datetime column
+    def filterEventWindow(self,df):
+        #get date
+        # df['datetime']=pd.to_datetime(df['datetime'])
+        # fileDate = datetime.date(df['datetime'].iloc[0])
+        startEnd = self.getStartEndDatetime(df)
+        #startList.append(startDT)
+        #endDT = datetime.combine(fileDate,self.eventEndDT)
+        return df[(df['datetime']>=startEnd[0]) & (df['datetime']<startEnd[1])]
+
+    # pass in a dataframe with datetimes
+    # args
+    def hourlyBucket(self,tempDF, tempStart:list) -> list:
+        hourlyPower = []
+        for h in range(self.eventDurationH):
+            ts = tempStart + timedelta(hours=h)
+            te = tempStart + timedelta(hours=h + 1)
+            filteredTempDF = (tempDF[(tempDF['datetime']> ts) & (tempDF['datetime']<= te)]).copy() #data within the hour
+            #filteredTempDF['increments'] = (filteredTempDF['datetime']-ts).total_seconds()
+            incList = []
+            #print(len(filteredTempDF['datetime']))
+            for r in range(len(filteredTempDF['datetime'])):
+                incSec = (filteredTempDF['datetime'].iloc[r] - ts).total_seconds()/60/60 #must convert back from seconds
+                incList.append(incSec)
+            #print(incList)
+            #print()
+            filteredTempDF['increments'] = incList
+
+            hourlyPower.append(filteredTempDF)
+        return hourlyPower
+
+    #args: power and time increments (relative to the hour) for a given hour
+    # returns the energy (Wh) for the hour
+    def getWh(self,p,t)->float:
+        e = trapezoid(y=p, x=t)
+        return e
 
     # returns the available flexibility in WhAC
     # pass in battery percentage
@@ -270,7 +328,6 @@ class Controls():
         if perc > 1.0:#convert percentage to decimal if needed
             perc = perc * .01
         return ((self.batCapWh * perc) - (self.batCapWh * (1-self.dod))) * self.invEff
-
 
     # returns all file names within the last X days
     async def getRecentFileList(self,duration=30):
@@ -294,13 +351,52 @@ class Controls():
 
     # estimate DR baseline for the specified event window
     async def estBaseline(self, d=30):
-        recentFileNames = self.getRecentFileList(d)
+        # get list of recent files for specified number of past days
+        recentFileNames = await self.getRecentFileList(d)
 
-        # get earliest, latest, and max sun times for each file
-        data = []
+        #format list for API call
+        formattedFn = []
         for f in recentFileNames:
-            fn = f.split('.')[0]
-            data.append(await self.send_get_request(self.url, self.port,f"/api/data?files={fn}",'json'))
+            formattedFn.append(f.split('.')[0])
+
+        print(formattedFn)
+
+        # fetch data
+        tasks = [self.send_get_request(self.url, self.port,f"/api/data?file={fn}",'text') for fn in formattedFn]
+            #r = await self.send_get_request(self.url, self.port,f"/api/data?files={fn}",'text')
+        responses = await asyncio.gather(*tasks)
+            # task = self.send_get_request(self.url, self.port, f"/api/data?files={fn}", 'text')
+            # tasks.append(task)
+
+        data = []
+        for r in responses:
+            data.append(pd.read_csv(StringIO(r))) #convert files to df
+
+        # filter out all data except for event window
+        filteredDF = []
+        startList = []
+        for d in data:
+            startList.append(self.getStartEndDatetime(d)[0])
+            filteredDF.append(self.filterEventWindow(d))
+
+        # create hourly buckets for each day
+        hourlyPower = []
+        for i in range(len(startList)):
+            hourlyPower.append(self.hourlyBucket(filteredDF[i],startList[i]))
+
+        # get energy by hour by day
+        listSums = []
+        for d in hourlyPower:
+            sumEnergy = 0
+            print('')
+            for h in range(len(d)):
+                hourlyEnergy = self.getWh(d[h]['powerstation_inputWAC'],d[h]['increments'])# change from inputWAC to whatever is more appropriate
+                print(f'{h}: {hourlyEnergy}')
+                sumEnergy += hourlyEnergy
+            print(f'tot: {sumEnergy}')
+            listSums.append(sumEnergy)
+
+        return sum(listSums)/len(listSums)
 
     def pi_controller(self, pv, kp, ki,):
         error = self.setpoint - pv
@@ -308,12 +404,12 @@ class Controls():
         control = kp * error + ki * self.integral
         return control, error, integral
 
-    def pid_controller(self, pv, kp, ki, kd, dt):
-        error = self.setpoint - pv
-        self.integral += error * dt
-        derivative = (error - self.previous_error) / dt
-        control = kp * error + ki * self.integral + kd * derivative
-        return control, error, integral
+    # def pid_controller(self, pv, kp, ki, kd, dt):
+    #     error = self.setpoint - pv
+    #     self.integral += error * dt
+    #     derivative = (error - self.previous_error) / dt
+    #     control = kp * error + ki * self.integral + kd * derivative
+    #     return control, error, integral
 
     #estimate when the PV will start producing and for how long
     async def estSunWindow(self):

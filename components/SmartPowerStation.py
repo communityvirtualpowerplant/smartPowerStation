@@ -225,8 +225,9 @@ class Controls():
         self.modeFour = {1:0,2:1,3:0}
         self.modeFive = {1:0,2:0,3:1}
         self.modeSix = {1:0,2:0,3:0}
-        self.Kp = 0
-        self.Ki = 0
+        self.Kp = 1.0
+        self.Ki = 0.1
+        self.step = 1
         #self.Kd = Kd
         self.setpoint = 0
         self.previous_error = 0
@@ -398,8 +399,9 @@ class Controls():
 
         return sum(listSums)/len(listSums)
 
-    def pi_controller(self, pv, kp, ki,):
-        error = self.setpoint - pv
+
+    def pi_controller(self, setpoint, pv, kp, ki,):
+        error = setpoint - pv
         self.integral += error * dt
         control = kp * error + ki * self.integral
         return control, error, integral

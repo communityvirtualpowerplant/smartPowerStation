@@ -240,7 +240,7 @@ class Controls():
         self.rules = {}
 
     # reads json config file and returns it as dict
-    def getRules(self, fn:str) -> Any:
+    def getRules(self, fn:str) -> Dict:
         # Read data from a JSON file
         try:
             with open(fn, "r") as json_file:
@@ -250,8 +250,9 @@ class Controls():
             print(f"Error during reading {fn} file: {e}")
             return {}
 
+    # send get request
     # type = json, text, or status_code
-    async def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Dict:
+    async def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Any:
         """Send GET request to the IP."""
         try:
             response = requests.get(f"http://{ip}:{port}{endpoint}", timeout=timeout)
@@ -266,28 +267,30 @@ class Controls():
 
     # this should be used, rather than setting directly because it converts to an hourly unit
     # args: starting hour, optional duration argument
-    def setEventTimes(self,h,d=4):
+    def setEventTimes(self,h:float,d:float=4)-> None:
+        # TO DO: add in conditionals for uneven hours
         self.eventStartH = h
         self.eventDurationH = d
         self.eventStartDT = time(h,00)
         self.eventEndDT = time(h + d,00)
 
     # sets battery capacity and determines maximum automatable flexibility
-    def setBatCap(self,Wh):
+    def setBatCap(self,Wh:int) -> None:
         self.batCapWh = Wh
         self.maxFlexibilityWh = self.getAvailableFlex(100)
 
     # args: a dataframe with a datetime column with only one days worth of data
-    # returns a Tuple with the start and end times as datetime objects for a given day
+    # returns a Tuple with the start and end times for the event window as datetime objects for a given day
     def getStartEndDatetime(self, df)->Tuple:
-        df['datetime']=pd.to_datetime(df['datetime'])
+        #df['datetime']=pd.to_datetime(df['datetime'])
         fileDate = datetime.date(df['datetime'].iloc[0])
         startDT = datetime.combine(fileDate,self.eventStartDT)
         endDT = datetime.combine(fileDate,self.eventEndDT)
         return (startDT, endDT)
 
+    #filters a df for an individual day with datetime values to only those within the event window
     #args: pass a dataframe with the datetime column
-    def filterEventWindow(self,df):
+    def filterEventWindow(self,df:pd.DataFrame) -> pd.DataFrame:
         #get date
         # df['datetime']=pd.to_datetime(df['datetime'])
         # fileDate = datetime.date(df['datetime'].iloc[0])
@@ -296,42 +299,58 @@ class Controls():
         #endDT = datetime.combine(fileDate,self.eventEndDT)
         return df[(df['datetime']>=startEnd[0]) & (df['datetime']<startEnd[1])]
 
+    # buckets df with datetime within an event window into hourly buckets
     # pass in a dataframe with datetimes
     # args
-    def hourlyBucket(self,tempDF, tempStart:list) -> list:
+    def hourlyBucket(self,tempDF, tempStart:list) -> list[pd.DataFrame]:
         hourlyPower = []
         for h in range(self.eventDurationH):
             ts = tempStart + timedelta(hours=h)
             te = tempStart + timedelta(hours=h + 1)
             filteredTempDF = (tempDF[(tempDF['datetime']> ts) & (tempDF['datetime']<= te)]).copy() #data within the hour
             #filteredTempDF['increments'] = (filteredTempDF['datetime']-ts).total_seconds()
-            incList = []
-            #print(len(filteredTempDF['datetime']))
-            for r in range(len(filteredTempDF['datetime'])):
-                incSec = (filteredTempDF['datetime'].iloc[r] - ts).total_seconds()/60/60 #must convert back from seconds
-                incList.append(incSec)
-            #print(incList)
-            #print()
-            filteredTempDF['increments'] = incList
+
+            filteredTempDF = self.increments(filteredTempDF,ts)
 
             hourlyPower.append(filteredTempDF)
         return hourlyPower
 
+    #args: a dataframe with datetime column
+    # returns df with added increments column based on an hour
+    def increments(self,df,fm=0)->pd.DataFrame:
+        if fm==0:
+            firstMeasurement = df['datetime'].min()
+        else:
+            firstMeasurement = fm
+
+        #print(firstMeasurement)
+        incList = []
+        for r in range(len(df['datetime'])):
+            incSec = (df['datetime'].iloc[r] - firstMeasurement).total_seconds()/60/60 #must convert back from seconds
+            incList.append(incSec)
+        df['increments'] = incList
+        return df
+
     #args: power and time increments (relative to the hour) for a given hour
     # returns the energy (Wh) for the hour
-    def getWh(self,p,t)->float:
+    def getWh(self,p:list[float],t:list[datetime])->float:
         e = trapezoid(y=p, x=t)
         return e
 
     # returns the available flexibility in WhAC
     # pass in battery percentage
-    def getAvailableFlex(self,perc):
+    def getAvailableFlex(self,perc:Any)->float:
         if perc > 1.0:#convert percentage to decimal if needed
             perc = perc * .01
-        return ((self.batCapWh * perc) - (self.batCapWh * (1-self.dod))) * self.invEff
+
+        f = ((self.batCapWh * perc) - (self.batCapWh * (1-self.dod))) * self.invEff
+
+        if f < 0:
+            f =0
+        return f
 
     # returns all file names within the last X days
-    async def getRecentFileList(self,duration=30):
+    async def getRecentFileList(self,d:int=30)->list:
         self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
         self.fileList = sorted(self.fileList, reverse=True)
 
@@ -340,7 +359,7 @@ class Controls():
         recentFileNames = [] #store most recent found file names
 
         #look for files within the last X days
-        for d in range(1,duration):
+        for days in range(1,d+1):
             for f in self.fileList: # loop through file list to get recent
                 if str(checkFile) in f:
                     # add file to recent files
@@ -350,8 +369,9 @@ class Controls():
 
         return recentFileNames
 
-    # estimate DR baseline for the specified event window
-    async def estBaseline(self, d=30):
+    # retrieves recent CSV files for specified amount of days
+    # returns data in df format
+    async def getRecentData(self,d:int=30)-> pd.DataFrame:
         # get list of recent files for specified number of past days
         recentFileNames = await self.getRecentFileList(d)
 
@@ -360,18 +380,27 @@ class Controls():
         for f in recentFileNames:
             formattedFn.append(f.split('.')[0])
 
-        print(formattedFn)
+        #print(formattedFn)
 
         # fetch data
         tasks = [self.send_get_request(self.url, self.port,f"/api/data?file={fn}",'text') for fn in formattedFn]
             #r = await self.send_get_request(self.url, self.port,f"/api/data?files={fn}",'text')
         responses = await asyncio.gather(*tasks)
-            # task = self.send_get_request(self.url, self.port, f"/api/data?files={fn}", 'text')
-            # tasks.append(task)
 
         data = []
         for r in responses:
             data.append(pd.read_csv(StringIO(r))) #convert files to df
+
+        #convert datetime columns to datetime objects from str
+        for d in range(len(data)):
+            data[d]['datetime']=pd.to_datetime(data[d]['datetime'])
+
+        return data
+
+    # estimate DR baseline for the specified event window
+    async def estBaseline(self, d:int=30)->float:
+
+        data = await self.getRecentData(d)
 
         # filter out all data except for event window
         filteredDF = []
@@ -399,6 +428,36 @@ class Controls():
 
         return sum(listSums)/len(listSums)
 
+    # determines AC energy draw or demand for a given range
+    # assumes NaN = 0W
+    # args: start datetime, end datetime, power columns to sum
+    async def trackWh(self,start: datetime, end:datetime='now', cols:list[str]=['relay1_power','relay2_power'])->float:
+        if end == 'now':
+            end = datetime.now()
+
+        # determine days of data based on starting value
+        d = int((end - start).days + 1)
+        data = await self.getRecentData(d)
+
+        #merge files
+        allData = data[0].copy()
+        for d in range(1,len(data)):
+            allData = pd.concat([allData, data[d]], ignore_index=True)
+
+        allData = allData.sort_values(by='datetime').reset_index(drop=True)
+
+        filteredData = allData[(allData['datetime']>=start) & (allData['datetime']<end)]
+
+        #fill NaN with 0
+        filteredData = filteredData.fillna(0)
+
+        filteredData = self.increments(filteredData)
+
+        # columns in the data with values to sum\
+        summedData = filteredData.copy()
+        summedData['summedPower'] = filteredData[cols].sum(axis=1)
+
+        return self.getWh(summedData['summedPower'],summedData['increments'])
 
     def pi_controller(self, setpoint, pv, kp, ki,):
         error = setpoint - pv

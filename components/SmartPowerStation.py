@@ -225,11 +225,14 @@ class Controls():
         self.modeFour = {1:0,2:1,3:0}
         self.modeFive = {1:0,2:0,3:1}
         self.modeSix = {1:0,2:0,3:0}
+        self.setpoint = 0
+        self.dischargeH = 20
+
         self.Kp = 1.0
         self.Ki = 0.1
         self.step = 1
         #self.Kd = Kd
-        self.setpoint = 0
+
         self.previous_error = 0
         self.integral = 0
         self.sunWindowStart = 10
@@ -459,7 +462,21 @@ class Controls():
 
         return self.getWh(summedData['summedPower'],summedData['increments'])
 
-    def pi_controller(self, setpoint, pv, kp, ki,):
+    # attempts to maintain the battery at a specific percentage with proportional control
+    def p_controller_percentage(self, bat:int, setpoint:int=100, previous_error:int=0):
+        setpoint = setpoint + previous_error
+        error = setpoint - bat
+
+        if error < 0:
+            # draw down
+
+        elif error > 0:
+            # charge up
+
+        return control
+
+    # attempts to reach a certain amount of energy avoidance
+    def pi_controller_energy(self, setpoint, pv, kp, ki,):
         error = setpoint - pv
         self.integral += error * dt
         control = kp * error + ki * self.integral
@@ -512,4 +529,14 @@ class Controls():
         pass
 
     def checkMode(self):
+        pass
+
+
+    def normalLoop(self,now)
+        pass
+
+    def eventUpcomingLoop(self):
+        pass
+
+    def eventOngoingLoop(self):
         pass

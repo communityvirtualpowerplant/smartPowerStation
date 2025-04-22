@@ -169,6 +169,10 @@ class SmartPowerStation():
                 t["powerstation_outputWDC"] = r['dc_output_power']
                 t["powerstation_outputMode"] = r['output_mode']
                 t["powerstation_deviceType"] = r['device_type']
+                # temp values
+                t["relay3_power"] = r['ac_output_power']
+                t["relay3_status"] =str(True)
+                t["relay3_device"] = r['device_type']
             elif 'Shelly'.lower() in d[1]['name'].lower():
                 if '1PM'.lower() in d[1]['name'].lower():
                     #print('1pm!')

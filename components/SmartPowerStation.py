@@ -465,7 +465,7 @@ class Controls():
 
         filteredData = self.increments(filteredData)
 
-        # columns in the data with values to sum\
+        # columns in the data with values to sum
         summedData = filteredData.copy()
         summedData['summedPower'] = filteredData[cols].sum(axis=1)
 

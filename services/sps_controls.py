@@ -56,8 +56,17 @@ async def main(SPS) -> None:
         #if SPS.isRecent(now['datetime']):
             #SPS.log_debug('data is fresh')
 
-        lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
-        le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
+        try:
+            lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
+        except:
+            # if there isn't any saved data, set last full to 10 years back
+            lf = datetime.now() - timedelta(days=(10*365))
+
+        try:
+            le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
+        except:
+            # if there isn't any saved data, set last empty to 10 years back
+            le = datetime.now() - timedelta(days=(10*365))
 
         CONTROLS.setpoint = 100 #battery max
         CONTROLS.dischargeTime = 20

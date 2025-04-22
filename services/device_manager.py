@@ -32,7 +32,7 @@ import threading
 
 app = Flask(__name__)
 
-toMode = {'mode':0}
+toMode = {'mode':1}
 lock = threading.Lock()
 
 @app.route("/")
@@ -120,7 +120,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
                         "relay3_voltage": "",
                         "relay3_status": "",
                         "relay3_device": "",
-                        "mode":toMode['mode']} 
+                        "mode":int(toMode['mode'])} 
 
         #results = []
         for d in devices:
@@ -239,7 +239,9 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
             return
 
     # these assignments should be listed in the rules file
-    if mode == 1:
+    if mode == 0:
+        assign = {1:0,2:0,3:0}
+    elif mode == 1:
         assign = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
     elif mode == 2:
         assign = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
@@ -249,8 +251,7 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
         assign = {1:0,2:1,3:0}
     elif mode == 5:
         assign = {1:0,2:0,3:1}
-    elif mode == 6:
-        assign = {1:0,2:0,3:0}
+    
     
     SPS.log_info(f'Setting mode to {mode}')
 

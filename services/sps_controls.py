@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, List
 from datetime import datetime
 import sys
 from components.SmartPowerStation import SmartPowerStation, Controls
-import csv
+#import csv
 
 eventUpcoming = False
 eventOngoing = False

@@ -70,9 +70,6 @@ async def main(SPS) -> None:
             # if there isn't any saved data, set last empty to 10 years back
             le = datetime.now() - timedelta(days=(10*365))
 
-        CONTROLS.setpoint = 100 #battery max
-        CONTROLS.dischargeTime = 20
-
         # if no event upcoming or ongoing
         if (CONTROLS.rules['event']['upcoming'] == 0) and (CONTROLS.rules['event']['ongoing'] == 0):
 

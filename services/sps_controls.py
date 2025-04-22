@@ -27,7 +27,7 @@ async def main(SPS) -> None:
 
 
     CONTROLS.getRules(rulesFile)
-    CONTROLS.setEventTimes(CONTROLS.rules['event']['start'],rules['event']['duration'])
+    CONTROLS.setEventTimes(CONTROLS.rules['event']['start'],CONTROLS.rules['event']['duration'])
     filteredDevices = SPS.getDevices(devicesFile)
 
     for d in filteredDevices:
@@ -58,73 +58,62 @@ async def main(SPS) -> None:
         lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
         le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
 
-        print(le)
-        print(lf)
-        print(le < lf)
-
         CONTROLS.setpoint = 100 #battery max
         CONTROLS.dischargeTime = 20
 
-        if le < lf: # charging
-            pass
-        else: #discharging
-            if datetime.now().hour >= CONTROLS.dischargeTime: #if its time to discharge
-                pass
-
-
-        '''
         # if no event upcoming or ongoing
         if (CONTROLS.rules['event']['upcoming'] == 0) and (CONTROLS.rules['event']['ongoing'] == 0):
-            #CONTROLS.normalLoop(now)
-            # charge time specification
-            CONTROLS.setpoint = 100 #battery max
 
-            # daily cycle - battery is depleted and charged up to once a day
-            if CONTROLS.rules['battery']['cycle']=='daily':
-                # if last empty was today
-                if (datetime.now() - le) <= timedelta(days=1):
-                    if (now['powerstation_percentage'] == CONTROLS.setpoint) and (CONTROLS.rules['status']['mode'] in [1,3,4]):
-                        toMode = 5
-                        SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
-                        CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        CONTROLS.rules['status']['mode']=toMode #set to discharge
-                        # deplete!
-                        toMode = 5
-                elif (now['powerstation_percentage'] <= CONTROLS.rules['battery']['min']) and (CONTROLS.rules['status']['mode'] in [2,5,6]):
-                    toMode = 1
-                    SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
-                    CONTROLS.rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    CONTROLS.rules['status']['mode']=toMode #set to charge
-                else:
-                    SPS.log_debug(f"Mode {CONTROLS.rules['status']['mode']} not changed.")
-            # PV priority - battery is depleted by the start of the sun window to ensure maximum PV utilization
-            # the goal is to be at about 50% when the sun window begins (exact amount changes based on past PV production)
-            elif CONTROLS.rules['battery']['cycle']=='pv':
-                if CONTROLS.rules['status']['lastEmpty']
-                if datetime.now().hour < 13: #before 1pm, dont charge from grid greater than 50% to ensure opportunity for PV
-                    CONTROLS.setpoint = 50
-                #if after PV window, charge it up
-                elif datetime.now().hour > 13: #after 1pm, charge from grid
-                    CONTROLS.setpoint = 100
+            # position A
+            if le < lf: # last full is most recent - discharging
+                #get upcoming discharge time
 
-                #estimate discharge time
+                upcomingDT = datetime.combine(datetime.date(lf),time(CONTROLS.dischargeTime,00))
 
-            # constant cycle - battery is depleted and charged continuously. time of cycle depends on load
-            elif CONTROLS.rules['battery']['cycle']=='constant':
-                # if it hits 100% and was in a charging state, switch to a draw down state
-                if (now['powerstation_percentage'] == setpoint) and (CONTROLS.rules['status']['mode'] in [1,3,4]):
+                # position B
+                if datetime.now() >= upcomingDT: # if discharge time, go ahead with discharge
+                    # position C
                     toMode = 5
-                    SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
-                    CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    CONTROLS.rules['status']['mode']=toMode #set to discharge
-                # if it hits 20% and was in a drawdown state, charge it up
-                elif (now['powerstation_percentage'] <= CONTROLS.rules['battery']['min']) and (CONTROLS.rules['status']['mode'] == 5):
+                    CONTROLS.rules['status']['mode']=toMode #set to dicharge
+                else: #connect load to grid, don't charge or discharge battery
+                    toMode = 2
+                    CONTROLS.rules['status']['mode']=toMode #set to charge
+
+                # if discharging, but below DoD, charge it
+                # position D
+                if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['min']):
                     toMode = 1
-                    SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
+                    #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     CONTROLS.rules['status']['mode']=toMode #set to charge
+            # position E
+            else: # last empty is most recent - charging
+
+                # convert end of sun window into DT object
+                sWE = CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration
+                upcomingSunWindowEnd = datetime.combine(datetime.date(le),time(sWE,00))
+
+                # position G
+                if datetime.now() >= upcomingSunWindowEnd:
+                    sp = CONTROLS.pvSetpoint
                 else:
-                    SPS.log_debug(f"Mode {rules['status']['mode']} not changed.")
+                    # position H
+                    sp = 100
+
+                # position F
+                if now['powerstation_percentage'] <= sp:
+                    toMode=1 #charge battery
+                else:
+                    toMode=5 #discharge battery
+                CONTROLS.rules['status']['mode']=toMode #set to charge
+
+                # if charging, but at set point, switch modes
+                # position A
+                if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] == sp):
+                    toMode = 1
+                    #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
+                    CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    CONTROLS.rules['status']['mode']=toMode #set to charge
         elif CONTROLS.rules['event']['upcoming'] != 0:
             # prep for event
             # if time to event < charge time set mode to 1
@@ -132,12 +121,10 @@ async def main(SPS) -> None:
         elif CONTROLS.rules['event']['ongoing'] != 0:
             # manage event
             # if event is ongoing set mode to 5
-            CONTROLS.rules['status']['mode']=5 #set to charge
-        '''
-        #writeMode(rules)
+            CONTROLS.rules['status']['mode']=5 #set to discharge
+
         SPS.writeJSON(CONTROLS.rules,rulesFile)
 
-        #await setMode(rules['status']['mode'])
         m=CONTROLS.rules['status']['mode']
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}','status_code')
         print('************ SLEEPING **************')

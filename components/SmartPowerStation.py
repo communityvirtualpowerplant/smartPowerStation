@@ -225,8 +225,8 @@ class Controls():
         self.modeFour = {1:0,2:1,3:0}
         self.modeFive = {1:0,2:0,3:1}
         self.modeSix = {1:0,2:0,3:0}
-        self.setpoint = 0
-        self.dischargeH = 20
+        self.pvSetpoint = 50 # battery percentage to maximize solar utilization
+        self.dischargeH = 0
 
         self.Kp = 1.0
         self.Ki = 0.1

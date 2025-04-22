@@ -72,7 +72,7 @@ async def main(SPS) -> None:
                 pass
 
 
-'''
+        '''
         # if no event upcoming or ongoing
         if (CONTROLS.rules['event']['upcoming'] == 0) and (CONTROLS.rules['event']['ongoing'] == 0):
             #CONTROLS.normalLoop(now)
@@ -133,7 +133,7 @@ async def main(SPS) -> None:
             # manage event
             # if event is ongoing set mode to 5
             CONTROLS.rules['status']['mode']=5 #set to charge
-'''
+        '''
         #writeMode(rules)
         SPS.writeJSON(CONTROLS.rules,rulesFile)
 

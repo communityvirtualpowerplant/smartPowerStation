@@ -104,7 +104,7 @@ async def main(SPS) -> None:
                 if datetime.now() < upcomingSunWindowEnd:
                     # position F
                     pPosition = 'F'
-                    sp = CONTROLS.pvSetpoint
+                    sp = CONTROLS.pvSetPoint
                 else:
                     # position G
                     pPosition = 'G'

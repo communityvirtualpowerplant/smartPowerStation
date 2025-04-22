@@ -4,7 +4,7 @@ import requests
 import json
 from typing import cast
 from typing import Any, Dict, Optional, List
-from datetime import datetime
+from datetime import datetime, timedelta, time
 import sys
 from components.SmartPowerStation import SmartPowerStation, Controls
 
@@ -66,12 +66,14 @@ async def main(SPS) -> None:
 
             # position A
             if le < lf: # last full is most recent - discharging
+                positionMarker = 'B'
                 #get upcoming discharge time
 
                 upcomingDT = datetime.combine(datetime.date(lf),time(CONTROLS.dischargeTime,00))
 
                 # position B
                 if datetime.now() >= upcomingDT: # if discharge time, go ahead with discharge
+                    positionMarker = 'C'
                     # position C
                     toMode = 5
                     CONTROLS.rules['status']['mode']=toMode #set to dicharge
@@ -110,6 +112,7 @@ async def main(SPS) -> None:
                 # if charging, but at set point, switch modes
                 # position A
                 if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] == sp):
+                    positionMarker = 'A'
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -122,6 +125,8 @@ async def main(SPS) -> None:
             # manage event
             # if event is ongoing set mode to 5
             CONTROLS.rules['status']['mode']=5 #set to discharge
+
+        console.log(f'Position {positionMarker}')
 
         SPS.writeJSON(CONTROLS.rules,rulesFile)
 

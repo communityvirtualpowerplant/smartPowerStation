@@ -66,7 +66,6 @@ async def main(SPS) -> None:
         CONTROLS.dischargeTime = 20
 
         if le < lf: # charging
-
             pass
         else: #discharging
             if datetime.now().hour >= CONTROLS.dischargeTime: #if its time to discharge

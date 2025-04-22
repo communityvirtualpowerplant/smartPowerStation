@@ -16,7 +16,7 @@ function getData(){
     })
     .then(data => {
       const safeJSON = data.replace(/\bNaN\b/g, 'null');
-      const data = JSON.parse(safeJSON);
+      data = JSON.parse(safeJSON);
       //console.log('Data received:', data);
       drawSystem(data);
     })

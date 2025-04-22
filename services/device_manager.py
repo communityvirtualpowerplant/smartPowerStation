@@ -233,10 +233,10 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
     # move into setMode function
     async with asyncio.Lock():
         mode = toMode['mode']
-        if mode != 0:
-            toMode['mode'] = 0
-        else:
-            return
+        # if mode != 0:
+        #     toMode['mode'] = 0
+        # else:
+        #     return
 
     # these assignments should be listed in the rules file
     if mode == 0:

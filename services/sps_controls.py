@@ -70,9 +70,7 @@ async def main(SPS) -> None:
             pass
         else: #discharging
             if datetime.now().hour >= CONTROLS.dischargeTime: #if its time to discharge
-
-
-
+                pass
 
 
 '''

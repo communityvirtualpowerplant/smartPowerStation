@@ -27,7 +27,7 @@ async def main(SPS) -> None:
 
 
     CONTROLS.getRules(rulesFile)
-    CONTROLS.setEventTimes(rules['event']['start'],rules['event']['duration'])
+    CONTROLS.setEventTimes(CONTROLS.rules['event']['start'],rules['event']['duration'])
     filteredDevices = SPS.getDevices(devicesFile)
 
     for d in filteredDevices:

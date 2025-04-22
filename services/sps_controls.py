@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional, List
 from datetime import datetime
 import sys
 from components.SmartPowerStation import SmartPowerStation, Controls
+import csv
 
 eventUpcoming = False
 eventOngoing = False
@@ -70,42 +71,41 @@ async def main(SPS) -> None:
 
                 upcomingDT = datetime.combine(datetime.date(lf),time(CONTROLS.dischargeTime,00))
 
-                # position B
                 if datetime.now() >= upcomingDT: # if discharge time, go ahead with discharge
                     # position C
+                    pPosition = 'C'
                     toMode = 5
-                    CONTROLS.rules['status']['mode']=toMode #set to dicharge
                 else: #connect load to grid, don't charge or discharge battery
+                    # position B
+                    pPosition = 'B'
                     toMode = 2
-                    CONTROLS.rules['status']['mode']=toMode #set to charge
-
                 # if discharging, but below DoD, charge it
-                # position D
                 if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['min']):
+                    # position D
+                    pPosition = 'D'
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    CONTROLS.rules['status']['mode']=toMode #set to charge
-            # position E
             else: # last empty is most recent - charging
-
+                # position E
+                pPosition = 'E'
                 # convert end of sun window into DT object
                 sWE = CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration
                 upcomingSunWindowEnd = datetime.combine(datetime.date(le),time(sWE,00))
 
-                # position G
-                if datetime.now() >= upcomingSunWindowEnd:
+                if datetime.now() < upcomingSunWindowEnd:
+                    # position F
+                    pPosition = 'F'
                     sp = CONTROLS.pvSetpoint
                 else:
-                    # position H
+                    # position G
+                    pPosition = 'G'
                     sp = 100
 
-                # position F
                 if now['powerstation_percentage'] <= sp:
                     toMode=1 #charge battery
                 else:
                     toMode=5 #discharge battery
-                CONTROLS.rules['status']['mode']=toMode #set to charge
 
                 # if charging, but at set point, switch modes
                 # position A
@@ -113,22 +113,37 @@ async def main(SPS) -> None:
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    CONTROLS.rules['status']['mode']=toMode #set to charge
-        elif CONTROLS.rules['event']['upcoming'] != 0:
-            # prep for event
-            # if time to event < charge time set mode to 1
-            CONTROLS.rules['status']['mode']=1 #set to charge
+                    
         elif CONTROLS.rules['event']['ongoing'] != 0:
             # manage event
             # if event is ongoing set mode to 5
-            CONTROLS.rules['status']['mode']=5 #set to discharge
+            toMode = 5 #set to discharge
+            # check if event is over and reset to 0
+            eventDT = datetime.strptime(CONTROLS.rules['event']['ongoing'], "%Y-%m-%d %H:%M:%S")
+            if datetime.now() > eventDT:
+                CONTROLS.rules['event']['ongoing'] = 0
+        elif CONTROLS.rules['event']['upcoming'] != 0:
+            # prep for event
+            toMode = 1 #set to charge
+            # check if event is no longer upcoming and reset to 0
+            upcomingDT = datetime.strptime(CONTROLS.rules['event']['upcoming'], "%Y-%m-%d %H:%M:%S")
+            if datetime.now() > upcomingDT:
+                CONTROLS.rules['event']['upcoming'] = 0
 
+
+        CONTROLS.rules['status']['mode']=toMode #set to charge
         SPS.writeJSON(CONTROLS.rules,rulesFile)
+        printPos(pPosition)
 
         m=CONTROLS.rules['status']['mode']
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}','status_code')
         print('************ SLEEPING **************')
         await asyncio.sleep(60*freqMin)
+
+def printPos(p):
+    showPosition = True
+    if showPosition:
+        print(f'Position: {p}')
 
 if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)

@@ -230,13 +230,12 @@ async def writeData(fn, df):
 
     SPS.log_debug("csv writing: " + str(datetime.now()))
 
-async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int)-> Any:
+async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)-> Any:
     # move into setMode function
     async with asyncio.Lock():
         mode = toMode['mode']
-        if m:
-            if mode == m:
-                return
+        if ((m is not None) and (m == mode)):
+            return
 
     # these assignments should be listed in the rules file
     if mode == 0:

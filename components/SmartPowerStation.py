@@ -534,7 +534,7 @@ class Controls():
         pass
 
 
-    def normalLoop(self,now)
+    def normalLoop(self,now):
         pass
 
     def eventUpcomingLoop(self):

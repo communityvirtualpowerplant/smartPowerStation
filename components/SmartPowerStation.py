@@ -469,9 +469,11 @@ class Controls():
 
         if error < 0:
             # draw down
+            pass
 
         elif error > 0:
             # charge up
+            pass
 
         return control
 

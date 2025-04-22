@@ -115,6 +115,11 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
                         "relay2_voltage": "",
                         "relay2_status": "",
                         "relay2_device": "",
+                        "relay3_power": "",
+                        "relay3_current":"",
+                        "relay3_voltage": "",
+                        "relay3_status": "",
+                        "relay3_device": "",
                         "mode":toMode['mode']} 
 
         #results = []

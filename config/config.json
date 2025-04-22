@@ -3,5 +3,8 @@
     "network":"crown heights",
     "promise":0,
     "event_start":"",
-    "event_duration":4
+    "event_duration":4,
+    "pvW":50,
+    "pvVmp":18,
+    "batWh":1152
 }

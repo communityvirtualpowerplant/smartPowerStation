@@ -12,6 +12,9 @@ import requests
 import pandas as pd
 from io import StringIO
 from scipy.integrate import trapezoid
+import math
+import numpy as np
+import statistics
 
 class SmartPowerStation():
     def __init__(self, conf: str,info=True, debug=True,error=True):
@@ -249,7 +252,7 @@ class Controls():
         self.previous_error = 0
         self.integral = 0
         self.sunWindowStart = 10
-        self.sunWindowDuration = 2
+        self.sunWindowDuration = 3
         self.url = 'localhost'
         self.port = 5000
         self.fileList = []
@@ -261,6 +264,11 @@ class Controls():
         try:
             with open(fn, "r") as json_file:
                 self.rules = json.load(json_file)
+
+                try:
+                    self.setEventTimes(self.rules['event']['start'],self.rules['event']['duration'])
+                except:
+                    print('failed to ingest rules.')
                 return self.rules
         except Exception as e:
             print(f"Error during reading {fn} file: {e}")
@@ -278,6 +286,8 @@ class Controls():
                 return response.text
             else:
                 return response.status_code
+        except requests.Timeout as e:
+            return e
         except Exception as e:
             return e
 
@@ -367,7 +377,7 @@ class Controls():
 
     # returns all file names within the last X days
     async def getRecentFileList(self,d:int=30)->list:
-        self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
+        self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json',timeout=2)
         self.fileList = sorted(self.fileList, reverse=True)
 
         # start with todays date
@@ -437,6 +447,8 @@ class Controls():
             print('')
             for h in range(len(d)):
                 hourlyEnergy = self.getWh(d[h]['powerstation_inputWAC'],d[h]['increments'])# change from inputWAC to whatever is more appropriate
+                if (math.isnan(hourlyEnergy)):
+                    hourlyEnergy = 0.0
                 print(f'{h}: {hourlyEnergy}')
                 sumEnergy += hourlyEnergy
             print(f'tot: {sumEnergy}')
@@ -476,19 +488,19 @@ class Controls():
         return self.getWh(summedData['summedPower'],summedData['increments'])
 
     # attempts to maintain the battery at a specific percentage with proportional control
-    def p_controller_percentage(self, bat:int, setpoint:int=100, previous_error:int=0):
-        setpoint = setpoint + previous_error
-        error = setpoint - bat
+    # def p_controller_percentage(self, bat:int, setpoint:int=100, previous_error:int=0):
+    #     setpoint = setpoint + previous_error
+    #     error = setpoint - bat
 
-        if error < 0:
-            # draw down
-            pass
+    #     if error < 0:
+    #         # draw down
+    #         pass
 
-        elif error > 0:
-            # charge up
-            pass
+    #     elif error > 0:
+    #         # charge up
+    #         pass
 
-        return control
+    #     return control
 
     # attempts to reach a certain amount of energy avoidance
     def pi_controller_energy(self, setpoint, pv, kp, ki,):
@@ -497,38 +509,112 @@ class Controls():
         control = kp * error + ki * self.integral
         return control, error, integral
 
-    # def pid_controller(self, pv, kp, ki, kd, dt):
-    #     error = self.setpoint - pv
-    #     self.integral += error * dt
-    #     derivative = (error - self.previous_error) / dt
-    #     control = kp * error + ki * self.integral + kd * derivative
-    #     return control, error, integral
+    # determines solar window, solar production
+    # to do: determine PV-to-battery efficiency
+    async def analyzeSolar(self,d:int=30)->Tuple:
+        data = await self.getRecentData(d)
 
-    #estimate when the PV will start producing and for how long
-    async def estSunWindow(self):
-        # get recent files
-        recentFileNames = self.getRecentFileList()
+        # filter out all data without PV input
+        filteredDF = []
+        for d in data:
+            newD = d[d['powerstation_inputWDC']>0]
+            filteredDF.append(newD)
+        
+        #drop unneeded columns
+        trimmedDf = []
+        cols=['datetime','powerstation_percentage','powerstation_inputWAC','powerstation_inputWDC','powerstation_outputWAC','powerstation_outputWDC']
+        for d in filteredDF:
+            trimmedDf.append(d[cols])
 
-        # if len(recentFileNames) >= 2:
-        #     break
+        # create list[Dict] with analysis results
+        metaList = []
+        for df in trimmedDf:
+            meta={}
+            meta['raw min time']=df['datetime'].min()
+            meta['raw max time']=df['datetime'].max()
+            meta['max power']=df['powerstation_inputWDC'].max()
+            meta['max power time']=df[df['powerstation_inputWDC']==df['powerstation_inputWDC'].max()]['datetime']
+            try:
+                meta['power std']=statistics.stdev(df['powerstation_inputWDC'])
+            except:
+                meta['power std']=float('nan')
+            try:
+                meta['power mean']=statistics.mean(df['powerstation_inputWDC'])
+            except:
+                meta['power mean']=float('nan')
+            metaList.append(meta)
 
-        # if there are no recent files, set defaults and return
-        if len(recentFileNames)==0:
-            self.sunWindowStart = 10 
-            self.sunWindowDuration = 4
-            return
+        # get sun window (2 std deviations)
+        stdDf = []
+        amountStd = 1
+        for i in range(len(trimmedDf)):
+            stdDf.append(trimmedDf[i][(trimmedDf[i]['powerstation_inputWDC']<= metaList[i]['power mean']+(amountStd*metaList[i]['power std'])) &
+                            (trimmedDf[i]['powerstation_inputWDC']>= metaList[i]['power mean']-(amountStd*metaList[i]['power std']))])
 
-        # get earliest, latest, and max sun times for each file
-        for f in recentFileNames:
-            fn = f.split('.')[0]
-            self.fileList = await self.send_get_request(self.url, self.port,f"/api/data?files={fn}",'json')
+        for m in range(len(metaList)):
+            metaList[m]['sun window min']=stdDf[m]['datetime'].min()
+            metaList[m]['sun window max']=stdDf[m]['datetime'].max()
+            metaList[m]['sun window duration']= metaList[m]['sun window max'] - metaList[m]['sun window min']
+            metaList[m]['PV Wh DC'] = float(self.getWh(stdDf[m]['powerstation_inputWDC'],self.prepWh(stdDf[m])['increments']))
+            #metaList[m]['percentage input'] = 
 
-        # average
+        sunWindowMin = []
+        sunWindowMax = []
+        sunWindowDuration = []
+        dcIn = []
 
-        #temp
-        self.sunWindowStart = 10 
-        self.sunWindowDuration = 4
-        return
+        for m in metaList:
+            sunWindowMin.append(m['sun window min'])
+            sunWindowMax.append(m['sun window max'])
+            sunWindowDuration.append(m['sun window duration'])
+            dcIn.append(m['Wh DC input'])
+
+        listAvg = {'sunWindowMin':self.avgTimes(sunWindowMin),
+                   'sunWindowMax':self.avgTimes(sunWindowMax),
+                   'sunWindowDuration':self.avgTimes(sunWindowDuration),
+                   'dailyPVWh':statistics.mean(dcIn)}
+
+        return (metaList,listAvg)
+
+    def prepWh(self, df:pd.DataFrame)->pd.DataFrame:
+        #fill NaN with 0
+        df = df.fillna(0)
+        df = self.increments(df)
+        return df
+
+    #get average time from list of datetime or timedelta objects
+    def avgTimes(self,dtL:list[datetime])->time:
+        # to numeric
+        timeToNum = []
+        for t in dtL:
+            #check timedelta
+            if 'timedelta' in str(type(t)):
+                timeToNum.append(t.seconds)
+            #t = t.to_pydatetime()
+            # print(type(t))
+            else:
+                if math.isnan(t.hour):
+                    continue
+                timeToNum.append((t.hour*60*60)+(t.minute*60))
+
+        #print(timeToNum)
+        x = statistics.mean(timeToNum)
+        xMin = x / 60
+        h = int(xMin/60)
+        m = int(xMin%60)
+        return time(h,m)
+
+    # #estimate when the PV will start producing and for how long
+    # async def estSunWindow(self,d:int=30):
+    #     data = await self.getRecentData(d)
+
+    #     # filter out all data without PV input
+
+    #     filteredDF = []
+    #     for d in data:
+    #         newD = d[d['powerstation_inputWDC']>0]
+    #         filteredDF.append(newD)
+    #     return filteredDF
     
     # get tomorrows weather
     def getWeather(self):

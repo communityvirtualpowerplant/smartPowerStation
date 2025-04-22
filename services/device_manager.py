@@ -52,6 +52,7 @@ printError = True
 dataDirectory = '../data/'
 deviceFile = '../config/devices.json'
 configFile = '../config/config.json'
+rulesFile = '../config/rules.json'
 
 #changed based on hardware
 bleAdapter = "hci0"

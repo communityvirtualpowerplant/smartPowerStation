@@ -19,6 +19,7 @@ ENDPOINT = '/api/data?file=now'
 configFile = '../config/config.json'
 devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
+analysisDirectory = '../analysis/'
 
 # loop frequency
 freqMin = 1
@@ -28,7 +29,7 @@ async def main(SPS) -> None:
 
 
     CONTROLS.getRules(rulesFile)
-    CONTROLS.setEventTimes(CONTROLS.rules['event']['start'],CONTROLS.rules['event']['duration'])
+    #CONTROLS.setEventTimes(CONTROLS.rules['event']['start'],CONTROLS.rules['event']['duration'])
     filteredDevices = SPS.getDevices(devicesFile)
 
     for d in filteredDevices:
@@ -37,7 +38,8 @@ async def main(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
-    print(await CONTROLS.estBaseline(7))
+    # if the analysis file for today hasn't been created yet, do it
+    #print(await CONTROLS.estBaseline(7))
 
     while True:
 

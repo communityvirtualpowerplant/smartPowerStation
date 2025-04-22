@@ -94,7 +94,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         # for task in tasks:
         #     await task
 
-        await setMode(devices, SPS)
+        m = await setMode(devices, SPS)
 
         tempResults = {
                         "datetime" : datetime.now(),
@@ -136,7 +136,8 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         await writeData(fileName, pd.DataFrame([tempResults]))
 
         # there is definitely a better way to do this - something where it forces a wakeup if the mode is changed...
-        await setMode(devices, SPS)
+        # check again to update before sleeping
+        await setMode(devices, SPS,m)
 
         print('************ SLEEPING **************')
         await asyncio.sleep(120)
@@ -229,14 +230,13 @@ async def writeData(fn, df):
 
     SPS.log_debug("csv writing: " + str(datetime.now()))
 
-async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
+async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int)-> Any:
     # move into setMode function
     async with asyncio.Lock():
         mode = toMode['mode']
-        # if mode != 0:
-        #     toMode['mode'] = 0
-        # else:
-        #     return
+        if m:
+            if mode == m:
+                return
 
     # these assignments should be listed in the rules file
     if mode == 0:
@@ -280,6 +280,8 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
                 if savedDev['relay2'] in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
                     await trySetState(assign[savedDev['relay2']],1)
+
+    return mode
 
 def main(SPS: SmartPowerStation,loop)-> None:
     asyncio.set_event_loop(loop)

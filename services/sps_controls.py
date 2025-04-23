@@ -107,7 +107,7 @@ async def main(SPS) -> None:
 
                 #if its after sun window 
                 upcomingSunWindowEnd = datetime.combine(datetime.date(le),sWE)
-                print(f'Upcoming end of sun window: {upcomingSunWindowEnd}')
+                print(f'Sun window: {upcomingSunWindowEnd}')
 
                 if datetime.now() > upcomingSunWindowEnd:
                     # position G

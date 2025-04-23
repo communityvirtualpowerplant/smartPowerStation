@@ -122,7 +122,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
                         "relay3_status": "",
                         "relay3_device": "",
                         "mode":int(toMode['mode']),
-                        "position":int(toMode['position'])}
+                        "position":toMode['position']}
 
         #results = []
         for d in devices:

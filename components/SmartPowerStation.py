@@ -243,6 +243,7 @@ class Controls():
         self.modeFive = {1:0,2:0,3:1}
         self.modeSix = {1:0,2:0,3:0}
         self.pvSetPoint = 50 # battery percentage to maximize solar utilization
+        self.minSetPoint = int(100 * (1.0-self.dod))
         self.dischargeT = time(0,00)
         self.sunWindowStart = 10
         self.sunWindowDuration = 3
@@ -269,6 +270,7 @@ class Controls():
                 try:
                     self.setEventTimes(self.rules['event']['start'],self.rules['event']['duration'])
                     self.pvSetPoint = self.rules['battery']['pvSetPoint']
+                    self.minSetPoint = self.rules['battery']['minSetPoint']
                     print('ingested rules! tastes good!')
                 except:
                     print('failed to ingest rules.')

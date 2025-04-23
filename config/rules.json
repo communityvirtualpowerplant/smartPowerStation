@@ -1,5 +1,5 @@
 {
-    "battery":{"min":20,"pvSetPoint":50,"cycle": "constant","description":"Don't let the battery deplete below 20%. Cycle the battery daily."},
+    "battery":{"minSetPoint":20,"pvSetPoint":50,"cycle": "constant","description":"Don't let the battery deplete below 20%. Cycle the battery daily."},
     "event":{"upcoming":0, "ongoing":0, "start":16,"duration":4,"description":"0 indications not upcoming or ongoing. 1 indicates event is upcoming or ongoing."},
     "status":{"lastFull":"","lastEmpty":"","mode":1, "description":"Tracks the date and time of control mode changes."}
 }

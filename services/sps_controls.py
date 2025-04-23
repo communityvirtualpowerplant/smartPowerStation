@@ -89,7 +89,7 @@ async def main(SPS) -> None:
                     positionMarker = 'B'
                     toMode = 2
                 # if discharging, but below DoD, charge it
-                if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['min']):
+                if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['minSetPoint']):
                     # position D
                     positionMarker = 'D'
                     toMode = 1

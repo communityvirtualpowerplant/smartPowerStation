@@ -232,9 +232,9 @@ class Controls():
         self.dod = .8 # assumes 80% depth of discharge
         self.avgPvWh = 0 # recent daily average
         self.maxPvWh = 0 # recent daily max
-        self.eventStartH = 0
-        self.eventStartDT = time(self.eventStartH,00)
+        self.eventStartDT = time(16,00)
         self.eventDurationH = 4
+        self.eventEndDT = time(self.eventDurationH,00)
         self.baseline = 0
         self.modeOne = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
         self.modeTwo = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
@@ -302,7 +302,6 @@ class Controls():
         # TO DO: add in conditionals for uneven hours
         ehm = et.split(':')
         edhm = ed.split(':')
-        self.eventStartH = int(ehm[0])
         self.eventDurationH = int(edhm[0])
         self.eventStartDT = time(hour=int(ehm[0]),minute=int(ehm[1]))
 

@@ -268,7 +268,7 @@ class Controls():
                 self.rules = json.load(json_file)
 
                 try:
-                    self.setTimes(self.rule['battery']['dischargeT'],self.rules['event']['start'],self.rules['event']['duration'])
+                    self.setTimes(self.rules['battery']['dischargeT'],self.rules['event']['start'],self.rules['event']['duration'])
                     self.pvSetPoint = self.rules['battery']['pvSetPoint']
                     self.minSetPoint = self.rules['battery']['minSetPoint']
                     print('ingested rules! tastes good!')

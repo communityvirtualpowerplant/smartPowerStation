@@ -59,17 +59,19 @@ async def main(SPS) -> None:
         #if SPS.isRecent(now['datetime']):
             #SPS.log_debug('data is fresh')
 
+        # this block should be ahead of the LF test, so that it defaults to mode 1 if both are blank
+        try:
+            le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
+        except:
+            # if there isn't any saved data, set last empty to 10 years back
+            le = datetime.now() - timedelta(days=(10*365))
+
         try:
             lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
         except:
             # if there isn't any saved data, set last full to 10 years back
             lf = datetime.now() - timedelta(days=(10*365))
 
-        try:
-            le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
-        except:
-            # if there isn't any saved data, set last empty to 10 years back
-            le = datetime.now() - timedelta(days=(10*365))
 
         # if no event upcoming or ongoing
         if (CONTROLS.rules['event']['upcoming'] == 0) and (CONTROLS.rules['event']['ongoing'] == 0):
@@ -80,6 +82,7 @@ async def main(SPS) -> None:
                 #get upcoming discharge time
 
                 upcomingDT = datetime.combine(datetime.date(lf),CONTROLS.dischargeT)
+                print(f'Upcoming discharge time: {upcomingDT}')
 
                 if datetime.now() >= upcomingDT: # if discharge time, go ahead with discharge
                     positionMarker = 'C'
@@ -89,14 +92,14 @@ async def main(SPS) -> None:
                     # position B
                     positionMarker = 'B'
                     toMode = 2
-                # if discharging, but below DoD, charge it
+                # if discharging, but below min set point, charge it
                 if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['minSetPoint']):
                     # position D
-                    positionMarker = 'D'
+                    positionMarker = 'E'
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            else: # last empty is most recent - charging
+            else: # last empty is most recent, start charging- Position D
                 # position E
                 positionMarker = 'E'
                 # convert end of sun window into time object
@@ -113,17 +116,18 @@ async def main(SPS) -> None:
                 else:
                     # this kicks in at midnight
                     # position F
-                    positionMarker = 'F'
+                    positionMarker = 'E'
                     sp = CONTROLS.pvSetPoint
 
-                if now['powerstation_percentage'] <= sp:
+                if now['powerstation_percentage'] < sp:
                     toMode=1 #charge battery
                 else:
                     toMode=5 #discharge battery
 
                 # if charging, but at set point, switch modes
                 # position A
-                if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] == sp):
+                # 2,5,6 are discharge modes # CONTROLS.rules['status']['mode'] in [2,5,6]) &
+                if (sp == 100) & (now['powerstation_percentage'] == sp):
                     positionMarker = 'A'
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")

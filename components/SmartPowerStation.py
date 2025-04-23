@@ -332,6 +332,18 @@ class Controls():
         self.batCapWh = Wh
         self.maxFlexibilityWh = self.getAvailableFlex(100)
 
+    # checks if a datetime is after that day's sunwindow
+    def isAfterSun(self,dt:datetime) -> bool:
+        sWE = time(hour=int(self.sunWindowStart + self.sunWindowDuration)) # gets the end time of the sun window
+
+        #if its after sun window
+        upcomingSunWindowEnd = datetime.combine(dt,sWE) #combine provided datetime with sunwindow end to get a datetime object
+        print(f'Sun window: {upcomingSunWindowEnd}')
+        if dt > upcomingSunWindowEnd:
+            return True
+        else:
+            return False
+
     # args: a dataframe with a datetime column with only one days worth of data
     # returns a Tuple with the start and end times for the event window as datetime objects for a given day
     def getStartEndDatetime(self, df)->Tuple:

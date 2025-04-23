@@ -106,10 +106,10 @@ async def main(SPS) -> None:
                 sWE = time(hour=int(CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration))
 
                 #if its after sun window 
-                upcomingSunWindowEnd = datetime.combine(datetime.date(le),sWE)
-                print(f'Sun window: {upcomingSunWindowEnd}')
+                # upcomingSunWindowEnd = datetime.combine(datetime.date(le),sWE)
+                # print(f'Sun window: {upcomingSunWindowEnd}')
 
-                if datetime.now() > upcomingSunWindowEnd:
+                if CONTROLS.isAfterSun(datetime.now()):
                     # position G
                     positionMarker = 'G'
                     sp = 100
@@ -141,6 +141,11 @@ async def main(SPS) -> None:
             toMode = 5 #set to discharge
             positionMarker = 'EC'
 
+            # if depleted, turn on battery and connect back to grid
+            if now['powerstation_percentage'] < 20:
+                toMode = 2
+                positionMarker = 'ED'
+
             # check if event is over and reset to 0
             if datetime.now() > (CONTROLS.eventDT + timedelta(hours=CONTROLS.eventDurationH)):
                 CONTROLS.rules['event']['ongoing'] = 0
@@ -155,7 +160,9 @@ async def main(SPS) -> None:
                 positionMarker = 'EF'
 
             #if sun window hasn't ended make sure there is room for solar
-
+            if (now['powerstation_percentage'] > 90) and (CONTROLS.isAfterSun(datetime.now())):
+                toMode = 5
+                positionMarker = 'EE'
 
             # check if event is no longer upcoming and reset to 0
             if datetime.now() > CONTROLS.eventDT:

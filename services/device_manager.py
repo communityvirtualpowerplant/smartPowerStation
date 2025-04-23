@@ -39,7 +39,7 @@ lock = threading.Lock()
 def getCommand():
     with lock:
         toMode['mode'] = int(request.args.get("mode"))
-        toMode['position']=int(request.args.get("position"))
+        toMode['position']=request.args.get("position")
     return "Success", 200
 
 shellySTR = 'Shelly'

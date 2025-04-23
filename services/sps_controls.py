@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
 from components.SmartPowerStation import SmartPowerStation, Controls
 #import csv
+#from components.MQTT import Participant
 
 eventUpcoming = False
 eventOngoing = False
@@ -144,7 +145,8 @@ async def main(SPS) -> None:
             if datetime.now() > upcomingDT:
                 CONTROLS.rules['event']['upcoming'] = 0
 
-        print(f'Position {positionMarker}')
+        print(f'Position {positionMarker}',flush=True)# remove flush arg for performance
+
         #is adding some logic to always charge if below 20% necessary?
 
         CONTROLS.rules['status']['mode']=toMode #set to charge

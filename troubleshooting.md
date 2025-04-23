@@ -18,6 +18,8 @@ recent: `journalctl -u your-service-name.service -f`<br>
 5 minutes:`journalctl -u sps_controls.service --since "5 minutes ago"`<br>
 live: `journalctl -f`
 
+Add `,flush=True` to force print to troubleshoot
+
 ## Check is a python program is running:
 `ps aux | grep .py`
 
@@ -26,6 +28,5 @@ live: `journalctl -f`
 `free -h`
 
 service usage: `systemd-cgtop`
-
 
 per core usage: `mpstat -P ALL 1`

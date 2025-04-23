@@ -157,7 +157,7 @@ async def main(SPS) -> None:
         SPS.writeJSON(CONTROLS.rules,rulesFile)
 
         m=CONTROLS.rules['status']['mode']
-        await CONTROLS.send_get_request(URL,5001,f'?mode={m}','status_code')
+        await CONTROLS.send_get_request(URL,5001,f'?mode={m}&position={positionMarker}','status_code')
         print('************ SLEEPING **************')
         await asyncio.sleep(60*freqMin)
 

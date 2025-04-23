@@ -32,13 +32,14 @@ import threading
 
 app = Flask(__name__)
 
-toMode = {'mode':1}
+toMode = {'mode':1,'position':0}
 lock = threading.Lock()
 
 @app.route("/")
 def getCommand():
     with lock:
         toMode['mode'] = int(request.args.get("mode"))
+        toMode['position']=int(request.args.get("position"))
     return "Success", 200
 
 shellySTR = 'Shelly'
@@ -69,7 +70,6 @@ def handle_signal(signal_num: int, frame: Any) -> None:
 # Main
 # ============================        
 async def bleLoop(SPS: SmartPowerStation) -> None:
-    #global toMode
 
     while True:
         SPS.reset_bluetooth()
@@ -121,7 +121,8 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
                         "relay3_voltage": "",
                         "relay3_status": "",
                         "relay3_device": "",
-                        "mode":int(toMode['mode'])} 
+                        "mode":int(toMode['mode']),
+                        "position":int(toMode['position'])}
 
         #results = []
         for d in devices:

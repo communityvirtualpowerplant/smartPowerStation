@@ -121,8 +121,10 @@ async def main(SPS) -> None:
 
                 if now['powerstation_percentage'] < sp:
                     toMode=1 #charge battery
+                    positionMarker = 'G'
                 else:
                     toMode=5 #discharge battery
+                    positionMarker = 'F'
 
                 # if charging, but at set point, switch modes
                 # position A
@@ -137,16 +139,26 @@ async def main(SPS) -> None:
             # manage event
             # if event is ongoing set mode to 5
             toMode = 5 #set to discharge
+            positionMarker = 'EC'
+
             # check if event is over and reset to 0
-            eventDT = datetime.strptime(CONTROLS.rules['event']['ongoing'], "%Y-%m-%d %H:%M:%S")
-            if datetime.now() > eventDT:
+            if datetime.now() > (CONTROLS.eventDT + timedelta(hours=CONTROLS.eventDurationH)):
                 CONTROLS.rules['event']['ongoing'] = 0
         elif CONTROLS.rules['event']['upcoming'] != 0:
             # prep for event
-            toMode = 1 #set to charge
+            toMode = 1 #charge with load to AC
+
+            #if battery is full
+            if now['powerstation_percentage'] == 100:
+                positionMarker = 'EB'
+            else:
+                positionMarker = 'EF'
+
+            #if sun window hasn't ended make sure there is room for solar
+
+
             # check if event is no longer upcoming and reset to 0
-            upcomingDT = datetime.strptime(CONTROLS.rules['event']['upcoming'], "%Y-%m-%d %H:%M:%S")
-            if datetime.now() > upcomingDT:
+            if datetime.now() > CONTROLS.eventDT:
                 CONTROLS.rules['event']['upcoming'] = 0
 
         print(f'Position {positionMarker}',flush=True)# remove flush arg for performance

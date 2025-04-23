@@ -232,9 +232,10 @@ class Controls():
         self.dod = .8 # assumes 80% depth of discharge
         self.avgPvWh = 0 # recent daily average
         self.maxPvWh = 0 # recent daily max
-        self.eventStartDT = time(16,00)
+        self.eventStartT = time(16,00)
         self.eventDurationH = 4
-        self.eventEndDT = time(self.eventDurationH,00)
+        self.eventEndT = time(self.eventDurationH,00)
+        self.eventDT = datetime(year=1,month=1,day=1)
         self.baseline = 0
         self.modeOne = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
         self.modeTwo = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
@@ -268,7 +269,7 @@ class Controls():
                 self.rules = json.load(json_file)
 
                 try:
-                    self.setTimes(self.rules['battery']['dischargeT'],self.rules['event']['start'],self.rules['event']['duration'])
+                    self.setTimes()
                     self.pvSetPoint = self.rules['battery']['pvSetPoint']
                     self.minSetPoint = self.rules['battery']['minSetPoint']
                     print('ingested rules! tastes good!')
@@ -296,21 +297,32 @@ class Controls():
         except Exception as e:
             return e
 
-    # this should be used, rather than setting directly because it converts to an hourly unit
-    # args: starting hour, optional duration argument
-    def setTimes(self,dt:str,et:str,ed:str='4:00')-> None:
+    # set time variables based on ingested rules file
+    # to do: dont create new variables, just convert the old ones to DT format!!!
+    def setTimes(self)-> None:
+        dt = self.rules['battery']['dischargeTime']
+        et = self.rules['event']['startTime']
+        ed = self.rules['event']['durationHours']
+        ued = self.rules['event']['eventDate']
+
         # TO DO: add in conditionals for uneven hours
         ehm = et.split(':')
         edhm = ed.split(':')
         self.eventDurationH = int(edhm[0])
-        self.eventStartDT = time(hour=int(ehm[0]),minute=int(ehm[1]))
+        self.eventStartT = time(hour=int(ehm[0]),minute=int(ehm[1]))
 
         dm = int(ehm[1]+edhm[1]) # total minutes
         dh = int(ehm[0]) + int(edhm[0]) # duration hours
         if dm >= 60:
             dh = dh + int(dm/60)
             dm = dm%60
-        self.eventEndDT = time(hour=int(dh),minute=int(dm))
+        self.eventEndT = time(hour=int(dh),minute=int(dm))
+
+        try:
+            if ued !='':
+                self.eventDT = datetime.strptime(ued, "%Y-%m-%d %H:%M:%S")
+        except:
+            print('failed to set eventDT')
 
         hm = dt.split(':')
         self.dischargeT = time(hour=int(hm[0]),minute=int(hm[1])) # discharge time should be set based on behavior
@@ -325,8 +337,8 @@ class Controls():
     def getStartEndDatetime(self, df)->Tuple:
         #df['datetime']=pd.to_datetime(df['datetime'])
         fileDate = datetime.date(df['datetime'].iloc[0])
-        startDT = datetime.combine(fileDate,self.eventStartDT)
-        endDT = datetime.combine(fileDate,self.eventEndDT)
+        startDT = datetime.combine(fileDate,self.eventStartT)
+        endDT = datetime.combine(fileDate,self.eventEndT)
         return (startDT, endDT)
 
     #filters a df for an individual day with datetime values to only those within the event window

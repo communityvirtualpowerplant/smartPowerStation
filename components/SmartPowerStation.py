@@ -268,7 +268,7 @@ class Controls():
                 self.rules = json.load(json_file)
 
                 try:
-                    self.setEventTimes(self.rules['event']['start'],self.rules['event']['duration'])
+                    self.setTimes(self.rule['battery']['dischargeT'],self.rules['event']['start'],self.rules['event']['duration'])
                     self.pvSetPoint = self.rules['battery']['pvSetPoint']
                     self.minSetPoint = self.rules['battery']['minSetPoint']
                     print('ingested rules! tastes good!')
@@ -298,13 +298,23 @@ class Controls():
 
     # this should be used, rather than setting directly because it converts to an hourly unit
     # args: starting hour, optional duration argument
-    def setEventTimes(self,h:float,d:float=4)-> None:
+    def setTimes(self,dt:str,et:str,ed:str='4:00')-> None:
         # TO DO: add in conditionals for uneven hours
-        self.eventStartH = h
-        self.eventDurationH = d
-        self.eventStartDT = time(hour=int(h),minute=0)
-        self.eventEndDT = time(hour=int(h + d),minute=0)
-        self.dischargeT = time(hour=int(h+d),minute=0) # this is temporary. discharge time should be set based on behavior
+        ehm = et.split(':')
+        edhm = ed.split(':')
+        self.eventStartH = int(ehm[0])
+        self.eventDurationH = int(edhm[0])
+        self.eventStartDT = time(hour=int(ehm[0]),minute=int(ehm[1]))
+
+        dm = ehm[1]+edh[1] # total minutes
+        dh = ehm[0] + edhm[0] # duration hours
+        if totM >= 60:
+            dh = dh + int(dm/60)
+            dm = dm%60
+        self.eventEndDT = time(hour=int(dh),minute=int(dm))
+
+        hm = dt.split(':')
+        self.dischargeT = time(hour=int(hm[0]),minute=int(hm[1])) # discharge time should be set based on behavior
 
     # sets battery capacity and determines maximum automatable flexibility
     def setBatCap(self,Wh:int) -> None:

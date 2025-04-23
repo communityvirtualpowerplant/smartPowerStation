@@ -145,14 +145,10 @@ async def main(SPS) -> None:
             if datetime.now() > upcomingDT:
                 CONTROLS.rules['event']['upcoming'] = 0
 
-<<<<<<< HEAD
         console.log(f'Position {positionMarker}')
-
-=======
         #is adding some logic to always charge if below 20% necessary?
 
         CONTROLS.rules['status']['mode']=toMode #set to charge
->>>>>>> eba4ff7e7cab835a91c4206e55e2162661967e1f
         SPS.writeJSON(CONTROLS.rules,rulesFile)
         printPos(pPosition)
 

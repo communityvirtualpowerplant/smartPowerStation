@@ -269,6 +269,7 @@ class Controls():
                 try:
                     self.setEventTimes(self.rules['event']['start'],self.rules['event']['duration'])
                     self.pvSetPoint = self.rules['battery']['pvSetPoint']
+                    print('ingested rules! tastes good!')
                 except:
                     print('failed to ingest rules.')
                 return self.rules

@@ -83,22 +83,21 @@ async def main(SPS) -> None:
                 if datetime.now() >= upcomingDT: # if discharge time, go ahead with discharge
                     positionMarker = 'C'
                     # position C
-                    pPosition = 'C'
                     toMode = 5
                 else: #connect load to grid, don't charge or discharge battery
                     # position B
-                    pPosition = 'B'
+                    positionMarker = 'B'
                     toMode = 2
                 # if discharging, but below DoD, charge it
                 if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['min']):
                     # position D
-                    pPosition = 'D'
+                    positionMarker = 'D'
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             else: # last empty is most recent - charging
                 # position E
-                pPosition = 'E'
+                positionMarker = 'E'
                 # convert end of sun window into time object
                 sWE = time(hour=int(CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration))
 
@@ -108,12 +107,12 @@ async def main(SPS) -> None:
 
                 if datetime.now() > upcomingSunWindowEnd:
                     # position G
-                    pPosition = 'G'
+                    positionMarker = 'G'
                     sp = 100
                 else:
                     # this kicks in at midnight
                     # position F
-                    pPosition = 'F'
+                    positionMarker = 'F'
                     sp = CONTROLS.pvSetPoint
 
                 if now['powerstation_percentage'] <= sp:
@@ -150,7 +149,6 @@ async def main(SPS) -> None:
 
         CONTROLS.rules['status']['mode']=toMode #set to charge
         SPS.writeJSON(CONTROLS.rules,rulesFile)
-        printPos(pPosition)
 
         m=CONTROLS.rules['status']['mode']
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}','status_code')

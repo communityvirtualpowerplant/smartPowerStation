@@ -50,7 +50,7 @@ function drawSystem(data) {
   let gridV = data['relay1_voltage']
   let posOne =data['relay1_power']
   let posTwo = data['relay2_power']
-  let posThree = data['powerstation_outputWAC']
+  let posThree = data['relay3_power']
   let posFour = data['powerstation_inputWDC']
   let pvH = batCenterY-(batHeight/3)
 

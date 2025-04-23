@@ -6,10 +6,6 @@ import sys
 from typing import cast
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
-<<<<<<< HEAD
-import sys
-=======
->>>>>>> eba4ff7e7cab835a91c4206e55e2162661967e1f
 from components.SmartPowerStation import SmartPowerStation, Controls
 #import csv
 

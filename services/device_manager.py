@@ -32,7 +32,7 @@ import threading
 
 app = Flask(__name__)
 
-toMode = {'mode':1,'position':0}
+toMode = {'mode':1,'position':'NA'}
 lock = threading.Lock()
 
 @app.route("/")

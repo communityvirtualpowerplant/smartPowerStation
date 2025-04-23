@@ -44,7 +44,7 @@ async def main(SPS) -> None:
     while True:
 
         # get most recent data
-        now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json')
+        now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)
         SPS.log_debug(now['datetime'])
         try:
             CONTROLS.availableFlexibilityWh = CONTROLS.getAvailableFlex(now['powerstation_percentage'])

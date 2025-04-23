@@ -77,7 +77,7 @@ async def main(SPS) -> None:
             if le < lf: # last full is most recent - discharging
                 #get upcoming discharge time
 
-                upcomingDT = datetime.combine(datetime.date(lf),time(CONTROLS.dischargeTime,00))
+                upcomingDT = datetime.combine(datetime.date(lf),CONTROLS.dischargeT)
 
                 if datetime.now() >= upcomingDT: # if discharge time, go ahead with discharge
                     # position C
@@ -97,18 +97,22 @@ async def main(SPS) -> None:
             else: # last empty is most recent - charging
                 # position E
                 pPosition = 'E'
-                # convert end of sun window into DT object
-                sWE = CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration
-                upcomingSunWindowEnd = datetime.combine(datetime.date(le),time(sWE,00))
+                # convert end of sun window into time object
+                sWE = time(hour=int(CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration))
 
-                if datetime.now() < upcomingSunWindowEnd:
-                    # position F
-                    pPosition = 'F'
-                    sp = CONTROLS.pvSetPoint
-                else:
+                #if its after sun window 
+                upcomingSunWindowEnd = datetime.combine(datetime.date(le),sWE)
+                print(f'Upcoming end of sun window: {upcomingSunWindowEnd}')
+
+                if datetime.now() > upcomingSunWindowEnd:
                     # position G
                     pPosition = 'G'
                     sp = 100
+                else:
+                    # this kicks in at midnight
+                    # position F
+                    pPosition = 'F'
+                    sp = CONTROLS.pvSetPoint
 
                 if now['powerstation_percentage'] <= sp:
                     toMode=1 #charge battery
@@ -138,6 +142,7 @@ async def main(SPS) -> None:
             if datetime.now() > upcomingDT:
                 CONTROLS.rules['event']['upcoming'] = 0
 
+        #is adding some logic to always charge if below 20% necessary?
 
         CONTROLS.rules['status']['mode']=toMode #set to charge
         SPS.writeJSON(CONTROLS.rules,rulesFile)

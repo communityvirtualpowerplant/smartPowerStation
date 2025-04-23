@@ -15,6 +15,7 @@ from scipy.integrate import trapezoid
 import math
 import numpy as np
 import statistics
+import sys
 
 class SmartPowerStation():
     def __init__(self, conf: str,info=True, debug=True,error=True):
@@ -242,21 +243,21 @@ class Controls():
         self.modeFive = {1:0,2:0,3:1}
         self.modeSix = {1:0,2:0,3:0}
         self.pvSetPoint = 50 # battery percentage to maximize solar utilization
-        self.dischargeH = 0
-
-        self.Kp = 1.0
-        self.Ki = 0.1
-        self.step = 1
-        #self.Kd = Kd
-
-        self.previous_error = 0
-        self.integral = 0
+        self.dischargeT = time(0,00)
         self.sunWindowStart = 10
         self.sunWindowDuration = 3
         self.url = 'localhost'
         self.port = 5000
         self.fileList = []
         self.rules = {}
+
+        # kind of not used
+        self.Kp = 1.0
+        self.Ki = 0.1
+        self.step = 1
+        #self.Kd = Kd
+        self.previous_error = 0
+        self.integral = 0
 
     # reads json config file and returns it as dict
     def getRules(self, fn:str) -> Dict:
@@ -298,8 +299,9 @@ class Controls():
         # TO DO: add in conditionals for uneven hours
         self.eventStartH = h
         self.eventDurationH = d
-        self.eventStartDT = time(h,00)
-        self.eventEndDT = time(h + d,00)
+        self.eventStartDT = time(hour=int(h),minute=0)
+        self.eventEndDT = time(hour=int(h + d),minute=0)
+        self.dischargeT = time(hour=int(h+d),minute=0) # this is temporary. discharge time should be set based on behavior
 
     # sets battery capacity and determines maximum automatable flexibility
     def setBatCap(self,Wh:int) -> None:

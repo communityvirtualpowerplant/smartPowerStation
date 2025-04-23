@@ -306,9 +306,9 @@ class Controls():
         self.eventDurationH = int(edhm[0])
         self.eventStartDT = time(hour=int(ehm[0]),minute=int(ehm[1]))
 
-        dm = ehm[1]+edh[1] # total minutes
-        dh = ehm[0] + edhm[0] # duration hours
-        if totM >= 60:
+        dm = int(ehm[1]+edhm[1]) # total minutes
+        dh = int(ehm[0]) + int(edhm[0]) # duration hours
+        if dm >= 60:
             dh = dh + int(dm/60)
             dm = dm%60
         self.eventEndDT = time(hour=int(dh),minute=int(dm))

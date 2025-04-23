@@ -16,3 +16,4 @@ venv/*
 *.ipynb
 
 .ipynb_checkpoints/*
+*-checkpoint.py

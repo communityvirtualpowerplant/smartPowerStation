@@ -83,10 +83,12 @@ Curtailment
 * Control specific states
 * MQTT Handler
 * Post data
-* Handle event 'scenes'
+* Event
 	* PI control
 	* Track avoided energy
 	* Event goals
 		* Align to estimated baseline
 		* Minimize energy
+
+## Later
 * predict event based on temperature

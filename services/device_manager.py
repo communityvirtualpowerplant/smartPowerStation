@@ -32,7 +32,7 @@ import threading
 
 app = Flask(__name__)
 
-toMode = {'mode':0}
+toMode = {'mode':1}
 lock = threading.Lock()
 
 @app.route("/")
@@ -52,6 +52,7 @@ printError = True
 dataDirectory = '../data/'
 deviceFile = '../config/devices.json'
 configFile = '../config/config.json'
+rulesFile = '../config/rules.json'
 
 #changed based on hardware
 bleAdapter = "hci0"
@@ -94,7 +95,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         # for task in tasks:
         #     await task
 
-        await setMode(devices, SPS)
+        m = await setMode(devices, SPS)
 
         tempResults = {
                         "datetime" : datetime.now(),
@@ -114,7 +115,13 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
                         "relay2_current":"",
                         "relay2_voltage": "",
                         "relay2_status": "",
-                        "relay2_device": ""}
+                        "relay2_device": "",
+                        "relay3_power": "",
+                        "relay3_current":"",
+                        "relay3_voltage": "",
+                        "relay3_status": "",
+                        "relay3_device": "",
+                        "mode":int(toMode['mode'])} 
 
         #results = []
         for d in devices:
@@ -130,7 +137,8 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         await writeData(fileName, pd.DataFrame([tempResults]))
 
         # there is definitely a better way to do this - something where it forces a wakeup if the mode is changed...
-        await setMode(devices, SPS)
+        # check again to update before sleeping
+        await setMode(devices, SPS,m)
 
         print('************ SLEEPING **************')
         await asyncio.sleep(120)
@@ -223,17 +231,17 @@ async def writeData(fn, df):
 
     SPS.log_debug("csv writing: " + str(datetime.now()))
 
-async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
+async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)-> Any:
     # move into setMode function
     async with asyncio.Lock():
         mode = toMode['mode']
-        if mode != 0:
-            toMode['mode'] = 0
-        else:
+        if ((m is not None) and (m == mode)):
             return
 
     # these assignments should be listed in the rules file
-    if mode == 1:
+    if mode == 0:
+        assign = {1:0,2:0,3:0}
+    elif mode == 1:
         assign = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
     elif mode == 2:
         assign = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
@@ -243,8 +251,7 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
         assign = {1:0,2:1,3:0}
     elif mode == 5:
         assign = {1:0,2:0,3:1}
-    elif mode == 6:
-        assign = {1:0,2:0,3:0}
+    
     
     SPS.log_info(f'Setting mode to {mode}')
 
@@ -273,6 +280,8 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation)-> Any:
                 if savedDev['relay2'] in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
                     await trySetState(assign[savedDev['relay2']],1)
+
+    return mode
 
 def main(SPS: SmartPowerStation,loop)-> None:
     asyncio.set_event_loop(loop)

@@ -31,7 +31,8 @@
         "location": "CASE",
         "role":"ps",
         "relay1": "",
-        "relay2": ""
+        "relay2": "",
+        "capacityWh":1152
     },
     {
         "name": "Shelly2PMG3-34CDB0770E28",

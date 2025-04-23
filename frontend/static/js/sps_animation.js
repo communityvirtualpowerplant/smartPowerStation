@@ -12,9 +12,11 @@ function getData(){
       if (!response.ok) {
         throw new Error('Network response was not OK');
       }
-      return response.json(); // or response.text() if it's plain text
+      return response.text(); // or response.text() if it's plain text
     })
     .then(data => {
+      const safeJSON = data.replace(/\bNaN\b/g, 'null');
+      data = JSON.parse(safeJSON);
       //console.log('Data received:', data);
       drawSystem(data);
     })

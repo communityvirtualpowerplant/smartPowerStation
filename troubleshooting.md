@@ -24,3 +24,8 @@ live: `journalctl -f`
 ## Memory
 
 `free -h`
+
+service usage: `systemd-cgtop`
+
+
+per core usage: `mpstat -P ALL 1`

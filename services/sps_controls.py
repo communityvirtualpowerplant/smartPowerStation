@@ -2,11 +2,16 @@ import asyncio
 import signal
 import requests
 import json
+import sys
 from typing import cast
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
+<<<<<<< HEAD
 import sys
+=======
+>>>>>>> eba4ff7e7cab835a91c4206e55e2162661967e1f
 from components.SmartPowerStation import SmartPowerStation, Controls
+#import csv
 
 eventUpcoming = False
 eventOngoing = False
@@ -18,6 +23,7 @@ ENDPOINT = '/api/data?file=now'
 configFile = '../config/config.json'
 devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
+analysisDirectory = '../analysis/'
 
 # loop frequency
 freqMin = 1
@@ -27,7 +33,7 @@ async def main(SPS) -> None:
 
 
     CONTROLS.getRules(rulesFile)
-    CONTROLS.setEventTimes(CONTROLS.rules['event']['start'],CONTROLS.rules['event']['duration'])
+    #CONTROLS.setEventTimes(CONTROLS.rules['event']['start'],CONTROLS.rules['event']['duration'])
     filteredDevices = SPS.getDevices(devicesFile)
 
     for d in filteredDevices:
@@ -36,12 +42,13 @@ async def main(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
-    print(await CONTROLS.estBaseline(7))
+    # if the analysis file for today hasn't been created yet, do it
+    #print(await CONTROLS.estBaseline(7))
 
     while True:
 
         # get most recent data
-        now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json')
+        now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)
         SPS.log_debug(now['datetime'])
         try:
             CONTROLS.availableFlexibilityWh = CONTROLS.getAvailableFlex(now['powerstation_percentage'])
@@ -55,11 +62,17 @@ async def main(SPS) -> None:
         #if SPS.isRecent(now['datetime']):
             #SPS.log_debug('data is fresh')
 
-        lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
-        le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
+        try:
+            lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
+        except:
+            # if there isn't any saved data, set last full to 10 years back
+            lf = datetime.now() - timedelta(days=(10*365))
 
-        CONTROLS.setpoint = 100 #battery max
-        CONTROLS.dischargeTime = 20
+        try:
+            le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
+        except:
+            # if there isn't any saved data, set last empty to 10 years back
+            le = datetime.now() - timedelta(days=(10*365))
 
         # if no event upcoming or ongoing
         if (CONTROLS.rules['event']['upcoming'] == 0) and (CONTROLS.rules['event']['ongoing'] == 0):
@@ -69,45 +82,48 @@ async def main(SPS) -> None:
                 positionMarker = 'B'
                 #get upcoming discharge time
 
-                upcomingDT = datetime.combine(datetime.date(lf),time(CONTROLS.dischargeTime,00))
+                upcomingDT = datetime.combine(datetime.date(lf),CONTROLS.dischargeT)
 
-                # position B
                 if datetime.now() >= upcomingDT: # if discharge time, go ahead with discharge
                     positionMarker = 'C'
                     # position C
+                    pPosition = 'C'
                     toMode = 5
-                    CONTROLS.rules['status']['mode']=toMode #set to dicharge
                 else: #connect load to grid, don't charge or discharge battery
+                    # position B
+                    pPosition = 'B'
                     toMode = 2
-                    CONTROLS.rules['status']['mode']=toMode #set to charge
-
                 # if discharging, but below DoD, charge it
-                # position D
                 if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['min']):
+                    # position D
+                    pPosition = 'D'
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    CONTROLS.rules['status']['mode']=toMode #set to charge
-            # position E
             else: # last empty is most recent - charging
+                # position E
+                pPosition = 'E'
+                # convert end of sun window into time object
+                sWE = time(hour=int(CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration))
 
-                # convert end of sun window into DT object
-                sWE = CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration
-                upcomingSunWindowEnd = datetime.combine(datetime.date(le),time(sWE,00))
+                #if its after sun window 
+                upcomingSunWindowEnd = datetime.combine(datetime.date(le),sWE)
+                print(f'Upcoming end of sun window: {upcomingSunWindowEnd}')
 
-                # position G
-                if datetime.now() >= upcomingSunWindowEnd:
-                    sp = CONTROLS.pvSetpoint
-                else:
-                    # position H
+                if datetime.now() > upcomingSunWindowEnd:
+                    # position G
+                    pPosition = 'G'
                     sp = 100
+                else:
+                    # this kicks in at midnight
+                    # position F
+                    pPosition = 'F'
+                    sp = CONTROLS.pvSetPoint
 
-                # position F
                 if now['powerstation_percentage'] <= sp:
                     toMode=1 #charge battery
                 else:
                     toMode=5 #discharge battery
-                CONTROLS.rules['status']['mode']=toMode #set to charge
 
                 # if charging, but at set point, switch modes
                 # position A
@@ -116,24 +132,43 @@ async def main(SPS) -> None:
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    CONTROLS.rules['status']['mode']=toMode #set to charge
-        elif CONTROLS.rules['event']['upcoming'] != 0:
-            # prep for event
-            # if time to event < charge time set mode to 1
-            CONTROLS.rules['status']['mode']=1 #set to charge
+                    
         elif CONTROLS.rules['event']['ongoing'] != 0:
             # manage event
             # if event is ongoing set mode to 5
-            CONTROLS.rules['status']['mode']=5 #set to discharge
+            toMode = 5 #set to discharge
+            # check if event is over and reset to 0
+            eventDT = datetime.strptime(CONTROLS.rules['event']['ongoing'], "%Y-%m-%d %H:%M:%S")
+            if datetime.now() > eventDT:
+                CONTROLS.rules['event']['ongoing'] = 0
+        elif CONTROLS.rules['event']['upcoming'] != 0:
+            # prep for event
+            toMode = 1 #set to charge
+            # check if event is no longer upcoming and reset to 0
+            upcomingDT = datetime.strptime(CONTROLS.rules['event']['upcoming'], "%Y-%m-%d %H:%M:%S")
+            if datetime.now() > upcomingDT:
+                CONTROLS.rules['event']['upcoming'] = 0
 
+<<<<<<< HEAD
         console.log(f'Position {positionMarker}')
 
+=======
+        #is adding some logic to always charge if below 20% necessary?
+
+        CONTROLS.rules['status']['mode']=toMode #set to charge
+>>>>>>> eba4ff7e7cab835a91c4206e55e2162661967e1f
         SPS.writeJSON(CONTROLS.rules,rulesFile)
+        printPos(pPosition)
 
         m=CONTROLS.rules['status']['mode']
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}','status_code')
         print('************ SLEEPING **************')
         await asyncio.sleep(60*freqMin)
+
+def printPos(p):
+    showPosition = True
+    if showPosition:
+        print(f'Position: {p}')
 
 if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)

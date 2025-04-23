@@ -12,6 +12,10 @@ import requests
 import pandas as pd
 from io import StringIO
 from scipy.integrate import trapezoid
+import math
+import numpy as np
+import statistics
+import sys
 
 class SmartPowerStation():
     def __init__(self, conf: str,info=True, debug=True,error=True):
@@ -169,21 +173,26 @@ class SmartPowerStation():
                 t["powerstation_outputWDC"] = r['dc_output_power']
                 t["powerstation_outputMode"] = r['output_mode']
                 t["powerstation_deviceType"] = r['device_type']
+                # temp values
+                t["relay3_power"] = r['ac_output_power']
+                t["relay3_status"] =str(True)
+                t["relay3_device"] = r['device_type']
             elif 'Shelly'.lower() in d[1]['name'].lower():
                 if '1PM'.lower() in d[1]['name'].lower():
                     #print('1pm!')
-                    if d[1]['relay1'] == 1:
-                        t['relay1_power'] = r[0]["apower"]
-                        t['relay1_current'] =r[0]["current"]
-                        t['relay1_voltage'] =r[0]["voltage"]
-                        t['relay1_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
-                        t['relay1_device'] = d[1]['name']
-                    else:
-                        t['relay2_power'] = r[0]["apower"]
-                        t['relay2_current'] =r[0]["current"]
-                        t['relay2_voltage'] =r[0]["voltage"]
-                        t['relay2_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
-                        t['relay2_device'] = d[1]['name']
+                    if d[1]['relay1'] in [1,2,3]:
+                        p = d[1]['relay1']
+                        t[f'relay{p}_power'] = r[0]["apower"]
+                        t[f'relay{p}_current'] =r[0]["current"]
+                        t[f'relay{p}_voltage'] =r[0]["voltage"]
+                        t[f'relay{p}_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
+                        t[f'relay{p}_device'] = d[1]['name']
+                    # elif d[1]['relay1'] == 2:
+                    #     t['relay2_power'] = r[0]["apower"]
+                    #     t['relay2_current'] =r[0]["current"]
+                    #     t['relay2_voltage'] =r[0]["voltage"]
+                    #     t['relay2_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
+                    #     t['relay2_device'] = d[1]['name']
                 elif '2PM'.lower() in d[1]['name'].lower():
                     #print('2pm!')
                     t['relay1_power'] = r[0]["apower"]
@@ -196,6 +205,14 @@ class SmartPowerStation():
                     t['relay2_voltage'] =r[1]["voltage"]
                     t['relay2_status'] =str(r[1]["output"]) #must be cast to str because the dict interprets the bool as an int
                     t['relay2_device'] = d[1]['name']
+            elif KASA:
+                if d[1]['relay1'] in [1,2,3]:
+                    p = d[1]['relay1']
+                    t[f'relay{p}_power'] = r[0]["apower"]
+                    t[f'relay{p}_current'] =r[0]["current"]
+                    t[f'relay{p}_voltage'] =r[0]["voltage"]
+                    t[f'relay{p}_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
+                    t[f'relay{p}_device'] = d[1]['name']
         except Exception as e:
             print(e)
 
@@ -225,22 +242,22 @@ class Controls():
         self.modeFour = {1:0,2:1,3:0}
         self.modeFive = {1:0,2:0,3:1}
         self.modeSix = {1:0,2:0,3:0}
-        self.pvSetpoint = 50 # battery percentage to maximize solar utilization
-        self.dischargeH = 0
-
-        self.Kp = 1.0
-        self.Ki = 0.1
-        self.step = 1
-        #self.Kd = Kd
-
-        self.previous_error = 0
-        self.integral = 0
+        self.pvSetPoint = 50 # battery percentage to maximize solar utilization
+        self.dischargeT = time(0,00)
         self.sunWindowStart = 10
-        self.sunWindowDuration = 2
+        self.sunWindowDuration = 3
         self.url = 'localhost'
         self.port = 5000
         self.fileList = []
         self.rules = {}
+
+        # kind of not used
+        self.Kp = 1.0
+        self.Ki = 0.1
+        self.step = 1
+        #self.Kd = Kd
+        self.previous_error = 0
+        self.integral = 0
 
     # reads json config file and returns it as dict
     def getRules(self, fn:str) -> Dict:
@@ -248,6 +265,12 @@ class Controls():
         try:
             with open(fn, "r") as json_file:
                 self.rules = json.load(json_file)
+
+                try:
+                    self.setEventTimes(self.rules['event']['start'],self.rules['event']['duration'])
+                    self.pvSetPoint = self.rules['battery']['pvSetpoint']
+                except:
+                    print('failed to ingest rules.')
                 return self.rules
         except Exception as e:
             print(f"Error during reading {fn} file: {e}")
@@ -265,6 +288,8 @@ class Controls():
                 return response.text
             else:
                 return response.status_code
+        except requests.Timeout as e:
+            return e
         except Exception as e:
             return e
 
@@ -274,8 +299,9 @@ class Controls():
         # TO DO: add in conditionals for uneven hours
         self.eventStartH = h
         self.eventDurationH = d
-        self.eventStartDT = time(h,00)
-        self.eventEndDT = time(h + d,00)
+        self.eventStartDT = time(hour=int(h),minute=0)
+        self.eventEndDT = time(hour=int(h + d),minute=0)
+        self.dischargeT = time(hour=int(h+d),minute=0) # this is temporary. discharge time should be set based on behavior
 
     # sets battery capacity and determines maximum automatable flexibility
     def setBatCap(self,Wh:int) -> None:
@@ -354,7 +380,7 @@ class Controls():
 
     # returns all file names within the last X days
     async def getRecentFileList(self,d:int=30)->list:
-        self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json')
+        self.fileList = await self.send_get_request(self.url, self.port,'/api/files','json',timeout=2)
         self.fileList = sorted(self.fileList, reverse=True)
 
         # start with todays date
@@ -424,6 +450,8 @@ class Controls():
             print('')
             for h in range(len(d)):
                 hourlyEnergy = self.getWh(d[h]['powerstation_inputWAC'],d[h]['increments'])# change from inputWAC to whatever is more appropriate
+                if (math.isnan(hourlyEnergy)):
+                    hourlyEnergy = 0.0
                 print(f'{h}: {hourlyEnergy}')
                 sumEnergy += hourlyEnergy
             print(f'tot: {sumEnergy}')
@@ -456,26 +484,26 @@ class Controls():
 
         filteredData = self.increments(filteredData)
 
-        # columns in the data with values to sum\
+        # columns in the data with values to sum
         summedData = filteredData.copy()
         summedData['summedPower'] = filteredData[cols].sum(axis=1)
 
         return self.getWh(summedData['summedPower'],summedData['increments'])
 
     # attempts to maintain the battery at a specific percentage with proportional control
-    def p_controller_percentage(self, bat:int, setpoint:int=100, previous_error:int=0):
-        setpoint = setpoint + previous_error
-        error = setpoint - bat
+    # def p_controller_percentage(self, bat:int, setpoint:int=100, previous_error:int=0):
+    #     setpoint = setpoint + previous_error
+    #     error = setpoint - bat
 
-        if error < 0:
-            # draw down
-            pass
+    #     if error < 0:
+    #         # draw down
+    #         pass
 
-        elif error > 0:
-            # charge up
-            pass
+    #     elif error > 0:
+    #         # charge up
+    #         pass
 
-        return control
+    #     return control
 
     # attempts to reach a certain amount of energy avoidance
     def pi_controller_energy(self, setpoint, pv, kp, ki,):
@@ -484,38 +512,112 @@ class Controls():
         control = kp * error + ki * self.integral
         return control, error, integral
 
-    # def pid_controller(self, pv, kp, ki, kd, dt):
-    #     error = self.setpoint - pv
-    #     self.integral += error * dt
-    #     derivative = (error - self.previous_error) / dt
-    #     control = kp * error + ki * self.integral + kd * derivative
-    #     return control, error, integral
+    # determines solar window, solar production
+    # to do: determine PV-to-battery efficiency
+    async def analyzeSolar(self,d:int=30)->Tuple:
+        data = await self.getRecentData(d)
 
-    #estimate when the PV will start producing and for how long
-    async def estSunWindow(self):
-        # get recent files
-        recentFileNames = self.getRecentFileList()
+        # filter out all data without PV input
+        filteredDF = []
+        for d in data:
+            newD = d[d['powerstation_inputWDC']>0]
+            filteredDF.append(newD)
+        
+        #drop unneeded columns
+        trimmedDf = []
+        cols=['datetime','powerstation_percentage','powerstation_inputWAC','powerstation_inputWDC','powerstation_outputWAC','powerstation_outputWDC']
+        for d in filteredDF:
+            trimmedDf.append(d[cols])
 
-        # if len(recentFileNames) >= 2:
-        #     break
+        # create list[Dict] with analysis results
+        metaList = []
+        for df in trimmedDf:
+            meta={}
+            meta['raw min time']=df['datetime'].min()
+            meta['raw max time']=df['datetime'].max()
+            meta['max power']=df['powerstation_inputWDC'].max()
+            meta['max power time']=df[df['powerstation_inputWDC']==df['powerstation_inputWDC'].max()]['datetime']
+            try:
+                meta['power std']=statistics.stdev(df['powerstation_inputWDC'])
+            except:
+                meta['power std']=float('nan')
+            try:
+                meta['power mean']=statistics.mean(df['powerstation_inputWDC'])
+            except:
+                meta['power mean']=float('nan')
+            metaList.append(meta)
 
-        # if there are no recent files, set defaults and return
-        if len(recentFileNames)==0:
-            self.sunWindowStart = 10 
-            self.sunWindowDuration = 4
-            return
+        # get sun window (2 std deviations)
+        stdDf = []
+        amountStd = 1
+        for i in range(len(trimmedDf)):
+            stdDf.append(trimmedDf[i][(trimmedDf[i]['powerstation_inputWDC']<= metaList[i]['power mean']+(amountStd*metaList[i]['power std'])) &
+                            (trimmedDf[i]['powerstation_inputWDC']>= metaList[i]['power mean']-(amountStd*metaList[i]['power std']))])
 
-        # get earliest, latest, and max sun times for each file
-        for f in recentFileNames:
-            fn = f.split('.')[0]
-            self.fileList = await self.send_get_request(self.url, self.port,f"/api/data?files={fn}",'json')
+        for m in range(len(metaList)):
+            metaList[m]['sun window min']=stdDf[m]['datetime'].min()
+            metaList[m]['sun window max']=stdDf[m]['datetime'].max()
+            metaList[m]['sun window duration']= metaList[m]['sun window max'] - metaList[m]['sun window min']
+            metaList[m]['PV Wh DC'] = float(self.getWh(stdDf[m]['powerstation_inputWDC'],self.prepWh(stdDf[m])['increments']))
+            #metaList[m]['percentage input'] = 
 
-        # average
+        sunWindowMin = []
+        sunWindowMax = []
+        sunWindowDuration = []
+        dcIn = []
 
-        #temp
-        self.sunWindowStart = 10 
-        self.sunWindowDuration = 4
-        return
+        for m in metaList:
+            sunWindowMin.append(m['sun window min'])
+            sunWindowMax.append(m['sun window max'])
+            sunWindowDuration.append(m['sun window duration'])
+            dcIn.append(m['Wh DC input'])
+
+        listAvg = {'sunWindowMin':self.avgTimes(sunWindowMin),
+                   'sunWindowMax':self.avgTimes(sunWindowMax),
+                   'sunWindowDuration':self.avgTimes(sunWindowDuration),
+                   'dailyPVWh':statistics.mean(dcIn)}
+
+        return (metaList,listAvg)
+
+    def prepWh(self, df:pd.DataFrame)->pd.DataFrame:
+        #fill NaN with 0
+        df = df.fillna(0)
+        df = self.increments(df)
+        return df
+
+    #get average time from list of datetime or timedelta objects
+    def avgTimes(self,dtL:list[datetime])->time:
+        # to numeric
+        timeToNum = []
+        for t in dtL:
+            #check timedelta
+            if 'timedelta' in str(type(t)):
+                timeToNum.append(t.seconds)
+            #t = t.to_pydatetime()
+            # print(type(t))
+            else:
+                if math.isnan(t.hour):
+                    continue
+                timeToNum.append((t.hour*60*60)+(t.minute*60))
+
+        #print(timeToNum)
+        x = statistics.mean(timeToNum)
+        xMin = x / 60
+        h = int(xMin/60)
+        m = int(xMin%60)
+        return time(h,m)
+
+    # #estimate when the PV will start producing and for how long
+    # async def estSunWindow(self,d:int=30):
+    #     data = await self.getRecentData(d)
+
+    #     # filter out all data without PV input
+
+    #     filteredDF = []
+    #     for d in data:
+    #         newD = d[d['powerstation_inputWDC']>0]
+    #         filteredDF.append(newD)
+    #     return filteredDF
     
     # get tomorrows weather
     def getWeather(self):

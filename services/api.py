@@ -134,6 +134,18 @@ def get_csv_for_date():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+# upcoming and ongoing event info
+@app.route("/api/event", methods=['GET'])
+def getEventInfo():
+    return jsonify({'ongoing': 0,
+        'upcoming': 0,
+        'availableWh':0}), 200
+
+# serves predictions, analysis and system specs
+@app.route("/api/system", methods=['GET'])
+def getSystemInfo():
+    return "system", 200
+
 @app.route("/api/files", methods=['GET'])
 def list_csv_files():
     #fileName = filePrefix +str(datetime.date.today())+'.csv'

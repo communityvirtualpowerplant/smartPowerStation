@@ -237,15 +237,16 @@ class Controls():
         self.eventEndT = time(self.eventDurationH,00)
         self.eventDT = datetime(year=1,month=1,day=1)
         self.baseline = 0
+        self.modeZero = {1:0,2:0,3:0}
         self.modeOne = {1:1,2:1,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
         self.modeTwo = {1:1,2:0,3:0} #with an autotransfer, if pos 1 is on pos 3 is automatically off
         self.modeThree = {1:0,2:1,3:1}
         self.modeFour = {1:0,2:1,3:0}
         self.modeFive = {1:0,2:0,3:1}
-        self.modeSix = {1:0,2:0,3:0}
-        self.pvSetPoint = 50 # battery percentage to maximize solar utilization
-        self.minSetPoint = int(100 * (1.0-self.dod))
-        self.dischargeT = time(0,00)
+        #self.pvSetPoint = 50 # battery percentage to maximize solar utilization
+        #self.minSetPoint = int(100 * (1.0-self.dod))
+        self.dischargeT = time(16,00)
+        self.upcomingDischargeDT = datetime.now() # temp?
         self.sunWindowStart = 10
         self.sunWindowDuration = 3
         self.url = 'localhost'
@@ -270,8 +271,8 @@ class Controls():
 
                 try:
                     self.setTimes()
-                    self.pvSetPoint = self.rules['battery']['pvSetPoint']
-                    self.minSetPoint = self.rules['battery']['minSetPoint']
+                    #self.pvSetPoint = self.rules['battery']['pvSetPoint']
+                    #self.minSetPoint = self.rules['battery']['minSetPoint']
                     print('ingested rules! tastes good!')
                 except:
                     print('failed to ingest rules.')
@@ -327,7 +328,18 @@ class Controls():
         hm = dt.split(':')
         self.dischargeT = time(hour=int(hm[0]),minute=int(hm[1])) # discharge time should be set based on behavior
 
+        # initialize discharge datetime
+        if datetime.now() > datetime.combine(datetime.now().date(),self.dischargeT):
+            self.upcomingDischargeDT = datetime.combine((datetime.now()+timedelta(days=1)),self.dischargeT)
+        else:
+            self.upcomingDischargeDT = datetime.combine((datetime.now()),self.dischargeT)
+
+    # set discharge datetime for tomorrow
+    def setNextDischargeDT(self):
+        tom = datetime.now().date()+timedelta(days=1)
+        self.upcomingDischargeDT = datetime.combine(tom,self.dischargeT)
     # sets battery capacity and determines maximum automatable flexibility
+
     def setBatCap(self,Wh:int) -> None:
         self.batCapWh = Wh
         self.maxFlexibilityWh = self.getAvailableFlex(100)
@@ -343,6 +355,14 @@ class Controls():
             return True
         else:
             return False
+
+    # # checks if a datetime is after that day's sunwindow
+    # def isAfterChargetime(self,dt:datetime) -> bool:
+
+    #     if dt > upcomingChargeTime:
+    #         return True
+    #     else:
+    #         return False
 
     # args: a dataframe with a datetime column with only one days worth of data
     # returns a Tuple with the start and end times for the event window as datetime objects for a given day

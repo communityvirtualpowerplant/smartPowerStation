@@ -42,6 +42,8 @@ async def main(SPS) -> None:
     # if the analysis file for today hasn't been created yet, do it
     #print(await CONTROLS.estBaseline(7))
 
+    print(f'Upcoming discharge time: {CONTROLS.upcomingDischargeDT}')
+
     while True:
 
         # get most recent data
@@ -81,59 +83,47 @@ async def main(SPS) -> None:
                 positionMarker = 'B'
                 #get upcoming discharge time
 
-                upcomingDT = datetime.combine(datetime.date(lf),CONTROLS.dischargeT)
-                print(f'Upcoming discharge time: {upcomingDT}')
-
-                if datetime.now() >= upcomingDT: # if discharge time, go ahead with discharge
+                if datetime.now() >= CONTROLS.upcomingDischargeDT: # if discharge time, go ahead with discharge
                     positionMarker = 'C'
-                    # position C
                     toMode = 5
                 else: #connect load to grid, don't charge or discharge battery
-                    # position B
                     positionMarker = 'B'
                     toMode = 2
+
+                    # maintenance charge
+                    if now['powerstation_percentage'] < 75:
+                        positionMarker = 'F'
+                        toMode = 1
+                    elif (now['powerstation_percentage'] >95) & (not CONTROLS.isAfterSun(datetime.now())): # create space for solar
+                        positionMarker = 'G'
+                        toMode = 5
+
                 # if discharging, but below min set point, charge it
-                if (CONTROLS.rules['status']['mode'] in [2,5,6]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['minSetPoint']):
-                    # position D
-                    positionMarker = 'E'
+                if (CONTROLS.rules['status']['mode'] in [0,2,5]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['minSetPoint']):
+                    positionMarker = 'D'
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
                     CONTROLS.rules['status']['lastEmpty']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            else: # last empty is most recent, start charging- Position D
-                # position E
-                positionMarker = 'E'
-                # convert end of sun window into time object
-                sWE = time(hour=int(CONTROLS.sunWindowStart + CONTROLS.sunWindowDuration))
+                    CONTROLS.setNextDischargeDT()
+                    ### WRITE START TIME HERE! ###
+            else: # last empty is most recent, start charging
+                positionMarker = 'D'
+                toMode = 1
 
-                #if its after sun window 
-                # upcomingSunWindowEnd = datetime.combine(datetime.date(le),sWE)
-                # print(f'Sun window: {upcomingSunWindowEnd}')
-
-                if CONTROLS.isAfterSun(datetime.now()):
-                    # position G
-                    positionMarker = 'G'
-                    sp = 100
-                else:
-                    # this kicks in at midnight
-                    # position F
-                    positionMarker = 'E'
-                    sp = CONTROLS.pvSetPoint
-
-                if now['powerstation_percentage'] < sp:
-                    toMode=1 #charge battery
-                    positionMarker = 'G'
-                else:
-                    toMode=5 #discharge battery
+                #if CONTROLS.isAfterChargeTime(datetime.now()):
+                if True:
                     positionMarker = 'F'
 
-                # if charging, but at set point, switch modes
-                # position A
-                # 2,5,6 are discharge modes # CONTROLS.rules['status']['mode'] in [2,5,6]) &
-                if (sp == 100) & (now['powerstation_percentage'] == sp):
-                    positionMarker = 'A'
-                    toMode = 1
-                    #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")
-                    CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    if now['powerstation_percentage'] >= CONTROLS.rules['battery']['maxSetPoint']:
+                        positionMarker = 'A'
+                        toMode = 1
+                        CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                # if not time to discharge, but below DoD, maintain DoD level
+                elif now['powerstation_percentage'] <= 20:
+                    positionMarker = 'H'
+                else:
+                    toMode = 2
+                    positionMarker = 'E'
                     
         elif CONTROLS.rules['event']['ongoing'] != 0:
             # manage event
@@ -143,8 +133,12 @@ async def main(SPS) -> None:
 
             # if depleted, turn on battery and connect back to grid
             if now['powerstation_percentage'] < 20:
-                toMode = 2
                 positionMarker = 'ED'
+                if CONTROLS.rules['event']['curtailment'] == 0:
+                    toMode = 2
+                    positionMarker = 'EG'
+                else:
+                    toMode = 0
 
             # check if event is over and reset to 0
             if datetime.now() > (CONTROLS.eventDT + timedelta(hours=CONTROLS.eventDurationH)):
@@ -160,9 +154,12 @@ async def main(SPS) -> None:
                 positionMarker = 'EF'
 
             #if sun window hasn't ended make sure there is room for solar
-            if (now['powerstation_percentage'] > 90) and (CONTROLS.isAfterSun(datetime.now())):
-                toMode = 5
-                positionMarker = 'EE'
+            if CONTROLS.isAfterSun(datetime.now()):
+                # this should be changed based on time and solar intensity
+                if now['powerstation_percentage'] > 90:
+                    toMode = 5
+                    positionMarker = 'EE'
+
 
             # check if event is no longer upcoming and reset to 0
             if datetime.now() > CONTROLS.eventDT:

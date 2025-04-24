@@ -1,5 +1,5 @@
 {
-    "battery":{"minSetPoint":20,"maxSetPoint":75,"dischargeTime":"13:00","cycle": "constant","description":"Don't let the battery deplete below 20%. Cycle the battery daily."},
+    "battery":{"minSetPoint":20,"maxSetPoint":75,"dischargeTime":"13:00","description":"Don't let the battery deplete below 20%. Cycle the battery daily."},
     "event":{"upcoming":0, "ongoing":0, "eventDate":"","startTime":"16:00","durationHours":"4:00","curtailment":0,"description":"0 indications not upcoming or ongoing. 1 indicates event is upcoming or ongoing."},
     "status":{"lastFull":"","lastEmpty":"","mode":1, "description":"Tracks the date and time of control mode changes."}
 }

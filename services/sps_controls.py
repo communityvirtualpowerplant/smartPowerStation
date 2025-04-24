@@ -90,8 +90,8 @@ async def main(SPS) -> None:
                     positionMarker = 'B'
                     toMode = 2
 
-                    # maintenance charge
-                    if now['powerstation_percentage'] < 75:
+                    # maintenance charge - optional
+                    if now['powerstation_percentage'] < CONTROLS.rules['battery']['maxSetPoint']:
                         positionMarker = 'F'
                         toMode = 1
                     elif (now['powerstation_percentage'] >95) & (not CONTROLS.isAfterSun(datetime.now())): # create space for solar

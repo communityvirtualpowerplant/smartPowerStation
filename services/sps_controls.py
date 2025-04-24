@@ -63,6 +63,8 @@ async def controlLoop(SPS) -> None:
         try:
             print('reading message')
             print(participant['message'])
+        except:
+            print('cant read participant message')
 
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)
@@ -211,8 +213,7 @@ def printPos(p):
     if showPosition:
         print(f'Position: {p}')
 
-async def main():
-    SPS = SmartPowerStation(configFile)
+async def main(SPS):
     cl = asyncio.create_task(controlLoop(SPS))
 
     network = SPS.config.network
@@ -220,6 +221,7 @@ async def main():
     mq = asyncio.create_task(participant.start())
 
 if __name__ == "__main__":
+    SPS = SmartPowerStation(configFile)
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, SPS.handle_signal)

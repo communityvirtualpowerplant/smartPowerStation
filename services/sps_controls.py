@@ -7,6 +7,8 @@ from typing import cast
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
 from components.SmartPowerStation import SmartPowerStation, Controls
+from components.MQTT import Participant
+
 #import csv
 #from components.MQTT import Participant
 
@@ -22,10 +24,12 @@ devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 analysisDirectory = '../analysis/'
 
-# loop frequency
-freqMin = 1
 
-async def main(SPS) -> None:
+# data from mqtt
+mqtt_data = {'message':''}
+lock = asyncio.Lock()
+
+async def controlLoop(SPS) -> None:
     CONTROLS = Controls()
 
 
@@ -44,7 +48,21 @@ async def main(SPS) -> None:
 
     print(f'Upcoming discharge time: {CONTROLS.upcomingDischargeDT}')
 
+    # controls loop frequency
+    freqMin = 1
+
+    old_mqtt_data = {}
+
     while True:
+
+        # async with lock:
+        #     if old_mqtt_data != mqtt_data['message']
+        #         print('new data!')
+        #         print(mqtt_data['message'])
+        #         old_mqtt_data = mqtt_data['message']
+        try:
+            print('reading message')
+            print(participant['message'])
 
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)
@@ -74,7 +92,6 @@ async def main(SPS) -> None:
             # if there isn't any saved data, set last full to 10 years back
             lf = datetime.now() - timedelta(days=(10*365))
 
-
         # if no event upcoming or ongoing
         if (CONTROLS.rules['event']['upcoming'] == 0) and (CONTROLS.rules['event']['ongoing'] == 0):
 
@@ -90,11 +107,23 @@ async def main(SPS) -> None:
                     positionMarker = 'B'
                     toMode = 2
 
+                    # # charge up if after sun window
+                    # if CONTROLS.isAfterSun(datetime.now()): # if after sun window
+                    #     sp = 95
+                    # else:
+                    sp = CONTROLS.rules['battery']['maxSetPoint']
+
                     # maintenance charge - optional
-                    if now['powerstation_percentage'] < CONTROLS.rules['battery']['maxSetPoint']:
+                    maintenanceBuffer = 5
+                    if now['powerstation_percentage'] < (sp-maintenanceBuffer):
                         positionMarker = 'F'
                         toMode = 1
-                    elif (now['powerstation_percentage'] >95) & (not CONTROLS.isAfterSun(datetime.now())): # create space for solar
+                    # switch back from maintenance charge with a little buffer
+                    elif (positionMarker == 'F') and (now['powerstation_percentage'] < (sp+maintenanceBuffer)):
+                        positionMarker = 'B'
+                        toMode = 1
+                    # create space for solar - update this to be dynamically based on prediction/ reality, not 90
+                    elif (now['powerstation_percentage'] >90) & (not CONTROLS.isAfterSun(datetime.now())):
                         positionMarker = 'G'
                         toMode = 5
 
@@ -182,8 +211,15 @@ def printPos(p):
     if showPosition:
         print(f'Position: {p}')
 
-if __name__ == "__main__":
+async def main():
     SPS = SmartPowerStation(configFile)
+    cl = asyncio.create_task(controlLoop(SPS))
+
+    network = SPS.config.network
+    participant = Participant(network)
+    mq = asyncio.create_task(participant.start())
+
+if __name__ == "__main__":
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, SPS.handle_signal)

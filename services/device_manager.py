@@ -70,6 +70,7 @@ def handle_signal(signal_num: int, frame: Any) -> None:
 # Main
 # ============================        
 async def bleLoop(SPS: SmartPowerStation) -> None:
+    wakeUpCount = 0
 
     while True:
         SPS.reset_bluetooth()
@@ -94,6 +95,12 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         # tasks = [statusUpdate(e) for e in devices]
         # for task in tasks:
         #     await task
+
+        # TO DO - If power station isn't responding for multiple cycles, run 'wake up' mode, before set mode
+        if wakeUpCount >= 3:
+            wakeUp()
+            wakeUpCount = 0
+
 
         m = await setMode(devices, SPS)
 
@@ -132,6 +139,10 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
                 print(result)
                 tempResults = SPS.packageData(d, result, tempResults)
                 #results.append(result)
+
+        # count how many times it doesn't respond in a row
+        if tempResults["powerstation_percentage"] == "":
+            wakeUpCount += 1
         
         fileName = dataDirectory + str(location) + '_' +str(date.today())+'.csv'
 
@@ -143,6 +154,13 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
 
         print('************ SLEEPING **************')
         await asyncio.sleep(120)
+
+async def wakeUp():
+    #disconnect r2
+
+    #connect r2
+
+    pass
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):
@@ -236,7 +254,7 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
     # move into setMode function
     async with asyncio.Lock():
         mode = toMode['mode']
-        if ((m is not None) and (m == mode)):
+        if ((m is not None) and (m == mode)): # avoid repetitive calls
             return
 
     # these assignments should be listed in the rules file

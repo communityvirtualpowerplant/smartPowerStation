@@ -199,7 +199,7 @@ async def controlLoop(SPS) -> None:
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}&position={positionMarker}','status_code')
 
         # update airtable with live data
-        await updateAirtable(SPS.config['location'], SPS.config['id'], now)
+        await updateAirtable(CONTROLS,SPS.config['location'], SPS.config['id'], now)
 
         print('************ SLEEPING **************')
         await asyncio.sleep(int(60*freqMin))
@@ -209,7 +209,7 @@ def printPos(p):
     if showPosition:
         print(f'Position: {p}')
 
-async def updateAirtable(name, id, now):
+async def updateAirtable(CONTROLS, name, id, now):
     # get list of records filtered by name
     url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{name}%22'
     res = await CONTROLS.send_secure_get_request(url, key)

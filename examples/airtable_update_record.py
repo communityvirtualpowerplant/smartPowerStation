@@ -51,8 +51,6 @@ async def main():
             break
         await asyncio.sleep(1+patch_status)
         patch_status += 1
-
-    print('out of the loop!')
     print(r)
 
 

@@ -745,3 +745,41 @@ class Controls():
 
     def eventOngoingLoop(self):
         pass
+
+
+# class Data():
+#     def __init__(self,n:str,i:str):
+#         self.id=i
+#         self.name=n
+
+#     async def updateAirtable(self, now):
+#         # get list of records filtered by name
+#         url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{self.name}%22'
+#         res = await CONTROLS.send_secure_get_request(url, key)
+#         print(res)
+
+#         # pull the id for the first record
+#         recordID = res['records'][0]['id']
+
+#         # patch record
+#         data={"records": [{
+#             "id": str(recordID),
+#             "fields": {
+#                 "name": str(f"{home}"),
+#                 "datetime":now['datetime'],
+#                 "pv w": str(now["powerstation_inputWDC"]),
+#                 "battery":str(now["powerstation_percentage"]),
+#                 "flex wh": str(150),
+#                 "id": str(f"{id}")}
+#             }]}
+
+#         url='https://api.airtable.com/v0/appZI2AenYNrfVqCL/live'
+
+#         patch_status = 0
+#         while patch_status < 3:
+#             r = await CONTROLS.send_patch_request(url,data, key)
+#             if r != False:
+#                 break
+#             await asyncio.sleep(1+patch_status)
+#             patch_status += 1
+#         print(r)

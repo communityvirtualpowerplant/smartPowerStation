@@ -194,8 +194,13 @@ async def controlLoop(SPS) -> None:
         CONTROLS.rules['status']['mode']=toMode #set to charge
         SPS.writeJSON(CONTROLS.rules,rulesFile)
 
+        # pass control data to device manager
         m=CONTROLS.rules['status']['mode']
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}&position={positionMarker}','status_code')
+
+        # update airtable with live data
+        await updateAirtable(SPS.config['location'], SPS.config['id'], now)
+
         print('************ SLEEPING **************')
         await asyncio.sleep(int(60*freqMin))
 

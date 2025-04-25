@@ -55,5 +55,17 @@
         "role":"relay",
         "relay1": 2,
         "relay2": ""
+    },
+    {
+        "name": "kasa",
+        "address": "",
+        "protocol":"ip",
+        "manufacturer": "kasa",
+        "rssi": "",
+        "timestamp": "2025-04-09T19:40:58.097875",
+        "location": "home",
+        "role":"relay",
+        "relay1": 3,
+        "relay2": ""
     }
 ]

@@ -244,6 +244,7 @@ async def updateAirtable(CONTROLS, config, now):
 
     patch_status = 0
     while patch_status < 3:
+        # note that patch leaves unchanged data in place, while a post would delete old data in the record even if not being updated
         r = await CONTROLS.send_patch_request(url,data, key)
         if r != False:
             break

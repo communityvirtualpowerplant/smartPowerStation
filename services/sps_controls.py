@@ -205,10 +205,10 @@ def printPos(p):
 
 async def main(SPS):
     network = SPS.config['network']
-    participant = Participant(network)
-    mq = asyncio.create_task(participant.start())
+    # participant = Participant(network)
+    # mq = asyncio.create_task(participant.start())
 
-    #cl = asyncio.create_task(controlLoop(SPS))
+    cl = asyncio.create_task(controlLoop(SPS))
 
 
 if __name__ == "__main__":

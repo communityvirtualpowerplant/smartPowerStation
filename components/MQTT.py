@@ -136,7 +136,7 @@ class Aggregator:
         self.client.on_connect = self.on_connect
         self.client.on_publish = self.on_publish
         self.client.on_message = self.on_message
-        self.timezone = timezone('US/Eastern')
+        self.timezone = ZoneInfo("America/New_York")
         self.port = getPort(False) # true = encrypted, false = unencrypted
         self.client.username_pw_set(None, password=None)
         if encrypt:

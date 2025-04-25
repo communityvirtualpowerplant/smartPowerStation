@@ -9,6 +9,8 @@ from datetime import datetime, timedelta, time
 from components.SmartPowerStation import SmartPowerStation, Controls
 from components.MQTT import Participant
 import threading
+from dotenv import load_dotenv
+import os
 
 eventUpcoming = False
 eventOngoing = False
@@ -21,6 +23,9 @@ configFile = '../config/config.json'
 devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 analysisDirectory = '../analysis/'
+
+load_dotenv()
+key = os.getenv('AIRTABLE_PARTICIPANTS')
 
 async def controlLoop(SPS) -> None:
     network = SPS.config['network']

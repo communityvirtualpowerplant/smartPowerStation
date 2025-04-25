@@ -1,23 +1,16 @@
 import paho.mqtt.client as mqtt
 import asyncio
-from asyncio import run_coroutine_threadsafe
 from datetime import datetime
-#from pytz import timezone
 from zoneinfo import ZoneInfo
 import time
 import random
 import ssl
-
-#used for passing data between async processes
-mqtt_message = {}
-lock = asyncio.Lock()
 
 class Participant:
     def __init__(self, network: str, encrypt:bool=False):
         self.network = self.formatNetwork(network) #the name of the grid network
         self.broker = "test.mosquitto.org"
         self.client_id = ""
-        #self.client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION1,client_id=self.client_id, clean_session=True, userdata=None, protocol=mqtt.MQTTv311, transport="tcp")
         self.client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION2) #,client_id=self.client_id, clean_session=True, userdata=None, protocol=mqtt.MQTTv311, transport="tcp"
         self.client.on_connect = self.on_connect
         self.client.on_connect_fail = self.on_connect_fail
@@ -80,8 +73,6 @@ class Participant:
             print("{} {} event, starting at {}".format(event, event_type, start_time))
             print('***************************************')
             self.message = message
-
-            #run_coroutine_threadsafe(self.async_on_message(message), self.loop)
 
     async def async_on_message(self, message):
         async with lock:

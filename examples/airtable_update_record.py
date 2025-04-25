@@ -12,7 +12,7 @@ key = os.getenv('AIRTABLE_PARTICIPANTS')
 async def main():
     CONTROLS = Controls()
 
-    now = await CONTROLS.send_patch_request('localhost', 5000, '/api/data?file=now','json',timeout=2)
+    now = await CONTROLS.send_get_request('localhost', 5000, '/api/data?file=now','json',timeout=2)
     print(now)
 
 

@@ -301,10 +301,8 @@ class Controls():
 
     async def send_secure_get_request(self, url:str,key:str,type:str='json',timeout=1) -> Any:
         """Send GET request to the IP."""
-        if key != '':
             headers = {"Authorization": f"Bearer {key}"}
 
-        try:
             response = requests.get(url, headers=headers, timeout=timeout)
             if type == 'json':
                 return response.json()

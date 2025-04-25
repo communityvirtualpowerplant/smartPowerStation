@@ -227,11 +227,11 @@ async def updateAirtable(CONTROLS, name, id, now):
     data={"records": [{
         "id": str(recordID),
         "fields": {
-            "name": str(f"{home}"),
+            "name": str(f"{name}"),
             "datetime":now['datetime'],
             "pv w": str(now["powerstation_inputWDC"]),
             "battery":str(now["powerstation_percentage"]),
-            "flex wh": str(150),
+            "flex wh": str(CONTROLS.getAvailableFlex(now["powerstation_percentage"])),
             "id": str(f"{id}")}
         }]}
 

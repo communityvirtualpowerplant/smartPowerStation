@@ -25,9 +25,9 @@ analysisDirectory = '../analysis/'
 async def controlLoop(SPS) -> None:
     network = SPS.config['network']
     participant = Participant(network)
-    #participant.start()
-    participant.client.connect_async(participant.broker, port=participant.port, keepalive=60)
-    participant.client.loop_start()
+    participant.start()
+    #participant.client.connect_async(participant.broker, port=participant.port, keepalive=60)
+    #participant.client.loop_start()
 
     CONTROLS = Controls()
 
@@ -53,7 +53,7 @@ async def controlLoop(SPS) -> None:
 
     while True:
 
-        if old_mqtt_data['message'] != participant.message
+        if old_mqtt_data['message'] != participant.message:
             print(f'new data! {participant.message}')
             old_mqtt_data['message'] = participant.message
 

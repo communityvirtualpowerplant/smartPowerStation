@@ -215,7 +215,7 @@ async def main():
     network = SPS.config['network']
     participant = Participant(network)
     #asyncio.create_task(participant.start())
-    await participant.start()
+    participant.start()
 
 
 if __name__ == "__main__":

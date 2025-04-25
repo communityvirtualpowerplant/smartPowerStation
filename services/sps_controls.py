@@ -204,7 +204,7 @@ async def controlLoop(SPS) -> None:
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}&position={positionMarker}','status_code')
 
         # update airtable with live data
-        await updateAirtable(CONTROLS,SPS.config['location'], SPS.config['id'], now)
+        await updateAirtable(CONTROLS,SPS.config, now)
 
         print('************ SLEEPING **************')
         await asyncio.sleep(int(60*freqMin))
@@ -214,7 +214,11 @@ def printPos(p):
     if showPosition:
         print(f'Position: {p}')
 
-async def updateAirtable(CONTROLS, name, id, now):
+async def updateAirtable(CONTROLS, config, now):
+    name = config.['location']
+    myID = SPS.config['id']
+    network = SPS.config['network']
+
     # get list of records filtered by name
     url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{name}%22'
     res = await CONTROLS.send_secure_get_request(url, key)
@@ -232,7 +236,8 @@ async def updateAirtable(CONTROLS, name, id, now):
             "pv w": str(now["powerstation_inputWDC"]),
             "battery":str(now["powerstation_percentage"]),
             "flex wh": str(CONTROLS.getAvailableFlex(now["powerstation_percentage"])),
-            "id": str(f"{id}")}
+            "id": str(f"{myID}"),
+            "network": str(f"{network}")}
         }]}
 
     url='https://api.airtable.com/v0/appZI2AenYNrfVqCL/live'

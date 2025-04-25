@@ -13,17 +13,16 @@ async def main():
     CONTROLS = Controls()
 
     now = await CONTROLS.send_get_request('localhost', 5000, '/api/data?file=now','json',timeout=2)
-
-
     print(now)
 
     data={"records": [{
       "fields": {
         "name": "home",
-        "pv w": now["powerstation_inputWDC"],
-        "battery":now["powerstation_percentage"],
-        "flex wh": "150",
-        "id": "123"}
+        "datetime":now['datetime'],
+        "pv w": str(now["powerstation_inputWDC"]),
+        "battery":str(now["powerstation_percentage"]),
+        "flex wh": str(150),
+        "id": str(123)}
     }]}
 
     url='https://api.airtable.com/v0/appZI2AenYNrfVqCL/live'

@@ -299,6 +299,24 @@ class Controls():
         except Exception as e:
             return e
 
+    async def send_secure_get_request(self, url:str,key:str,type:str='json',timeout=1) -> Any:
+        """Send GET request to the IP."""
+        if key != '':
+            headers = {"Authorization": f"Bearer {key}"}
+
+        try:
+            response = requests.get(url, headers=headers, timeout=timeout)
+            if type == 'json':
+                return response.json()
+            elif type == 'text':
+                return response.text
+            else:
+                return response.status_code
+        except requests.Timeout as e:
+            return e
+        except Exception as e:
+            return e
+
     async def send_post_request(self,url:str, data:Dict={}, key:str='',timeout=1):
 
         headers = {"Content-Type": "application/json; charset=utf-8"}
@@ -306,13 +324,18 @@ class Controls():
         if key != '':
             headers = {"Authorization": f"Bearer {key}"}
 
-        # data = {
-        #     "id": 1001,
-        #     "name": "geek",
-        #     "passion": "coding",
-        # }
-
         response = requests.post(url, headers=headers, json=data)
+
+        return response.json()
+
+    async def send_patch_request(self,url:str, data:Dict={}, key:str='',timeout=1):
+
+        headers = {"Content-Type": "application/json; charset=utf-8"}
+
+        if key != '':
+            headers = {"Authorization": f"Bearer {key}"}
+
+        response = requests.patch(url, headers=headers, json=data)
 
         return response.json()
 

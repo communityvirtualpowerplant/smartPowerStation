@@ -299,7 +299,7 @@ class Controls():
         except Exception as e:
             return e
 
-    async def send_secure_get_request(self, url:str,key:str='',type:str='json',timeout=1) -> Any:
+    async def send_secure_get_request(self, url:str,key:str='',type:str='json',timeout=2) -> Any:
         """Send GET request to the IP."""
         try:
             #headers = {"Content-Type": "application/json; charset=utf-8"}

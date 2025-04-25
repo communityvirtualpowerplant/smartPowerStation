@@ -25,7 +25,7 @@ analysisDirectory = '../analysis/'
 async def controlLoop(SPS) -> None:
     network = SPS.config['network']
     participant = Participant(network)
-    participant.client.connect_async(self.broker, port=self.port, keepalive=60)
+    participant.client.connect_async(participant.broker, port=participant.port, keepalive=60)
     participant.client.loop_start()
 
     CONTROLS = Controls()

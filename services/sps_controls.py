@@ -205,11 +205,13 @@ def printPos(p):
 async def main(SPS):
     network = SPS.config['network']
     participant = Participant(network)
-    mq = asyncio.create_task(participant.start())
+    #mq = asyncio.create_task(participant.start())
+    await participant.start()
+    #await controlLoop(SPS)
 
-    await controlLoop(SPS)
-    #cl = asyncio.create_task(controlLoop(SPS))
+    cl = asyncio.create_task(controlLoop(SPS))
 
+    await controlLoop(SPS) #asyncio.gather(task1, task2)
 
 if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)

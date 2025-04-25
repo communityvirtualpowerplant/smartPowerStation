@@ -107,7 +107,7 @@ class Participant:
 
         while True:
             timestamp = datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")
-            self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#test!", qos=0, retain=False)
+            self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#test!!", qos=0, retain=False)
             await asyncio.sleep(freq)
     
     def publish(self, data)->None:

@@ -42,8 +42,18 @@ async def main():
         }]}
 
     url='https://api.airtable.com/v0/appZI2AenYNrfVqCL/live'
-    r = await CONTROLS.send_patch_request(url,data, key)
+
+    patch_status = 0
+    while patch_status < 3:
+        r = await CONTROLS.send_patch_request(url,data, key)
+        if r != False:
+            break
+        await asyncio.sleep(1+patch_status)
+        patch_status += 1
+
+    print('out of the loop!')
     print(r)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -311,7 +311,7 @@ class Controls():
             if type == 'json':
                 return response.json()
             elif type == 'text':
-                return response.text
+                return (response.text, response.status_code)
             else:
                 return response.status_code
         except requests.Timeout as e:
@@ -319,7 +319,7 @@ class Controls():
         except Exception as e:
             return e
 
-    async def send_post_request(self,url:str, data:Dict={}, key:str='',timeout=1):
+    async def send_post_request(self,url:str, data:Dict={}, key:str='',timeout=1)-> Any:
 
         headers = {"Content-Type": "application/json; charset=utf-8"}
 
@@ -328,18 +328,20 @@ class Controls():
 
         response = requests.post(url, headers=headers, json=data)
 
-        return response.json()
-
     async def send_patch_request(self,url:str, data:Dict={}, key:str='',timeout=1):
 
         headers = {"Content-Type": "application/json; charset=utf-8"}
 
         if key != '':
-            headers = {"Authorization": f"Bearer {key}"}
+            headers = {"Content-Type": "application/json; charset=utf-8",
+                "Authorization": f"Bearer {key}"}
 
         response = requests.patch(url, headers=headers, json=data)
 
-        return response.json()
+        if response.ok:
+            return response.json()
+        else:
+            return False
 
     # set time variables based on ingested rules file
     # to do: dont create new variables, just convert the old ones to DT format!!!

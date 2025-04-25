@@ -5,15 +5,22 @@ import signal
 # this comes from config file
 network = "BoroughHall"
 
+async def test():
+    while True:
+        async with lock:
+            print(mqtt_message)
+        await asyncio.sleep(30)
+
 async def main():
     participant = Participant(network)
     #await participant.start()
     mq = asyncio.create_task(participant.start())
 
+    t = asyncio.create_task(test())
 
     while True:
-        async with lock:
-            print(mqtt_message)
+
+        print('main loop')
         #print(participant.message)
         await asyncio.sleep(30)
 

@@ -202,7 +202,7 @@ def printPos(p):
     if showPosition:
         print(f'Position: {p}')
 
-async def main(SPS):
+async def main():
     SPS = SmartPowerStation(configFile)
 
     # Setup signal handlers for graceful shutdown
@@ -226,4 +226,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:
-        print.log_error(f"Unexpected error in main: {e}")
+        print(f"Unexpected error in main: {e}")

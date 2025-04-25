@@ -25,8 +25,9 @@ analysisDirectory = '../analysis/'
 async def controlLoop(SPS) -> None:
     network = SPS.config['network']
     participant = Participant(network)
-    participant.client.connect_async(participant.broker, port=participant.port, keepalive=60)
-    participant.client.loop_start()
+    participant.start()
+    # participant.client.connect_async(participant.broker, port=participant.port, keepalive=60)
+    # participant.client.loop_start()
 
     CONTROLS = Controls()
 
@@ -46,21 +47,16 @@ async def controlLoop(SPS) -> None:
     print(f'Upcoming discharge time: {CONTROLS.upcomingDischargeDT}')
 
     # controls loop frequency
-    freqMin = .5
+    freqMin = 1
 
-    old_mqtt_data = {}
+    old_mqtt_data = {'message':''}
 
     while True:
 
-
-        # async with lock:
-        #     if old_mqtt_data != mqtt_data['message']
-        #         print('new data!')
-        #         print(mqtt_data['message'])
-        #         old_mqtt_data = mqtt_data['message']
-
-        #async with lock:
-        print(participant.message)
+        if old_mqtt_data['message'] != participant.message
+            print('new data!')
+            print(participant.message)
+            old_mqtt_data['message'] = participant.message
 
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)

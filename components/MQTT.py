@@ -114,17 +114,6 @@ class Participant:
         #     self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#test!!", qos=0, retain=False)
         #     await asyncio.sleep(freq)
 
-
-    def async_start(self,freq:int=60)->None:
-        self.client.connect_async(self.broker, port=self.port, keepalive=60)
-        self.client.loop_start()
-
-        # while True:
-        #     timestamp = datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")
-        #     self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#test!!", qos=0, retain=False)
-        #     await asyncio.sleep(freq)
-
-
     def publish(self, data)->None:
         timestamp = datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")
 

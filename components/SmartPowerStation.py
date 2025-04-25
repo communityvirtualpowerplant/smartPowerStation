@@ -283,6 +283,7 @@ class Controls():
 
     # send get request
     # type = json, text, or status_code
+    # to do, port should be before timeout with a default value of 80
     async def send_get_request(self, ip:str, port:int,endpoint:str,type:str,timeout=1) -> Any:
         """Send GET request to the IP."""
         try:
@@ -297,6 +298,21 @@ class Controls():
             return e
         except Exception as e:
             return e
+
+    async def send_post_request(self,url:str, data:Dict={}, key:str='',timeout=1):
+
+        headers = {"Content-Type": "application/json; charset=utf-8"}
+
+        if key != '':
+            headers = {"Authorization": f"Bearer {key}"}
+
+        # data = {
+        #     "id": 1001,
+        #     "name": "geek",
+        #     "passion": "coding",
+        # }
+
+        response = requests.post(url, headers=headers, json=data)
 
     # set time variables based on ingested rules file
     # to do: dont create new variables, just convert the old ones to DT format!!!

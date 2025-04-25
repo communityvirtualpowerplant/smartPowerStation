@@ -1,8 +1,10 @@
 #! /bin/bash
 source ../.env
 
-curl -X POST https://api.airtable.com/v0/appZI2AenYNrfVqCL/participants \
-  -H "Authorization: $AIRTABLE" \
+#echo $AIRTABLE_PARTICIPANTS
+
+curl -X POST https://api.airtable.com/v0/appZI2AenYNrfVqCL/live \
+  -H "Authorization: Bearer ${AIRTABLE_PARTICIPANTS}" \
   -H "Content-Type: application/json" \
   --data '{
   "records": [

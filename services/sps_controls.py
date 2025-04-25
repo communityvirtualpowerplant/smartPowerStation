@@ -203,7 +203,7 @@ def printPos(p):
     if showPosition:
         print(f'Position: {p}')
 
-def main(SPS: SmartPowerStation)->None:
+async def main(SPS: SmartPowerStation)->None:
     await controlLoop(SPS)
     # #await controlLoop(SPS) #asyncio.gather(task1, task2)
     # c = asyncio.create_task(controlLoop(SPS))

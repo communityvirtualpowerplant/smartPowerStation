@@ -202,26 +202,37 @@ def printPos(p):
     if showPosition:
         print(f'Position: {p}')
 
-async def main():
+async def main(SPS: SmartPowerStation,loop)->None:
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(controlLoop(SPS))
+
+    # #await controlLoop(SPS) #asyncio.gather(task1, task2)
+    # c = asyncio.create_task(controlLoop(SPS))
+
+    # network = SPS.config['network']
+    # participant = Participant(network)
+    # #asyncio.create_task(participant.start())
+    # participant.start()
+
+
+if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, SPS.handle_signal)
     signal.signal(signal.SIGTERM, SPS.handle_signal)
 
-    #await controlLoop(SPS) #asyncio.gather(task1, task2)
-    c = asyncio.create_task(controlLoop(SPS))
-
-    network = SPS.config['network']
-    participant = Participant(network)
-    #asyncio.create_task(participant.start())
-    participant.start()
-
-
-if __name__ == "__main__":
-
     try:
-        asyncio.run(main())
+        loop = asyncio.new_event_loop()
+        t = threading.Thread(target=main, args=(SPS,loop))
+        t.start()
+
+        network = SPS.config['network']
+        participant = Participant(network)
+        #asyncio.create_task(participant.start())
+        participant.start()
+
+        #asyncio.run(main())
     except KeyboardInterrupt:
         print("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

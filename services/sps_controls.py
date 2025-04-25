@@ -203,26 +203,27 @@ def printPos(p):
         print(f'Position: {p}')
 
 async def main(SPS):
-    network = SPS.config['network']
-    participant = Participant(network)
-    asyncio.create_task(participant.start())
-
-    #await controlLoop(SPS)
-
-    #cl = asyncio.create_task(controlLoop(SPS))
-
-    await controlLoop(SPS) #asyncio.gather(task1, task2)
-
-if __name__ == "__main__":
     SPS = SmartPowerStation(configFile)
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, SPS.handle_signal)
     signal.signal(signal.SIGTERM, SPS.handle_signal)
 
+
+    network = SPS.config['network']
+    participant = Participant(network)
+    #asyncio.create_task(participant.start())
+    await participant.start()
+
+    await controlLoop(SPS) #asyncio.gather(task1, task2)
+
+
+
+if __name__ == "__main__":
+
     try:
-        asyncio.run(main(SPS))
+        asyncio.run(main())
     except KeyboardInterrupt:
-        SPS.log_info("Script interrupted by user via KeyboardInterrupt.")
+        print("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:
-        SPS.log_error(f"Unexpected error in main: {e}")
+        print.log_error(f"Unexpected error in main: {e}")

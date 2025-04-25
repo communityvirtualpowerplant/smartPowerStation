@@ -112,7 +112,7 @@ async def controlLoop(SPS) -> None:
                         positionMarker = 'F'
                         toMode = 1
                     # switch back from maintenance charge with a little buffer
-                    elif (positionMarker == 'F') and (now['powerstation_percentage'] < (sp+maintenanceBuffer)):
+                    elif (positionMarker == 'F') and (now['powerstation_percentage'] > (sp)):
                         positionMarker = 'B'
                         toMode = 1
                     # create space for solar - update this to be dynamically based on prediction/ reality, not 90

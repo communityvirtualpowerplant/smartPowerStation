@@ -46,7 +46,7 @@ async def controlLoop(SPS) -> None:
     print(f'Upcoming discharge time: {CONTROLS.upcomingDischargeDT}')
 
     # controls loop frequency
-    freqMin = 1
+    freqMin = .5
 
     old_mqtt_data = {}
 
@@ -202,7 +202,7 @@ async def controlLoop(SPS) -> None:
         m=CONTROLS.rules['status']['mode']
         await CONTROLS.send_get_request(URL,5001,f'?mode={m}&position={positionMarker}','status_code')
         print('************ SLEEPING **************')
-        await asyncio.sleep(60*freqMin)
+        await asyncio.sleep(int(60*freqMin))
 
 def printPos(p):
     showPosition = True

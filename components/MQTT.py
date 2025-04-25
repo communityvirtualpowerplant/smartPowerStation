@@ -14,7 +14,7 @@ lock = asyncio.Lock()
 
 class Participant:
     def __init__(self, network: str, encrypt:bool=False):
-        self.network = network #the name of the grid network
+        self.network = self.formatNetwork(network) #the name of the grid network
         self.broker = "test.mosquitto.org"
         self.client_id = ""
         #self.client = mqtt.Client(callback_api_version=mqtt.CallbackAPIVersion.VERSION1,client_id=self.client_id, clean_session=True, userdata=None, protocol=mqtt.MQTTv311, transport="tcp")
@@ -46,6 +46,10 @@ class Participant:
             myPort = 1883
         return myPort
 
+    def formatNetwork(self,n:str)->str:
+        n = n.replace(' ','')
+        print(f'Network: {n}')
+        return n
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self,client, userdata, flags, reason_code, properties)->None:
         if reason_code.is_failure:

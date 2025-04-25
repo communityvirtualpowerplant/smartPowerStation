@@ -4,21 +4,26 @@ import signal
 from datetime import datetime
 
 # this comes from config file
-network = "BoroughHall"
+network = "crown heights" #"BoroughHall"
 
-async def test():
+async def test(participant):
     while True:
-        async with lock:
-            print(mqtt_message)
+        #async with lock:
+        print(participant.message)
         print(f'test {datetime.now()}')
         await asyncio.sleep(30)
 
 async def main():
     participant = Participant(network)
-    await participant.start()
-    #mq = asyncio.create_task(participant.start())
+    #await participant.start()
 
-    await test()
+    participant.client.connect_async(participant.broker, port=participant.port, keepalive=60)
+    participant.client.loop_start()
+
+    t = asyncio.create_task(test(participant))
+
+    #await test(participant)
+    print(f'Network: {participant.network}')
 
     while True:
 

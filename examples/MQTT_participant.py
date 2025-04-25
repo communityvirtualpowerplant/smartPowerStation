@@ -15,7 +15,7 @@ async def test():
 
 async def main():
     participant = Participant(network)
-    participant.start()
+    await participant.start()
     #mq = asyncio.create_task(participant.start())
 
     t = asyncio.create_task(test())

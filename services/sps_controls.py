@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
 from components.SmartPowerStation import SmartPowerStation, Controls
 from components.MQTT import Participant, mqtt_message, lock
+import threading
 
 eventUpcoming = False
 eventOngoing = False
@@ -202,17 +203,15 @@ def printPos(p):
     if showPosition:
         print(f'Position: {p}')
 
-async def main(SPS: SmartPowerStation,loop)->None:
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(controlLoop(SPS))
-
+def main(SPS: SmartPowerStation)->None:
+    await controlLoop(SPS)
     # #await controlLoop(SPS) #asyncio.gather(task1, task2)
     # c = asyncio.create_task(controlLoop(SPS))
 
-    # network = SPS.config['network']
-    # participant = Participant(network)
-    # #asyncio.create_task(participant.start())
-    # participant.start()
+    network = SPS.config['network']
+    participant = Participant(network)
+    #asyncio.create_task(participant.start())
+    await participant.start()
 
 
 if __name__ == "__main__":
@@ -223,16 +222,16 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, SPS.handle_signal)
 
     try:
-        loop = asyncio.new_event_loop()
-        t = threading.Thread(target=main, args=(SPS,loop))
-        t.start()
+        # loop = asyncio.new_event_loop()
+        # t = threading.Thread(target=main, args=(SPS,loop))
+        # t.start()
 
-        network = SPS.config['network']
-        participant = Participant(network)
-        #asyncio.create_task(participant.start())
-        participant.start()
+        # network = SPS.config['network']
+        # participant = Participant(network)
+        # #asyncio.create_task(participant.start())
+        # participant.start()
 
-        #asyncio.run(main())
+        asyncio.run(main(SPS))
     except KeyboardInterrupt:
         print("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:

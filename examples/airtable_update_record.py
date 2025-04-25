@@ -16,13 +16,11 @@ async def main():
     print(now)
 
 
+    print('')
+
     # get list of records
-
-# curl "https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view" \
-#   -H "Authorization: Bearer YOUR_SECRET_API_TOKEN"
-
-    #ip:str, port:int,endpoint:str,type:str,
-    url = 'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view'
+    name = 'home'
+    url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view&filterByFormula=name%3D{name}'
     r = await CONTROLS.send_secure_get_request(url, key)
     print(r)
     # filter record of interest

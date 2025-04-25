@@ -23,6 +23,11 @@ rulesFile = '../config/rules.json'
 analysisDirectory = '../analysis/'
 
 async def controlLoop(SPS) -> None:
+    network = SPS.config['network']
+    participant = Participant(network)
+    participant.client.connect_async(self.broker, port=self.port, keepalive=60)
+    participant.client.loop_start()
+
     CONTROLS = Controls()
 
     CONTROLS.getRules(rulesFile)
@@ -47,14 +52,15 @@ async def controlLoop(SPS) -> None:
 
     while True:
 
+
         # async with lock:
         #     if old_mqtt_data != mqtt_data['message']
         #         print('new data!')
         #         print(mqtt_data['message'])
         #         old_mqtt_data = mqtt_data['message']
 
-        async with lock:
-            print(mqtt_message)
+        #async with lock:
+        print(participant.message)
 
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)
@@ -208,10 +214,10 @@ async def main(SPS: SmartPowerStation)->None:
     # #await controlLoop(SPS) #asyncio.gather(task1, task2)
     # c = asyncio.create_task(controlLoop(SPS))
 
-    network = SPS.config['network']
-    participant = Participant(network)
+    # network = SPS.config['network']
+    # participant = Participant(network)
     #asyncio.create_task(participant.start())
-    await participant.start()
+    #await participant.start()
 
 
 if __name__ == "__main__":

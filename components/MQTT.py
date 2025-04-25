@@ -33,7 +33,7 @@ class Participant:
             self.client.tls_set(ca_certs=self.path +"keys/mosquitto.org.crt", certfile=self.path +"keys/client.crt",keyfile=self.path +"keys/client.key", tls_version=ssl.PROTOCOL_TLSv1_2)
         self.client.username_pw_set(None, password=None)
         self.message = {'message':''}
-        self.loop = asyncio.get_event_loop()
+        #self.loop = asyncio.get_event_loop()
     
     def getPort(self,encrypt:bool=False)->int:
         '''
@@ -75,9 +75,9 @@ class Participant:
             print('********* RECIEVING *******************')
             print("{} {} event, starting at {}".format(event, event_type, start_time))
             print('***************************************')
-            #self.message['message'] = message
+            self.message = message
 
-            run_coroutine_threadsafe(self.async_on_message(message), self.loop)
+            #run_coroutine_threadsafe(self.async_on_message(message), self.loop)
 
     async def async_on_message(self, message):
         async with lock:
@@ -100,16 +100,27 @@ class Participant:
             print(f"Broker replied with failure: {reason_code_list[0]}")
         client.disconnect()
 
-    async def start(self,freq:int=60)->None:
+    def start(self,freq:int=60)->None:
         #self.client.connect(self.broker, port=self.port, keepalive=60)
         self.client.connect_async(self.broker, port=self.port, keepalive=60)
         self.client.loop_start()
 
-        while True:
-            timestamp = datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")
-            self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#test!!", qos=0, retain=False)
-            await asyncio.sleep(freq)
-    
+        # while True:
+        #     timestamp = datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")
+        #     self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#test!!", qos=0, retain=False)
+        #     await asyncio.sleep(freq)
+
+
+    def async_start(self,freq:int=60)->None:
+        self.client.connect_async(self.broker, port=self.port, keepalive=60)
+        self.client.loop_start()
+
+        # while True:
+        #     timestamp = datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")
+        #     self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#test!!", qos=0, retain=False)
+        #     await asyncio.sleep(freq)
+
+
     def publish(self, data)->None:
         timestamp = datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -122,6 +133,10 @@ class Participant:
         print('%%%%%%%%%%%%%%%%%%%')
         self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#".join(d), qos=0, retain=False)
         self.client.publish("OpenDemandResponse/participants", payload="AlexN", qos=0, retain=False)
+
+        #     timestamp = datetime.now(self.timezone).strftime("%Y-%m-%d %H:%M:%S")
+        #     self.client.publish("OpenDemandResponse/Participant/AlexN", payload="#test!!", qos=0, retain=False)
+        #     await asyncio.sleep(freq)
 
     
     def stop_tracking(self)->None:

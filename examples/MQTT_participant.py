@@ -18,7 +18,7 @@ async def main():
     await participant.start()
     #mq = asyncio.create_task(participant.start())
 
-    t = asyncio.create_task(test())
+    await test()
 
     while True:
 

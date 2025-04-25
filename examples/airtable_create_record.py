@@ -20,14 +20,15 @@ async def main():
     data={"records": [{
       "fields": {
         "name": "home",
-        "daily pv wh": "25",
+        "pv w": now["powerstation_inputWDC"],
+        "battery":now["powerstation_percentage"],
         "flex wh": "150",
         "id": "123"}
     }]}
 
     url='https://api.airtable.com/v0/appZI2AenYNrfVqCL/live'
-    await CONTROLS.send_get_request(url,data )
-
+    r = await CONTROLS.send_post_request(url,data, key)
+    print(r)
 
 if __name__ == "__main__":
     asyncio.run(main())

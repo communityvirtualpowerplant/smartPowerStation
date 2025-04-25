@@ -314,6 +314,8 @@ class Controls():
 
         response = requests.post(url, headers=headers, json=data)
 
+        return response.json()
+
     # set time variables based on ingested rules file
     # to do: dont create new variables, just convert the old ones to DT format!!!
     def setTimes(self)-> None:

@@ -215,9 +215,9 @@ def printPos(p):
         print(f'Position: {p}')
 
 async def updateAirtable(CONTROLS, config, now):
-    name = config.['location']
-    myID = SPS.config['id']
-    network = SPS.config['network']
+    name = config['location']
+    myID = config['id']
+    network = config['network']
 
     # get list of records filtered by name
     url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{name}%22'

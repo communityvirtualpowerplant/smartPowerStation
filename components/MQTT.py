@@ -100,7 +100,7 @@ class Participant:
             print(f"Broker replied with failure: {reason_code_list[0]}")
         client.disconnect()
 
-    def start(self,freq:int=60)->None:
+    async def start(self,freq:int=60)->None:
         #self.client.connect(self.broker, port=self.port, keepalive=60)
         self.client.connect_async(self.broker, port=self.port, keepalive=60)
         self.client.loop_start()

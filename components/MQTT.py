@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import asyncio
+from asyncio import run_coroutine_threadsafe
 from datetime import datetime
 #from pytz import timezone
 from zoneinfo import ZoneInfo
@@ -7,6 +8,9 @@ import time
 import random
 import ssl
 
+#used for passing data between async processes
+mqtt_message = {}
+lock = asyncio.Lock()
 
 class Participant:
     def __init__(self, network: str, encrypt:bool=False):
@@ -29,6 +33,7 @@ class Participant:
             self.client.tls_set(ca_certs=self.path +"keys/mosquitto.org.crt", certfile=self.path +"keys/client.crt",keyfile=self.path +"keys/client.key", tls_version=ssl.PROTOCOL_TLSv1_2)
         self.client.username_pw_set(None, password=None)
         self.message = {'message':''}
+        self.loop = asyncio.get_event_loop()
     
     def getPort(self,encrypt:bool=False)->int:
         '''
@@ -70,10 +75,13 @@ class Participant:
             print('********* RECIEVING *******************')
             print("{} {} event, starting at {}".format(event, event_type, start_time))
             print('***************************************')
-            self.message['message'] = message
-            # # data gets stored in the this locked variable
-            # async with lock:
-            #     mqtt_data['message'] = message
+            #self.message['message'] = message
+
+            run_coroutine_threadsafe(self.async_on_message(message), self.loop)
+
+    async def async_on_message(self, message):
+        async with lock:
+            mqtt_message['message']=message
 
     def on_subscribe(self, client, userdata, mid, reason_code_list, properties)->None:
         # Since we subscribed only for a single channel, reason_code_list contains

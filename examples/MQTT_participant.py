@@ -1,4 +1,4 @@
-from components.MQTT import Participant
+from components.MQTT import Participant, mqtt_message, lock
 import asyncio
 import signal
 
@@ -12,7 +12,9 @@ async def main():
 
 
     while True:
-        print(participant.message)
+        async with lock:
+            print(mqtt_message)
+        #print(participant.message)
         await asyncio.sleep(30)
 
 if __name__ == '__main__':

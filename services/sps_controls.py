@@ -7,7 +7,7 @@ from typing import cast
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
 from components.SmartPowerStation import SmartPowerStation, Controls
-from components.MQTT import Participant
+from components.MQTT import Participant, mqtt_message, lock
 
 #import csv
 #from components.MQTT import Participant
@@ -24,10 +24,8 @@ devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 analysisDirectory = '../analysis/'
 
-
-# data from mqtt
-mqtt_data = {'message':''}
-lock = asyncio.Lock()
+# mqtt_message = {'message':''}
+# lock = asyncio.Lock()
 
 async def controlLoop(SPS) -> None:
     CONTROLS = Controls()
@@ -60,11 +58,13 @@ async def controlLoop(SPS) -> None:
         #         print('new data!')
         #         print(mqtt_data['message'])
         #         old_mqtt_data = mqtt_data['message']
-        try:
-            print('reading message')
-            print(participant['message'])
-        except:
-            print('cant read participant message')
+        async with lock:
+            print(mqtt_message['message'])
+        # try:
+        #     print('reading message')
+        #     print(participant.message)
+        # except:
+        #     print('cant read participant message')
 
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)
@@ -216,7 +216,7 @@ def printPos(p):
 async def main(SPS):
     cl = asyncio.create_task(controlLoop(SPS))
 
-    network = SPS.config.network
+    network = SPS.config['network']
     participant = Participant(network)
     mq = asyncio.create_task(participant.start())
 

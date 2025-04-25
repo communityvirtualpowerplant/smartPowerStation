@@ -1,6 +1,7 @@
 from components.MQTT import Participant, mqtt_message, lock
 import asyncio
 import signal
+from datetime import datetime
 
 # this comes from config file
 network = "BoroughHall"
@@ -9,20 +10,21 @@ async def test():
     while True:
         async with lock:
             print(mqtt_message)
+        print(f'test {datetime.now()}')
         await asyncio.sleep(30)
 
 async def main():
     participant = Participant(network)
-    #await participant.start()
-    mq = asyncio.create_task(participant.start())
+    participant.start()
+    #mq = asyncio.create_task(participant.start())
 
     t = asyncio.create_task(test())
 
     while True:
 
-        print('main loop')
+        print(f'main loop {datetime.now()}')
         #print(participant.message)
-        await asyncio.sleep(30)
+        await asyncio.sleep(15)
 
 if __name__ == '__main__':
     # Setup signal handlers for graceful shutdown

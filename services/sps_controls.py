@@ -209,14 +209,13 @@ async def main():
     signal.signal(signal.SIGINT, SPS.handle_signal)
     signal.signal(signal.SIGTERM, SPS.handle_signal)
 
+    #await controlLoop(SPS) #asyncio.gather(task1, task2)
+    c = asyncio.create_task(controlLoop(SPS))
 
     network = SPS.config['network']
     participant = Participant(network)
     #asyncio.create_task(participant.start())
     await participant.start()
-
-    await controlLoop(SPS) #asyncio.gather(task1, task2)
-
 
 
 if __name__ == "__main__":

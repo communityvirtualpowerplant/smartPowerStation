@@ -299,9 +299,13 @@ class Controls():
         except Exception as e:
             return e
 
-    async def send_secure_get_request(self, url:str,key:str,type:str='json',timeout=1) -> Any:
+    async def send_secure_get_request(self, url:str,key:str='',type:str='json',timeout=1) -> Any:
         """Send GET request to the IP."""
-            headers = {"Authorization": f"Bearer {key}"}
+        try:
+            headers = {"Content-Type": "application/json; charset=utf-8"}
+
+            if key != '':
+                headers = {"Authorization": f"Bearer {key}"}
 
             response = requests.get(url, headers=headers, timeout=timeout)
             if type == 'json':

@@ -22,7 +22,7 @@ async def main():
 #   -H "Authorization: Bearer YOUR_SECRET_API_TOKEN"
 
     #ip:str, port:int,endpoint:str,type:str,
-    url = 'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live'
+    url = 'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view'
     r = await CONTROLS.send_secure_get_request(url, key)
     print(r)
     # filter record of interest

@@ -85,7 +85,7 @@ async def bleLoop() -> None:
         filteredEntries = SPS.getDevices(deviceFile)
 
         try:
-            devices = await scan_filter_devices(scan_duration, filteredEntries)
+            devices = await scan_filter_devices(SPS, scan_duration, filteredEntries)
         except Exception as e:
             SPS.log_error(f"Error during scanning: {e}")
             return
@@ -136,7 +136,7 @@ async def bleLoop() -> None:
         #results = []
         for d in devices:
             print(d)
-            result = await statusUpdate(d)
+            result = await statusUpdate(SPS, d)
             if result:
                 print(result)
                 tempResults = SPS.packageData(d, result, tempResults)
@@ -148,7 +148,7 @@ async def bleLoop() -> None:
         
         fileName = dataDirectory + str(location) + '_' +str(date.today())+'.csv'
 
-        await writeData(fileName, pd.DataFrame([tempResults]))
+        await writeData(SPS, fileName, pd.DataFrame([tempResults]))
 
         # there is definitely a better way to do this - something where it forces a wakeup if the mode is changed...
         # check again to update before sleeping
@@ -163,7 +163,7 @@ async def wakeUp():
         toMode['mode'] = 1
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
-async def scan_filter_devices(scan_duration: int, saved_devices: Dict):
+async def scan_filter_devices(SPS, scan_duration: int, saved_devices: Dict):
     filteredDevices = []
 
     addressList = []
@@ -193,7 +193,7 @@ async def scan_filter_devices(scan_duration: int, saved_devices: Dict):
     
     return filteredDevices
 
-async def statusUpdate(device):
+async def statusUpdate(SPS, device):
     bleDev = device[0]
     savedDev = device[1]
 
@@ -234,7 +234,7 @@ async def statusUpdate(device):
 
     return result
 
-async def writeData(fn, df):
+async def writeData(SPS, fn, df):
     # create a new file daily to save data
     # or append if the file already exists
 
@@ -288,7 +288,7 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
 
                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
-                async def trySetState(toState:bool,ch: int):
+                async def trySetState(SPS, toState:bool,ch: int):
                     try:
                         # set relay state
                         await shDevice.setState(toState,ch)
@@ -297,10 +297,10 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
  
                 if savedDev['relay1'] in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
-                    await trySetState(assign[savedDev['relay1']],0)
+                    await trySetState(SPS, assign[savedDev['relay1']],0)
                 if savedDev['relay2'] in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
-                    await trySetState(assign[savedDev['relay2']],1)
+                    await trySetState(SPS, assign[savedDev['relay2']],1)
 
     return mode
 

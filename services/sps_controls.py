@@ -1,9 +1,9 @@
 import asyncio
 import signal
-import requests
+#import requests
 import json
 import sys
-from typing import cast
+#from typing import cast
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
 from components.SmartPowerStation import SmartPowerStation, Controls
@@ -12,8 +12,8 @@ import threading
 from dotenv import load_dotenv
 import os
 
-eventUpcoming = False
-eventOngoing = False
+# eventUpcoming = False
+# eventOngoing = False
 
 URL = 'localhost'
 PORT = 5000
@@ -77,18 +77,19 @@ async def controlLoop(SPS) -> None:
         #if SPS.isRecent(now['datetime']):
             #SPS.log_debug('data is fresh')
 
-        # this block should be ahead of the LF test, so that it defaults to mode 1 if both are blank
-        try:
-            le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
-        except:
-            # if there isn't any saved data, set last empty to 10 years back
-            le = datetime.now() - timedelta(days=(10*365))
-
-        try:
-            lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
-        except:
-            # if there isn't any saved data, set last full to 10 years back
-            lf = datetime.now() - timedelta(days=(10*365))
+        # # this block should be ahead of the LF test, so that it defaults to mode 1 if both are blank
+        # try:
+        #     le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
+        # except:
+        #     # if there isn't any saved data, set last empty to 10 years back
+        #     le = datetime.now() - timedelta(days=(10*365))
+        le = parse_datetime(CONTROLS.rules['status']['lastEmpty'])
+        # try:
+        #     lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
+        # except:
+        #     # if there isn't any saved data, set last full to 10 years back
+        #     lf = datetime.now() - timedelta(days=(10*365))
+        lf = parse_datetime(CONTROLS.rules['status']['lastFull'])
 
         # if no event upcoming or ongoing
         if (CONTROLS.rules['event']['upcoming'] == 0) and (CONTROLS.rules['event']['ongoing'] == 0):
@@ -211,7 +212,13 @@ async def controlLoop(SPS) -> None:
         await updateAirtable(CONTROLS,SPS.config, now)
 
         print('************ SLEEPING **************')
-        await asyncio.sleep(int(60*freqMin))
+        await asyncio.sleep(60*freqMin)
+
+def parse_datetime(date_str: str, fallback_years: int = 10) -> datetime:
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return datetime.now() - timedelta(days=fallback_years * 365)
 
 def printPos(p):
     showPosition = True

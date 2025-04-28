@@ -141,6 +141,7 @@ class Bluetti():
             print(f"Unexpected error during command execution: {e}")
         finally:
             if client.client.is_connected:
-                await client.client.disconnect()
+                #await client.client.disconnect()
+                pass
 
         return myData

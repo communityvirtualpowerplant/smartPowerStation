@@ -17,6 +17,8 @@ from bluetti_mqtt.core import (
     BluettiDevice, ReadHoldingRegisters, DeviceCommand
 )
 
+maxTries = 20
+
 class Bluetti():
     def __init__(self, address: str, name: str):
         self.address = address
@@ -57,8 +59,8 @@ class Bluetti():
             #     continue
 
 
-            max_tries = 10
-            for _ in range(max_tries):
+            #max_tries = 20
+            for _ in range(maxTries):
                 if client.is_ready:
                     break
                 print('Waiting for connection...')
@@ -111,7 +113,6 @@ class Bluetti():
                 await stop_event.wait()
 
             # Wait for device connection
-            maxTries = 10
             # t = 0
             # while not client.is_ready:
             #     print('Waiting for connection...')

@@ -89,7 +89,7 @@ class Bluetti():
             print(f'Connecting to {self.address}')
             client = BluetoothClient(self.address)
             #await client.run()
-            asyncio.get_running_loop().create_task(client.run())
+            bTask = asyncio.get_running_loop().create_task(client.run())
 
             # Wait for device connection
             maxTries = 10

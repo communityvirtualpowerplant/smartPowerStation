@@ -63,11 +63,13 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
             # Exclude devices with weak signal
 
         try:
+            #advertisement_data = getattr(device, 'metadata', {}).get('manufacturer_data', None)
+            #if advertisement_data:
             rssi = int(advertisement_data.rssi)
             # Example: Only act on strong signals
             if rssi < -80:
                 return
-        except:
+        except (ValueError, TypeError) as e:
             return
 
         if device.name is None:

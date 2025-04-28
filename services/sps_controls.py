@@ -151,7 +151,11 @@ async def controlLoop(SPS) -> None:
                 else:
                     toMode = 2
                     positionMarker = 'E'
-                    
+
+            # if the battery data is mia
+            if now['powerstation_percentage']  == "":
+                toMode = 1
+
         elif CONTROLS.rules['event']['ongoing'] != 0:
             # manage event
             # if event is ongoing set mode to 5

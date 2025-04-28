@@ -30,3 +30,7 @@ Add `,flush=True` to force print to troubleshoot
 service usage: `systemd-cgtop`
 
 per core usage: `mpstat -P ALL 1`
+
+
+## run fsck run on reboot:
+should already be installed during install: `sudo tune2fs -c 1 /dev/mmcblk0p2`

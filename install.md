@@ -2,8 +2,11 @@
 
 ## Software
 
-* create venv
 * clone repo
+* create venv
+* clone bluetti repo into pi
+	* `cd /home/pi`
+	* `git clone https://github.com/alexnathanson/bluetti_mqtt.git`
 * install packages `pip install -r requirements.txt`
 * move config directory up one level
 	* set user as config directory owner 
@@ -39,6 +42,10 @@ Check if its running
 Set daily reboot
 `sudo crontab -e`<br>
 Add this line at the bottom of the file to restart the server at midnight `@midnight sudo reboot`
+
+#### participation maintenance:
+
+daily partition maitenance: `sudo tune2fs -c 1 /dev/mmcblk0p2`
 
 
 ### Smart Power Station

@@ -66,70 +66,73 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
         # print all devices
         #print(device)
 
-        if shellySTR.lower() in device.name.lower(): #make case insentive
-            # if ALLTERCO_MFID not in advertisement_data.manufacturer_data:
-            #     continue
-            mf = 'shelly'
-            notFound = 0
-        else:
-            for b in bluettiSTR:
-                if b.lower() in device.name.lower(): #make case insentive
-                    mf = 'bluetti'
-                    notFound = 0
-                    continue
+        try:
+            if shellySTR.lower() in device.name.lower(): #make case insentive
+                # if ALLTERCO_MFID not in advertisement_data.manufacturer_data:
+                #     continue
+                mf = 'shelly'
+                notFound = 0
+            else:
+                for b in bluettiSTR:
+                    if b.lower() in device.name.lower(): #make case insentive
+                        mf = 'bluetti'
+                        notFound = 0
+                        continue
 
-        # if shelly or bluetti strings aren't found in devices return
-        if notFound == 1:
-            return
-        
-        # Exclude devices with weak signal
-        # if advertisement_data.rssi < -80:
-        #     return
-        print('found device:')
-        print(device)
-        
-        #update rssi and timestamp if device is already known
-        if device.address in addresses:
-            # loop through and update rssi data
-            for entry in saved_devices:
-                if entry['address'] == device.address:
-                    saved_devices.remove(entry)
+            # if shelly or bluetti strings aren't found in devices return
+            if notFound == 1:
+                return
 
-                    try:
-                        assignment = device.assignment
-                    except:
-                        assignment = ''
+            # Exclude devices with weak signal
+            # if advertisement_data.rssi < -80:
+            #     return
+            print('found device:')
+            print(device)
 
-                    saved_devices.append({
+            #update rssi and timestamp if device is already known
+            if device.address in addresses:
+                # loop through and update rssi data
+                for entry in saved_devices:
+                    if entry['address'] == device.address:
+                        saved_devices.remove(entry)
+
+                        try:
+                            assignment = device.assignment
+                        except:
+                            assignment = ''
+
+                        saved_devices.append({
+                            "name": device.name,
+                            "address": device.address,
+                            "manufacturer":mf,
+                            "rssi": int(advertisement_data.rssi),
+                            "timestamp":datetime.now().isoformat(),
+                            "location": location, #site
+                            "role":entry["role"],
+                            "relay1": entry["relay1"], #indiciates position in system (by channel if applicable)
+                            "relay2": entry["relay2"], #indiciates position in system (by channel if applicable)
+                            "capacityWh":entry["capacityWh"],
+                            "protocol": "ble"
+                        })
+                        print(advertisement_data)
+                        break
+            else:
+                saved_devices.append({
                         "name": device.name,
                         "address": device.address,
                         "manufacturer":mf,
-                        "rssi": advertisement_data.rssi,
+                        "rssi": int(advertisement_data.rssi),
                         "timestamp":datetime.now().isoformat(),
-                        "location": location, #site
-                        "role":entry["role"],
-                        "relay1": entry["relay1"], #indiciates position in system (by channel if applicable)
-                        "relay2": entry["relay2"], #indiciates position in system (by channel if applicable)
-                        "capacityWh":entry["capacityWh"],
+                        "location": location,
+                        "role":"",#this is manually entered
+                        "relay1":"", #this is manually entered
+                        "relay2":"", #this is manually entered
+                        "capacityWh":"", #this is manually entered
                         "protocol": "ble"
                     })
-                    print(advertisement_data)
-                    break
-        else:
-            saved_devices.append({
-                    "name": device.name,
-                    "address": device.address,
-                    "manufacturer":mf,
-                    "rssi": advertisement_data.rssi,
-                    "timestamp":datetime.now().isoformat(),
-                    "location": location,
-                    "role":"",#this is manually entered
-                    "relay1":"", #this is manually entered
-                    "relay2":"", #this is manually entered
-                    "capacityWh":"", #this is manually entered
-                    "protocol": "ble"
-                })
-            addresses.add(device.address)
+                addresses.add(device.address)
+        except Exception as e:
+            print(f'{e}')
 
     log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
 

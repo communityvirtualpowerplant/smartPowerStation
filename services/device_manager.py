@@ -3,14 +3,13 @@
 
 import sys
 import subprocess
-# import numpy as np
 import pandas as pd
 import csv
 import asyncio
 import json
 import signal
 import logging
-import time
+#import time
 from datetime import datetime, date
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
@@ -34,6 +33,7 @@ app = Flask(__name__)
 
 toMode = {'mode':1,'position':'NA'}
 lock = threading.Lock()
+ble_lock = asyncio.Lock()
 
 @app.route("/")
 def getCommand():
@@ -83,13 +83,14 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         filteredEntries = SPS.getDevices(deviceFile)
 
         try:
-            devices = await scan_devices(scan_duration, filteredEntries)
+            devices = await scan_filter_devices(scan_duration, filteredEntries)
         except Exception as e:
             SPS.log_error(f"Error during scanning: {e}")
             return
 
         if not devices:
             SPS.log_error("No devices found. Exiting")
+            # should be a retry not hard exit
             sys.exit(0)
 
         # tasks = [statusUpdate(e) for e in devices]
@@ -157,11 +158,11 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
 
 async def wakeUp():
     # charge it!
-    async with asyncio.Lock():
+    async with ble_lock: #asyncio.Lock():
         toMode['mode'] = 1
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
-async def scan_devices(scan_duration: int, saved_devices: Dict):
+async def scan_filter_devices(scan_duration: int, saved_devices: Dict):
     filteredDevices = []
 
     addressList = []
@@ -252,7 +253,7 @@ async def writeData(fn, df):
 
 async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)-> Any:
     # move into setMode function
-    async with asyncio.Lock():
+    async with ble_lock: #asyncio.Lock():
         mode = toMode['mode']
         if ((m is not None) and (m == mode)): # avoid repetitive calls
             return

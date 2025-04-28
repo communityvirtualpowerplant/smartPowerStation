@@ -121,7 +121,7 @@ class Bluetti():
             #     if t > 10:
             #         break
             #     continue
-            for t in range(maxTries):
+            for _ in range(maxTries):
                 if client.is_ready:
                     break
                 print('Waiting for connection...')

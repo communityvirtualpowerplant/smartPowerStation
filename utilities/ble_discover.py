@@ -149,6 +149,14 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
     async with BleakScanner(detection_callback=discovery_handler) as scanner:
         await asyncio.sleep(scan_duration)
 
+    # required if there is a saved device in the file, without rssi data and it isn't found in the scan
+    # KASA is IP not BLE, which caused the problemm
+    for device in saved_devices:
+        try:
+            device["rssi"] = int(device["rssi"])
+        except (ValueError, TypeError):
+            device["rssi"] = -999  # fallback for broken devices
+
     saved_devices.sort(key=lambda d: d["rssi"], reverse=True)
     return saved_devices
 

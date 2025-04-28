@@ -4,12 +4,12 @@ After=network.target
 Wants=network.target
 
 [Service]
-ExecStart=/home/alex/smartPowerStation/venv/bin/python -m services.device_manager
-WorkingDirectory=/home/alex/smartPowerStation
+ExecStart=/home/pi/smartPowerStation/venv/bin/python -m services.device_manager
+WorkingDirectory=/home/pi/smartPowerStation
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=alex
+User=pi
 
 [Install]
 WantedBy=multi-user.target

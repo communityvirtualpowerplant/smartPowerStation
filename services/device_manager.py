@@ -98,7 +98,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
 
         # TO DO - If power station isn't responding for multiple cycles, run 'wake up' mode, before set mode
         if wakeUpCount >= 3:
-            wakeUp()
+            await wakeUp()
             wakeUpCount = 0
 
 
@@ -156,11 +156,9 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         await asyncio.sleep(120)
 
 async def wakeUp():
-    #disconnect r2
-
-    #connect r2
-
-    pass
+    # charge it!
+    async with asyncio.Lock():
+        toMode['mode'] = 1
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
 async def scan_devices(scan_duration: int, saved_devices: Dict):

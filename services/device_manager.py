@@ -69,7 +69,9 @@ def handle_signal(signal_num: int, frame: Any) -> None:
 # ============================
 # Main
 # ============================        
-async def bleLoop(SPS: SmartPowerStation) -> None:
+async def bleLoop() -> None:
+    SPS = SmartPowerStation(configFile)
+
     wakeUpCount = 0
 
     while True:
@@ -302,8 +304,8 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
 
     return mode
 
-def main(SPS: SmartPowerStation,loop)-> None:
-    SPS = SmartPowerStation(configFile)
+async def main()-> None:
+    #SPS = SmartPowerStation(configFile)
 
     def run_flask():
         app.run(host="0.0.0.0", port=5001, debug=False)
@@ -311,7 +313,7 @@ def main(SPS: SmartPowerStation,loop)-> None:
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.start()
 
-    await bleLoop(SPS)
+    await bleLoop()
     # asyncio.set_event_loop(loop)
     # loop.run_until_complete(bleLoop(SPS))
 

@@ -135,7 +135,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         for d in devices:
             print(d)
             result = await statusUpdate(d)
-            if (result) & (result !={}):
+            if result:
                 print(result)
                 tempResults = SPS.packageData(d, result, tempResults)
                 #results.append(result)
@@ -219,7 +219,7 @@ async def statusUpdate(device):
         except Exception as e:
             SPS.log_error(f"Error getting Bluetti status: {e}")
 
-        if (result) & (result != {}):
+        if result:
             SPS.log_debug(f"Method executed successfully. Result:")
             #print(result)
             

@@ -7,24 +7,24 @@
 * clone bluetti repo into pi
 	* `cd /home/pi`
 	* `git clone https://github.com/alexnathanson/bluetti_mqtt.git`
+	* Navigate to the bluetti_mqtt directory and run while in venv `pip install .`
 * install packages `pip install -r requirements.txt`
 * move config directory up one level
+	* `cp -r config ../config`
+* confirm config directly own is pi with `ls -l`. If not, set owner and group:
 	* set user as config directory owner 
 	* `sudo chown pi:pi config`
 	* `sudo chown pi:pi config/config.json`
 	* `sudo chown pi:pi config/devices.json`
+	* `sudo chown pi:pi config/rules.json`
 * make the data directory one level up
 	* `mkdir data`
 
 ### Automation
-Make scripts executable
-`chmod +x smartPowerStation/services/api.py`
-`chmod +x smartPowerStation/services/ble_logger.py`
-`chmod +x smartPowerStation/services/sps_controls.py`
 
 Copy service files
 `sudo cp smartPowerStation/services/api.service /etc/systemd/system/api.service`
-`sudo cp smartPowerStation/services/ble_logger.service /etc/systemd/system/ble_logger.service`
+`sudo cp smartPowerStation/services/device_manager.service /etc/systemd/system/device_manager.service`
 `sudo cp smartPowerStation/services/sps_controls.service /etc/systemd/system/sps_controls.service`
 
 Reload and enable
@@ -32,8 +32,10 @@ Reload and enable
 `sudo systemctl daemon-reload`
 `sudo systemctl enable api.service`
 `sudo systemctl start api.service`
-`sudo systemctl enable ble_logger.service`
-`sudo systemctl start ble_logger.service`
+`sudo systemctl enable device_manager.service`
+`sudo systemctl start device_manager.service`
+`sudo systemctl enable sps_controls.service`
+`sudo systemctl start sps_controls.service`
 
 Check if its running
 `sudo systemctl status api.service`
@@ -47,12 +49,12 @@ Add this line at the bottom of the file to restart the server at midnight `@midn
 
 daily partition maitenance: `sudo tune2fs -c 1 /dev/mmcblk0p2`
 
-
 ### Smart Power Station
 
-### Bluetti
 
-Clone the repository `git clone https://github.com/alexnathanson/bluetti_mqtt`
+### Install troubleshooting:
 
-Navigate to the bluetti_mqtt directory and run `pip install .`
-
+Not necessary if owned and run by pi user, but worth checking: make scripts executable
+`chmod +x smartPowerStation/services/api.py`
+`chmod +x smartPowerStation/services/ble_logger.py`
+`chmod +x smartPowerStation/services/sps_controls.py`

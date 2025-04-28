@@ -17,7 +17,6 @@ from bluetti_mqtt.core import (
     BluettiDevice, ReadHoldingRegisters, DeviceCommand
 )
 
-maxTries = 20
 
 class Bluetti():
     def __init__(self, address: str, name: str):
@@ -27,6 +26,7 @@ class Bluetti():
         self.data = {'total_battery_percent':0,'ac_output_power':0,'ac_input_power':0,'dc_output_power':0,'dc_input_power':0}
         #self.charge = False
         self.BLUETTI_GATT_SERVICE_UUID = "0000ff00-0000-1000-8000-00805f9b34fb" #not in use
+        self.maxTries = 20
 
     async def log_command(self, client: BluetoothClient, device: BluettiDevice, command: DeviceCommand):
         try:
@@ -52,22 +52,21 @@ class Bluetti():
         async with asyncio.TaskGroup() as tg:
             tg.create_task(client.run())
         
-            # Wait for device connection
-            while not client.is_ready:
-                print('Waiting for connection...')
-                await asyncio.sleep(1)
-                continue
-
-
-            #max_tries = 20
-            # for _ in range(maxTries):
-            #     if client.is_ready:
-            #         break
+            # # Wait for device connection
+            # while not client.is_ready:
             #     print('Waiting for connection...')
             #     await asyncio.sleep(1)
-            # else:
-            #     print('Connection timeout')
-            #     return
+            #     continue
+
+
+            for _ in range(self.maxTries):
+                if client.is_ready:
+                    break
+                print('Waiting for connection...')
+                await asyncio.sleep(1)
+            else:
+                print('Connection timeout')
+                return
 
             print('Bluetti device is ready')
 
@@ -92,17 +91,17 @@ class Bluetti():
         client = BluetoothClient(self.address)
         #await client.run()
 
-        stop_event = asyncio.Event()
+        # stop_event = asyncio.Event()
 
-        def shutdown():
-            print("Shutdown signal received.")
-            stop_event.set()
+        # def shutdown():
+        #     print("Shutdown signal received.")
+        #     stop_event.set()
 
-        loop = asyncio.get_running_loop()
-        #bTask = loop.create_task(client.run())
+        # loop = asyncio.get_running_loop()
+        # #bTask = loop.create_task(client.run())
 
-        for sig in (signal.SIGINT, signal.SIGTERM):
-            loop.add_signal_handler(sig, shutdown)
+        # for sig in (signal.SIGINT, signal.SIGTERM):
+        #     loop.add_signal_handler(sig, shutdown)
 
         try:
             async with asyncio.TaskGroup() as tg:
@@ -110,25 +109,25 @@ class Bluetti():
                 tg.create_task(client.run())
 
                 # Wait for a shutdown signal
-                await stop_event.wait()
+                #await stop_event.wait()
 
-            # Wait for device connection
-            t = 0
-            while not client.is_ready:
-                print('Waiting for connection...')
-                await asyncio.sleep(1)
-                t = t +1
-                if t > 10:
-                    break
-                continue
-            # for _ in range(maxTries):
-            #     if client.is_ready:
-            #         break
+            # # Wait for device connection
+            # t = 0
+            # while not client.is_ready:
             #     print('Waiting for connection...')
             #     await asyncio.sleep(1)
-            # else:
-            #     print('Connection timeout')
-            #     return myData
+            #     t = t +1
+            #     if t > 10:
+            #         break
+            #     continue
+            for _ in range(self.maxTries):
+                if client.is_ready:
+                    break
+                print('Waiting for connection...')
+                await asyncio.sleep(1)
+            else:
+                print('Connection timeout')
+                return myData
 
             # Poll device
             for command in device.logging_commands:
@@ -140,8 +139,11 @@ class Bluetti():
         except Exception as e:
             print(f"Unexpected error during command execution: {e}")
         finally:
-            if client.client.is_connected:
-                #await client.client.disconnect()
-                pass
+            try:
+                if client.client and client.client.is_connected:
+                    await client.client.disconnect()
+                    print("Disconnected BLE client")
+            except Exception as e:
+                print(f"Error during BLE disconnect: {e}")
 
         return myData

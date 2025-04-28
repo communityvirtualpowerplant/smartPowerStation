@@ -303,31 +303,38 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
     return mode
 
 def main(SPS: SmartPowerStation,loop)-> None:
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(bleLoop(SPS))
+    SPS = SmartPowerStation(configFile)
+
+    def run_flask():
+        app.run(host="0.0.0.0", port=5001, debug=False)
+
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+
+    await bleLoop(SPS)
+    # asyncio.set_event_loop(loop)
+    # loop.run_until_complete(bleLoop(SPS))
 
 if __name__ == "__main__":
     # Suppress FutureWarnings
     import warnings
-
     warnings.simplefilter("ignore", FutureWarning)
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
 
-
-    SPS = SmartPowerStation(configFile)
-
     try:
         #asyncio.run(main(SPS)) # old async code - now running async in seperate thread
         # Create a new event loop for the async function
-        loop = asyncio.new_event_loop()
-        t = threading.Thread(target=main, args=(SPS,loop))
-        t.start()
+        # loop = asyncio.new_event_loop()
+        # t = threading.Thread(target=main, args=(SPS,loop))
+        # t.start()
+        asyncio.run(main())
 
-        app.run(host="0.0.0.0", port=5001, debug=False)
+
+        #app.run(host="0.0.0.0", port=5001, debug=False)
     except KeyboardInterrupt:
-        SPS.log_info("Script interrupted by user via KeyboardInterrupt.")
+        print("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:
-        SPS.log_error(f"Unexpected error in main: {e}")
+        print(f"Unexpected error in main: {e}")

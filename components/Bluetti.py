@@ -1,6 +1,7 @@
 #import argparse
 import asyncio
 #import base64
+import signal
 from bleak import BleakError
 #from io import TextIOWrapper
 #import json

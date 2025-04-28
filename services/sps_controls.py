@@ -1,9 +1,7 @@
 import asyncio
 import signal
-#import requests
 import json
 import sys
-#from typing import cast
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
 from components.SmartPowerStation import SmartPowerStation, Controls

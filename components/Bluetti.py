@@ -53,21 +53,21 @@ class Bluetti():
             tg.create_task(client.run())
         
             # Wait for device connection
-            # while not client.is_ready:
-            #     print('Waiting for connection...')
-            #     await asyncio.sleep(1)
-            #     continue
+            while not client.is_ready:
+                print('Waiting for connection...')
+                await asyncio.sleep(1)
+                continue
 
 
             #max_tries = 20
-            for _ in range(maxTries):
-                if client.is_ready:
-                    break
-                print('Waiting for connection...')
-                await asyncio.sleep(1)
-            else:
-                print('Connection timeout')
-                return
+            # for _ in range(maxTries):
+            #     if client.is_ready:
+            #         break
+            #     print('Waiting for connection...')
+            #     await asyncio.sleep(1)
+            # else:
+            #     print('Connection timeout')
+            #     return
 
             print('Bluetti device is ready')
 
@@ -113,22 +113,22 @@ class Bluetti():
                 await stop_event.wait()
 
             # Wait for device connection
-            # t = 0
-            # while not client.is_ready:
-            #     print('Waiting for connection...')
-            #     await asyncio.sleep(1)
-            #     t = t +1
-            #     if t > 10:
-            #         break
-            #     continue
-            for _ in range(maxTries):
-                if client.is_ready:
-                    break
+            t = 0
+            while not client.is_ready:
                 print('Waiting for connection...')
                 await asyncio.sleep(1)
-            else:
-                print('Connection timeout')
-                return myData
+                t = t +1
+                if t > 10:
+                    break
+                continue
+            # for _ in range(maxTries):
+            #     if client.is_ready:
+            #         break
+            #     print('Waiting for connection...')
+            #     await asyncio.sleep(1)
+            # else:
+            #     print('Connection timeout')
+            #     return myData
 
             # Poll device
             for command in device.logging_commands:

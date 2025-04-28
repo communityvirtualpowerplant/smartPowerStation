@@ -197,6 +197,8 @@ async def statusUpdate(device):
     bleDev = device[0]
     savedDev = device[1]
 
+    result = None
+
     print("")
     if savedDev['manufacturer'] == 'shelly':
 

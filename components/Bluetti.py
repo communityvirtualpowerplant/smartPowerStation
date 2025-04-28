@@ -89,7 +89,25 @@ class Bluetti():
             print(f'Connecting to {self.address}')
             client = BluetoothClient(self.address)
             #await client.run()
-            bTask = asyncio.get_running_loop().create_task(client.run())
+
+            stop_event = asyncio.Event()
+
+            def shutdown():
+                print("Shutdown signal received.")
+                stop_event.set()
+
+            loop = asyncio.get_running_loop()
+            #bTask = loop.create_task(client.run())
+
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                loop.add_signal_handler(sig, shutdown)
+
+            async with asyncio.TaskGroup() as tg:
+                # Start the client
+                tg.create_task(client.run())
+
+                # Wait for a shutdown signal
+                await stop_event.wait()
 
             # Wait for device connection
             maxTries = 10

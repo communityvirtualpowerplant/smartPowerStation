@@ -60,6 +60,16 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
         mf = ''
         notFound = 1
 
+            # Exclude devices with weak signal
+
+        try:
+            rssi = int(advertisement_data.rssi)
+            # Example: Only act on strong signals
+            if rssi < -80:
+                return
+        except:
+            return
+
         if device.name is None:
             return
 
@@ -83,9 +93,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
             if notFound == 1:
                 return
 
-            # Exclude devices with weak signal
-            # if advertisement_data.rssi < -80:
-            #     return
+
             print('found device:')
             print(device)
 

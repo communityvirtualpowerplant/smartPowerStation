@@ -130,21 +130,21 @@ class Bluetti():
             #     if t > 10:
             #         break
             #     continue
-            for _ in range(self.maxTries):
-                if client.is_ready:
-                    break
-                print('Waiting for connection...')
-                await asyncio.sleep(1)
-            else:
-                print('Connection timeout')
-                return myData
+                for _ in range(self.maxTries):
+                    if client.is_ready:
+                        break
+                    print('Waiting for connection...')
+                    await asyncio.sleep(1)
+                else:
+                    print('Connection timeout')
+                    return myData
 
-            # Poll device
-            for command in device.logging_commands:
-                commandResponse = await self.log_command(client, device, command)
-                if commandResponse:
-                    for k,v in commandResponse.items():
-                        myData[k]=v
+                # Poll device
+                for command in device.logging_commands:
+                    commandResponse = await self.log_command(client, device, command)
+                    if commandResponse:
+                        for k,v in commandResponse.items():
+                            myData[k]=v
             #print(myData)
         except Exception as e:
             print(f"Unexpected error during command execution: {e}")

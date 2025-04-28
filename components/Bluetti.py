@@ -83,62 +83,62 @@ class Bluetti():
         myData={
         }
 
+        #try:
+        device = build_device(self.address, self.name)
+
+        print(f'Connecting to {self.address}')
+        client = BluetoothClient(self.address)
+        #await client.run()
+
+        stop_event = asyncio.Event()
+
+        def shutdown():
+            print("Shutdown signal received.")
+            stop_event.set()
+
+        loop = asyncio.get_running_loop()
+        #bTask = loop.create_task(client.run())
+
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, shutdown)
+
         try:
-            device = build_device(self.address, self.name)
+            async with asyncio.TaskGroup() as tg:
+                # Start the client
+                tg.create_task(client.run())
 
-            print(f'Connecting to {self.address}')
-            client = BluetoothClient(self.address)
-            #await client.run()
+                # Wait for a shutdown signal
+                await stop_event.wait()
 
-            stop_event = asyncio.Event()
+            # Wait for device connection
+            maxTries = 10
+            # t = 0
+            # while not client.is_ready:
+            #     print('Waiting for connection...')
+            #     await asyncio.sleep(1)
+            #     t = t +1
+            #     if t > 10:
+            #         break
+            #     continue
+            for t in range(maxTries):
+                if client.is_ready:
+                    break
+                print('Waiting for connection...')
+                await asyncio.sleep(1)
+            else:
+                print('Connection timeout')
+                return myData
 
-            def shutdown():
-                print("Shutdown signal received.")
-                stop_event.set()
-
-            loop = asyncio.get_running_loop()
-            #bTask = loop.create_task(client.run())
-
-            for sig in (signal.SIGINT, signal.SIGTERM):
-                loop.add_signal_handler(sig, shutdown)
-
-            try:
-                async with asyncio.TaskGroup() as tg:
-                    # Start the client
-                    tg.create_task(client.run())
-
-                    # Wait for a shutdown signal
-                    await stop_event.wait()
-
-                # Wait for device connection
-                maxTries = 10
-                # t = 0
-                # while not client.is_ready:
-                #     print('Waiting for connection...')
-                #     await asyncio.sleep(1)
-                #     t = t +1
-                #     if t > 10:
-                #         break
-                #     continue
-                for t in range(maxTries):
-                    if client.is_ready:
-                        break
-                    print('Waiting for connection...')
-                    await asyncio.sleep(1)
-                else:
-                    print('Connection timeout')
-                    return myData
-
-                # Poll device
-                for command in device.logging_commands:
-                    commandResponse = await self.log_command(client, device, command)
-                    if commandResponse:
-                        for k,v in commandResponse.items():
-                            myData[k]=v
-                #print(myData)
+            # Poll device
+            for command in device.logging_commands:
+                commandResponse = await self.log_command(client, device, command)
+                if commandResponse:
+                    for k,v in commandResponse.items():
+                        myData[k]=v
+            #print(myData)
         except Exception as e:
             print(f"Unexpected error during command execution: {e}")
-        final:
+        finally:
             if client.client.is_connected:
                 await client.client.disconnect()
 

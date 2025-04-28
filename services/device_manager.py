@@ -58,6 +58,8 @@ rulesFile = '../config/rules.json'
 #changed based on hardware
 bleAdapter = "hci0"
 
+shutdown_event = asyncio.Event()
+
 # ============================
 # Utilities
 # ============================
@@ -74,7 +76,8 @@ async def bleLoop() -> None:
 
     wakeUpCount = 0
 
-    while True:
+    #while True:
+    while not shutdown_event.is_set():
         SPS.reset_bluetooth()
 
         location = SPS.location
@@ -304,6 +307,15 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
 
     return mode
 
+def handle_shutdown_signal():
+    print("Shutdown signal received. Stopping gracefully...")
+    shutdown_event.set()
+
+def setup_signal_handlers():
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        loop.add_signal_handler(sig, handle_shutdown_signal)
+
 async def main()-> None:
     #SPS = SmartPowerStation(configFile)
 
@@ -312,6 +324,8 @@ async def main()-> None:
 
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.start()
+
+    setup_signal_handlers()
 
     await bleLoop()
     # asyncio.set_event_loop(loop)

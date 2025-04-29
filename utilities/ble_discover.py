@@ -121,7 +121,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
                             "role":entry["role"],
                             "relay1": entry["relay1"], #indiciates position in system (by channel if applicable)
                             "relay2": entry["relay2"], #indiciates position in system (by channel if applicable)
-                            #"capacityWh":entry["capacityWh"],
+                            "capacityWh":entry["capacityWh"],
                             "protocol": "ble"
                         })
                         print(advertisement_data)
@@ -134,10 +134,10 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
                         "rssi": int(advertisement_data.rssi),
                         "timestamp":datetime.now().isoformat(),
                         "location": location,
-                        "role":"",#this is manually entered
+                        "role": getRole(mf)
                         "relay1":"", #this is manually entered
                         "relay2":"", #this is manually entered
-                        #"capacityWh":"", #this is manually entered
+                        "capacityWh":"", #this is manually entered
                         "protocol": "ble"
                     })
                 addresses.add(device.address)
@@ -145,6 +145,17 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
             print(f'{e}')
 
     log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
+
+    def getRole(mf):
+        if mf.lower() == 'bluetti':
+            r = "ps"
+        elif mf.lower() == 'shelly':
+            r = "relay"
+        elif mf.lower() == 'kasa': #this line is untested
+            r = "relay"
+        else:
+            r = ""
+        return r
 
     async with BleakScanner(detection_callback=discovery_handler) as scanner:
         await asyncio.sleep(scan_duration)

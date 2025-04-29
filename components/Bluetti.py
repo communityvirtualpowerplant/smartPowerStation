@@ -137,13 +137,29 @@ class Bluetti():
                 #     print('Connection timeout')
                 #     # return myData
                 # Wait for client.is_ready with timeout
+
+                async def _wait_for_ready(self, client: BluetoothClient):
+                    """Helper: wait until the client is ready."""
+                    while not client.is_ready:
+                        print('Waiting for connection...')
+                        await asyncio.sleep(1)
+
+                # try:
+                #     await asyncio.wait_for(self._wait_for_ready(client), timeout=10)
+                # except asyncio.TimeoutError:
+                #     print("Timeout: Device did not become ready.")
+                #     run_task.cancel()  # Cancel client.run()
+                #     await asyncio.gather(run_task, return_exceptions=True)  # Clean cancellation
+                #     return myData
+
+
                 try:
-                    await asyncio.wait_for(self._wait_for_ready(client), timeout=10)
-                except asyncio.TimeoutError:
-                    print("Timeout: Device did not become ready.")
-                    run_task.cancel()  # Cancel client.run()
-                    await asyncio.gather(run_task, return_exceptions=True)  # Clean cancellation
+                    async with asyncio.timeout(10):
+                        await _wait_for_ready(client)
+                except TimeoutError:
+                    print("The task group timed out")
                     return myData
+
 
                 # Poll device
                 for command in device.logging_commands:
@@ -164,8 +180,4 @@ class Bluetti():
 
         return myData
 
-    async def _wait_for_ready(self, client: BluetoothClient):
-        """Helper: wait until the client is ready."""
-        while not client.is_ready:
-            print('Waiting for connection...')
-            await asyncio.sleep(1)
+

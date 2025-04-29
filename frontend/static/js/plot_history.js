@@ -39,7 +39,7 @@ async function fetchAndPlotCSV() {
         y: y[c],
         mode: 'lines+markers',
         type: 'scatter',
-        name:c.repace('powerstation','battery').replace('_',' ').replace('percentage','%')
+        name:c.replace('powerstation','battery').replace('_',' ').replace('percentage','%')
       }
 
       traces.push(t)

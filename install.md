@@ -37,7 +37,9 @@
 #### Configure SPS
 * update config and rules files as needed
 * Run ble_discover and check that devices file is formatted properly and all relevant devices were discovered
- 
+* create environmental variables file in SPS directory:
+	* `nano .env` with `AIRTABLE_PARTICIPANTS=`
+
 ### Automation
 
 Copy service files

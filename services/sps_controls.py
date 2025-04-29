@@ -225,7 +225,7 @@ def printPos(p):
         print(f'Position: {p}')
 
 async def updateAirtable(CONTROLS, config, now):
-    name = config['location']
+    name = config['location'].lower()
     myID = config['id']
     network = config['network']
 

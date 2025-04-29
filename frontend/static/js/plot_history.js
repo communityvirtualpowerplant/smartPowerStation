@@ -123,6 +123,8 @@ async function fetchAndPlotCSV() {
       traces.push(t)
     })  
 
+    traces.push(backgroundLegendTraces)
+    
     Plotly.newPlot('plot',traces, {
       title: "Smart Power Station Data - Today",
       xaxis: { title: "Time" },

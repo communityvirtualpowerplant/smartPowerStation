@@ -2,12 +2,26 @@
 
 ## Software
 
-* clone repo
-* create venv
+### Configure OS
+
+#### Raspi Config
+* protect boot partition
+* locales:
+	* set en_US.utf8, timezone, wireless
+* expand filesystem
+
+#### Update
+* `sudo apt-get update`
+* `sudo apt-get upgrade`
+* `sudo reboot`
+
+### Install SPS
+* clone repo `git clone https://github.com/communityvirtualpowerplant/smartPowerStation.git`
+* create venv in SPS directory `python -m venv venv`
 * clone bluetti repo into pi
 	* `cd /home/pi`
 	* `git clone https://github.com/alexnathanson/bluetti_mqtt.git`
-	* Navigate to the bluetti_mqtt directory and run while in venv `pip install .`
+	* Navigate to the bluetti_mqtt directory and run while in venv `pip install .` (not needed if directory is same as in requirements file)
 * install packages `pip install -r requirements.txt`
 * move config directory up one level
 	* `cp -r config ../config`
@@ -20,6 +34,10 @@
 * make the data directory one level up
 	* `mkdir data`
 
+#### Configure SPS
+* update config and rules files as needed
+* Run ble_discover and check that devices file is formatted properly and all relevant devices were discovered
+ 
 ### Automation
 
 Copy service files

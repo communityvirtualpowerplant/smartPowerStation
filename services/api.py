@@ -72,11 +72,12 @@ def index():
 def today():
     file_pattern = os.path.join(filePath, f"*.csv")
     files = sorted(glob.glob(file_pattern))
-    fileName = files[-1]
-    with open(fileName, newline='') as f:
-        reader = csv.reader(f)
-        cols = next(reader)  # skip header
-        rows = list(reader)#[-10:]  # last 10 readings
+    if len(files)>0:
+        fileName = files[-1]
+        with open(fileName, newline='') as f:
+            reader = csv.reader(f)
+            cols = next(reader)  # skip header
+            rows = list(reader)#[-10:]  # last 10 readings
     return render_template('data.html', cols = cols, data=rows)
 
 @app.route("/api/discoverSPS", methods=['GET'])

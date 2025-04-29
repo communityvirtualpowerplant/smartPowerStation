@@ -1,9 +1,10 @@
 const apiUrl = '/api/data?file=recent';
 
 function getColor(){
-  let r = (Math.floor(Math.random() * 205)+51).toString()
-  let g = (Math.floor(Math.random() * 205)+51).toString()
-  let b = (Math.floor(Math.random() * 205)+51).toString()
+  // get colors between 50-245
+  let r = (Math.floor(Math.random() * 195)+51).toString()
+  let g = (Math.floor(Math.random() * 195)+51).toString()
+  let b = (Math.floor(Math.random() * 195)+51).toString()
   let a = (.5).toString();
   return `rgba(${r},${g},${b},${a})`
 }
@@ -102,10 +103,13 @@ async function fetchAndPlotCSV() {
     const backgroundLegendTraces = Object.entries(positionColors).map(([position, color]) => ({
       name: `Position: ${position}`,
       type: 'scatter',
-      mode: 'none',     // don't plot points
+      mode: 'markers',     // don't plot points
       hoverinfo: 'skip', // avoid hover distractions
       showlegend: true,
-      marker: { color }, // just to force color into legend
+      marker: { 
+        color: color,
+        size: 8 // small marker, visible in legend
+      },
       legendgroup: 'positions', // optional: group legend items
       line: { color } // ensures legend swatch gets the color
     }));

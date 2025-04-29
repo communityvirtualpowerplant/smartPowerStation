@@ -46,8 +46,10 @@ async function fetchAndPlotCSV() {
 
     const positionColors = []
 
-    positions.forEach(()=>{
-      positionColors.push(getColor())
+    // randomly assign a unique color to each position
+    positions.forEach(p=>{
+      positionColors[p]:getColor()
+      console.log(positionColors)
     })
 
     // Create background rectangles where mode changes

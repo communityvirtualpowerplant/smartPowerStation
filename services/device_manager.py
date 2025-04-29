@@ -15,13 +15,13 @@ from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
 from components.Shelly import ShellyDevice
 from components.Bluetti import Bluetti
-from bluetti_mqtt.bluetooth import (
-    check_addresses, build_device, scan_devices, BluetoothClient, ModbusError,
-    ParseError, BadConnectionError
-)
-from bluetti_mqtt.core import (
-    BluettiDevice, ReadHoldingRegisters, DeviceCommand
-)
+# from bluetti_mqtt.bluetooth import (
+#     check_addresses, build_device, scan_devices, BluetoothClient, ModbusError,
+#     ParseError, BadConnectionError
+# )
+# from bluetti_mqtt.core import (
+#     BluettiDevice, ReadHoldingRegisters, DeviceCommand
+# )
 from bleak import BleakClient, BleakError, BleakScanner
 from bleak.backends.device import BLEDevice
 from bleak.backends.scanner import AdvertisementData

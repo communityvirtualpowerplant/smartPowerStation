@@ -87,8 +87,6 @@ class Bluetti():
             except Exception as e:
                 print(f"Error during BLE disconnect: {e}")
 
-
-
     async def getStatus(self):
         myData={
         }
@@ -120,24 +118,32 @@ class Bluetti():
                 # Wait for a shutdown signal
                 #await stop_event.wait()
 
-            # # Wait for device connection
-            # t = 0
-            # while not client.is_ready:
-            #     print('Waiting for connection...')
-            #     await asyncio.sleep(1)
-            #     t = t +1
-            #     if t > 10:
-            #         break
-            #     continue
+                # # Wait for device connection
+                # t = 0
+                # while not client.is_ready:
+                #     print('Waiting for connection...')
+                #     await asyncio.sleep(1)
+                #     t = t +1
+                #     if t > 10:
+                #         break
+                #     continue
 
-                for _ in range(self.maxTries):
-                    if client.is_ready:
-                        break
-                    print('Waiting for connection...')
-                    await asyncio.sleep(1)
-                else:
-                    print('Connection timeout')
-                    # return myData
+                # for _ in range(self.maxTries):
+                #     if client.is_ready:
+                #         break
+                #     print('Waiting for connection...')
+                #     await asyncio.sleep(1)
+                # else:
+                #     print('Connection timeout')
+                #     # return myData
+                # Wait for client.is_ready with timeout
+                try:
+                    await asyncio.wait_for(self._wait_for_ready(client), timeout=10)
+                except asyncio.TimeoutError:
+                    print("Timeout: Device did not become ready.")
+                    run_task.cancel()  # Cancel client.run()
+                    await asyncio.gather(run_task, return_exceptions=True)  # Clean cancellation
+                    return myData
 
                 # Poll device
                 for command in device.logging_commands:
@@ -157,3 +163,9 @@ class Bluetti():
                 print(f"Error during BLE disconnect: {e}")
 
         return myData
+
+    async def _wait_for_ready(self, client: BluetoothClient):
+        """Helper: wait until the client is ready."""
+        while not client.is_ready:
+            print('Waiting for connection...')
+            await asyncio.sleep(1)

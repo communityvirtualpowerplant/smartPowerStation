@@ -110,8 +110,8 @@ async function fetchAndPlotCSV() {
         color: color,
         size: 8 // small marker, visible in legend
       },
-      legendgroup: 'positions', // optional: group legend items
-      line: { color } // ensures legend swatch gets the color
+      legendgroup: 'positions'//, // optional: group legend items
+      //line: { color } // ensures legend swatch gets the color
     }));
 
 

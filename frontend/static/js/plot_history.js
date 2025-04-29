@@ -15,7 +15,7 @@ async function fetchAndPlotCSV() {
     const y = {}
 
 
-    for cols.forEach(c=>{
+    cols.forEach(c=>{
           y[c] = []
         })
 
@@ -23,8 +23,9 @@ async function fetchAndPlotCSV() {
       datetime.push(row[0]);
       cols.forEach(c=>{
         // get col position
-        let i = arr.indexOf('banana'); 
-        y[c].push(parseFloat(row[i]))
+        let i = cols.indexOf(c); 
+        let v = parseFloat(row[i])
+        y[c].push(isNaN(v) ? null : v)
       })
       //y.push(parseFloat(row[1]));
     });
@@ -37,25 +38,12 @@ async function fetchAndPlotCSV() {
         x: datetime,
         y: y[c],
         mode: 'lines+markers',
-        type: 'scatter'
+        type: 'scatter',
+        name:c
       }
 
       traces.push(t)
     })
-
-    // let trace1 = {
-    //   x: datetime,
-    //   y: y,
-    //   mode: 'lines+markers',
-    //   type: 'scatter'
-    // };
-
-    // let trace1 = {
-    //   x: datetime,
-    //   y: y,
-    //   mode: 'lines+markers',
-    //   type: 'scatter'
-    // };
 
     Plotly.newPlot('plot',traces, {
       title: "Today's Data",

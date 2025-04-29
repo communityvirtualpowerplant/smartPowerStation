@@ -113,7 +113,7 @@ class Bluetti():
         #try:
             async with asyncio.TaskGroup() as tg:
                 # Start the client
-                tg.create_task(client.run())
+                t = tg.create_task(client.run())
 
                 # Wait for a shutdown signal
                 #await stop_event.wait()
@@ -138,11 +138,6 @@ class Bluetti():
                 #     # return myData
                 # Wait for client.is_ready with timeout
 
-                async def _wait_for_ready(self, client: BluetoothClient):
-                    """Helper: wait until the client is ready."""
-                    while not client.is_ready:
-                        print('Waiting for connection...')
-                        await asyncio.sleep(1)
 
                 # try:
                 #     await asyncio.wait_for(self._wait_for_ready(client), timeout=10)
@@ -154,8 +149,8 @@ class Bluetti():
 
 
                 try:
-                    async with asyncio.timeout(10):
-                        await _wait_for_ready(client)
+                    async with asyncio.timeout(15):
+                        await self._wait_for_ready(client)
                 except TimeoutError:
                     print("The task group timed out")
                     return myData
@@ -181,3 +176,8 @@ class Bluetti():
         return myData
 
 
+    async def _wait_for_ready(self, client: BluetoothClient):
+        """Helper: wait until the client is ready."""
+        while not client.is_ready:
+            print('Waiting for connection...')
+            await asyncio.sleep(1)

@@ -111,9 +111,9 @@ class Bluetti():
             #     loop.add_signal_handler(sig, shutdown)
 
         #try:
-            async with asyncio.TaskGroup() as tg:
-                # Start the client
-                t = tg.create_task(client.run())
+            # async with asyncio.TaskGroup() as tg:
+            #     # Start the client
+            #     t = tg.create_task(client.run())
 
                 # Wait for a shutdown signal
                 #await stop_event.wait()
@@ -146,22 +146,22 @@ class Bluetti():
                 #     run_task.cancel()  # Cancel client.run()
                 #     await asyncio.gather(run_task, return_exceptions=True)  # Clean cancellation
                 #     return myData
+            t = asyncio.get_running_loop().create_task(client.run())
+
+            try:
+                async with asyncio.timeout(15):
+                    await self._wait_for_ready(client)
+            except TimeoutError:
+                print("The task group timed out")
+                return myData
 
 
-                try:
-                    async with asyncio.timeout(15):
-                        await self._wait_for_ready(client)
-                except TimeoutError:
-                    print("The task group timed out")
-                    return myData
-
-
-                # Poll device
-                for command in device.logging_commands:
-                    commandResponse = await self.log_command(client, device, command)
-                    if commandResponse:
-                        for k,v in commandResponse.items():
-                            myData[k]=v
+            # Poll device
+            for command in device.logging_commands:
+                commandResponse = await self.log_command(client, device, command)
+                if commandResponse:
+                    for k,v in commandResponse.items():
+                        myData[k]=v
             #print(myData)
         except Exception as e:
             print(f"Unexpected error during command execution: {e}")

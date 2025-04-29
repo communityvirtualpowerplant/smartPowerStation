@@ -5,7 +5,7 @@ function getColor(){
   let g = (Math.floor(Math.random() * 205)+51).toString()
   let b = (Math.floor(Math.random() * 205)+51).toString()
   let a = (.5).toString();
-  return 'rgba(${r},${g},${b},${a})'
+  return `rgba(${r},${g},${b},${a})`
 }
 
 async function fetchAndPlotCSV() {
@@ -48,7 +48,7 @@ async function fetchAndPlotCSV() {
 
     // randomly assign a unique color to each position
     positions.forEach(p=>{
-      positionColors[p]:getColor()
+      positionColors[p] = getColor()
       console.log(positionColors)
     })
 

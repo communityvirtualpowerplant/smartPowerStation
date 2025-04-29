@@ -100,7 +100,7 @@ async function fetchAndPlotCSV() {
     }
 
     //dummy background traces
-    const backgroundLegendTraces = Object.entries(positionColors).map(([position, color]) => ({
+    const backgroundLegendTraces = Object.entries(positionColors).map(([position, color], index) => ({
       name: `Position: ${position}`,
       type: 'scatter',
       mode: 'markers',     // don't plot points

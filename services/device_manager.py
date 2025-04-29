@@ -314,6 +314,8 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
 def handle_shutdown_signal():
     print("Shutdown signal received. Stopping gracefully...")
     shutdown_event.set()
+    subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
+    sys.exit(0)
 
 def setup_signal_handlers():
     loop = asyncio.get_running_loop()

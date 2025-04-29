@@ -137,7 +137,7 @@ class Bluetti():
                     await asyncio.sleep(1)
                 else:
                     print('Connection timeout')
-                    return myData
+                    # return myData
 
                 # Poll device
                 for command in device.logging_commands:

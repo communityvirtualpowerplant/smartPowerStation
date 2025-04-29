@@ -138,7 +138,7 @@ class Bluetti():
             except asyncio.TimeoutError:
                 print("[BLE] Connection timeout. Cancelling client task...")
                 t.cancel()
-                #await asyncio.gather(client_task, return_exceptions=True)
+                await asyncio.gather(t, return_exceptions=True)
                 #raise  # or handle however you want
 
             # Poll device

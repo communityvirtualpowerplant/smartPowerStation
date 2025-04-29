@@ -125,7 +125,7 @@ async function fetchAndPlotCSV() {
     //********** CREATE DATA TRACES***********/
     ///////////////////////////////////////////
 
-    traces = [...backgroundLegendTraces] // ... spreads content into array, so it isn't nested
+    traces = []//...backgroundLegendTraces] // ... spreads content into array, so it isn't nested
 
 
     cols.forEach(c=>{
@@ -141,6 +141,7 @@ async function fetchAndPlotCSV() {
     })  
 
 
+    traces.push(...backgroundLegendTraces)
 
     Plotly.newPlot('plot',traces, {
       title: "Smart Power Station Data - Today",

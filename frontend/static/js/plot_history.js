@@ -52,12 +52,12 @@ async function fetchAndPlotCSV() {
 
     // randomly assign a unique color to each position
     positions.forEach(p=>{
-      if positionData.includes(p):
+      if (positionData.includes(p)):
         positionColors[p] = getColor()
     })
 
     console.log(positionColors)
-    
+
     // Create background rectangles where mode changes
     let lastPosition = null;
     let startTime = null;

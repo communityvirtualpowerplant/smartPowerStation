@@ -17,7 +17,6 @@ from bluetti_mqtt.core import (
     BluettiDevice, ReadHoldingRegisters, DeviceCommand
 )
 
-
 class Bluetti():
     def __init__(self, address: str, name: str):
         self.address = address

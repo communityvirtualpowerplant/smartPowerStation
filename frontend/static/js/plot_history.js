@@ -98,8 +98,6 @@ async function fetchAndPlotCSV() {
       });
     }
 
-    console.log(positionColors)
-    
     //dummy background traces
     const backgroundLegendTraces = Object.entries(positionColors).map(([position, color]) => ({
       name: `Position: ${position}`,
@@ -131,7 +129,8 @@ async function fetchAndPlotCSV() {
       traces.push(t)
     })  
 
-    traces.push(backgroundLegendTraces)
+    // ... spreads content into array appropriately
+    traces.push(...backgroundLegendTraces)
 
     Plotly.newPlot('plot',traces, {
       title: "Smart Power Station Data - Today",

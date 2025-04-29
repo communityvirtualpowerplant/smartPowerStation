@@ -141,8 +141,9 @@ async def bleLoop() -> None:
             print(d)
             result = await statusUpdate(SPS, d)
             if result:
-                print(result)
-                tempResults = SPS.packageData(d, result, tempResults)
+                if result != '':
+                    print(result)
+                    tempResults = SPS.packageData(d, result, tempResults)
                 #results.append(result)
 
         # count how many times it doesn't respond in a row

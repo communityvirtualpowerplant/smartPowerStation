@@ -78,6 +78,9 @@ def today():
             reader = csv.reader(f)
             cols = next(reader)  # skip header
             rows = list(reader)#[-10:]  # last 10 readings
+    else:
+        cols = []
+        rows = []
     return render_template('data.html', cols = cols, data=rows)
 
 @app.route("/api/discoverSPS", methods=['GET'])

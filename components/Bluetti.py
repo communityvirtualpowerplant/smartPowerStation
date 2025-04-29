@@ -129,6 +129,7 @@ class Bluetti():
             #     if t > 10:
             #         break
             #     continue
+
                 for _ in range(self.maxTries):
                     if client.is_ready:
                         break

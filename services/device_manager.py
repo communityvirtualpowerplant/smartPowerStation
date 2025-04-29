@@ -3,14 +3,13 @@
 
 import sys
 import subprocess
-# import numpy as np
 import pandas as pd
 import csv
 import asyncio
 import json
 import signal
 import logging
-import time
+#import time
 from datetime import datetime, date
 from typing import cast
 from typing import Any, Dict, Optional, Tuple, List
@@ -34,6 +33,7 @@ app = Flask(__name__)
 
 toMode = {'mode':1,'position':'NA'}
 lock = threading.Lock()
+#ble_lock = asyncio.Lock()
 
 @app.route("/")
 def getCommand():
@@ -45,9 +45,9 @@ def getCommand():
 shellySTR = 'Shelly'
 bluettiSTR = ['AC180','AC2']
 
-printInfo = True
-printDebug = True
-printError = True
+# printInfo = True
+# printDebug = True
+# printError = True
 #logging.basicConfig(level=logging.DEBUG)
 
 dataDirectory = '../data/'
@@ -57,6 +57,8 @@ rulesFile = '../config/rules.json'
 
 #changed based on hardware
 bleAdapter = "hci0"
+
+shutdown_event = asyncio.Event()
 
 # ============================
 # Utilities
@@ -68,28 +70,32 @@ def handle_signal(signal_num: int, frame: Any) -> None:
 
 # ============================
 # Main
-# ============================
-async def bleLoop(SPS: SmartPowerStation) -> None:
+# ============================        
+async def bleLoop() -> None:
+    SPS = SmartPowerStation(configFile)
+
     wakeUpCount = 0
 
-    while True:
+    #while True:
+    while not shutdown_event.is_set():
         SPS.reset_bluetooth()
 
         location = SPS.location
         SPS.log_info(location)
 
         scan_duration = 5
-
+        
         filteredEntries = SPS.getDevices(deviceFile)
 
         try:
-            devices = await scan_devices(scan_duration, filteredEntries)
+            devices = await scan_filter_devices(SPS, scan_duration, filteredEntries)
         except Exception as e:
             SPS.log_error(f"Error during scanning: {e}")
             return
 
         if not devices:
             SPS.log_error("No devices found. Exiting")
+            # should be a retry not hard exit
             sys.exit(0)
 
         # tasks = [statusUpdate(e) for e in devices]
@@ -98,9 +104,8 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
 
         # TO DO - If power station isn't responding for multiple cycles, run 'wake up' mode, before set mode
         if wakeUpCount >= 3:
-            wakeUp()
+            await wakeUp()
             wakeUpCount = 0
-
 
         m = await setMode(devices, SPS)
 
@@ -134,7 +139,7 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         #results = []
         for d in devices:
             print(d)
-            result = await statusUpdate(d)
+            result = await statusUpdate(SPS, d)
             if result:
                 print(result)
                 tempResults = SPS.packageData(d, result, tempResults)
@@ -143,10 +148,10 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         # count how many times it doesn't respond in a row
         if tempResults["powerstation_percentage"] == "":
             wakeUpCount += 1
-
+        
         fileName = dataDirectory + str(location) + '_' +str(date.today())+'.csv'
 
-        await writeData(fileName, pd.DataFrame([tempResults]))
+        await writeData(SPS, fileName, pd.DataFrame([tempResults]))
 
         # there is definitely a better way to do this - something where it forces a wakeup if the mode is changed...
         # check again to update before sleeping
@@ -156,14 +161,12 @@ async def bleLoop(SPS: SmartPowerStation) -> None:
         await asyncio.sleep(120)
 
 async def wakeUp():
-    #disconnect r2
-
-    #connect r2
-
-    pass
+    # charge it!
+    async with asyncio.Lock():
+        toMode['mode'] = 1
 
 # returns list of BLE objects and matching saved devices i.e. [BLE, saved]
-async def scan_devices(scan_duration: int, saved_devices: Dict):
+async def scan_filter_devices(SPS, scan_duration: int, saved_devices: Dict):
     filteredDevices = []
 
     addressList = []
@@ -176,7 +179,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
 
         for sd in saved_devices:
             #print(sd)
-            if device.address == sd['address'] and device.address not in addressList:
+            if device.address == sd['address'] and device.address not in addressList:    
                 print(device)
                 addressList.append(device.address)
                 filteredDevices.append([device,sd])
@@ -185,15 +188,15 @@ async def scan_devices(scan_duration: int, saved_devices: Dict):
 
     async with BleakScanner(adapter=bleAdapter, detection_callback=discovery_handler) as scanner:
         await asyncio.sleep(scan_duration)
-
+    
     print(addressList)
 
     # Some BLE chipsets (especially on Raspberry Pi) need a few seconds between scanning and connecting.
     await asyncio.sleep(2)
-
+    
     return filteredDevices
 
-async def statusUpdate(device):
+async def statusUpdate(SPS, device):
     bleDev = device[0]
     savedDev = device[1]
 
@@ -224,7 +227,7 @@ async def statusUpdate(device):
         if result:
             SPS.log_debug(f"Method executed successfully. Result:")
             #print(result)
-
+            
         #   for k,v in commandResponse.items():
         #     print(k + ": " + str(v))
         #     myData[k]=v
@@ -234,7 +237,7 @@ async def statusUpdate(device):
 
     return result
 
-async def writeData(fn, df):
+async def writeData(SPS, fn, df):
     # create a new file daily to save data
     # or append if the file already exists
 
@@ -254,10 +257,10 @@ async def writeData(fn, df):
 
 async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)-> Any:
     # move into setMode function
-    async with asyncio.Lock():
-        mode = toMode['mode']
-        if ((m is not None) and (m == mode)): # avoid repetitive calls
-            return
+    #async with ble_lock: #asyncio.Lock():
+    mode = toMode['mode']
+    if ((m is not None) and (m == mode)): # avoid repetitive calls
+        return None
 
     # these assignments should be listed in the rules file
     if mode == 0:
@@ -272,8 +275,8 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
         assign = {1:0,2:1,3:0}
     elif mode == 5:
         assign = {1:0,2:0,3:1}
-
-
+    
+    
     SPS.log_info(f'Setting mode to {mode}')
 
     for d in devices:
@@ -288,48 +291,66 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
 
                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
-                async def trySetState(toState:bool,ch: int):
+                async def trySetState(SPS, toState:bool,ch: int):
                     try:
                         # set relay state
                         await shDevice.setState(toState,ch)
                     except Exception as e:
                         SPS.log_error(f"Error setting state")
-
+ 
                 if savedDev['relay1'] in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
-                    await trySetState(assign[savedDev['relay1']],0)
+                    await trySetState(SPS, assign[savedDev['relay1']],0)
                 if savedDev['relay2'] in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
-                    await trySetState(assign[savedDev['relay2']],1)
+                    await trySetState(SPS, assign[savedDev['relay2']],1)
 
     return mode
 
-def main(SPS: SmartPowerStation,loop)-> None:
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(bleLoop(SPS))
+def handle_shutdown_signal():
+    print("Shutdown signal received. Stopping gracefully...")
+    shutdown_event.set()
+
+def setup_signal_handlers():
+    loop = asyncio.get_running_loop()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        loop.add_signal_handler(sig, handle_shutdown_signal)
+
+async def main()-> None:
+    #SPS = SmartPowerStation(configFile)
+
+    def run_flask():
+        app.run(host="0.0.0.0", port=5001, debug=False)
+
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+
+    setup_signal_handlers()
+
+    await bleLoop()
+    # asyncio.set_event_loop(loop)
+    # loop.run_until_complete(bleLoop(SPS))
 
 if __name__ == "__main__":
     # Suppress FutureWarnings
     import warnings
-
     warnings.simplefilter("ignore", FutureWarning)
 
     # Setup signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGTERM, handle_signal)
 
-
-    SPS = SmartPowerStation(configFile)
-
     try:
         #asyncio.run(main(SPS)) # old async code - now running async in seperate thread
         # Create a new event loop for the async function
-        loop = asyncio.new_event_loop()
-        t = threading.Thread(target=main, args=(SPS,loop))
-        t.start()
+        # loop = asyncio.new_event_loop()
+        # t = threading.Thread(target=main, args=(SPS,loop))
+        # t.start()
+        asyncio.run(main())
 
-        app.run(host="0.0.0.0", port=5001, debug=False)
+
+        #app.run(host="0.0.0.0", port=5001, debug=False)
     except KeyboardInterrupt:
-        SPS.log_info("Script interrupted by user via KeyboardInterrupt.")
+        print("Script interrupted by user via KeyboardInterrupt.")
     except Exception as e:
-        SPS.log_error(f"Unexpected error in main: {e}")
+        print(f"Unexpected error in main: {e}")

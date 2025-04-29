@@ -388,8 +388,12 @@ class Controls():
     # sets battery capacity and determines maximum automatable flexibility
 
     def setBatCap(self,Wh:int) -> None:
-        self.batCapWh = Wh
-        self.maxFlexibilityWh = self.getAvailableFlex(100)
+        try:
+            if Wh != '':
+                self.batCapWh = int(Wh)
+                self.maxFlexibilityWh = self.getAvailableFlex(100)
+        except Exception as e:
+            print(f'Exception setting battery capacity: {e}')
 
     # checks if a datetime is after that day's sunwindow
     def isAfterSun(self,dt:datetime) -> bool:

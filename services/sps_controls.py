@@ -195,7 +195,7 @@ async def controlLoop(SPS) -> None:
             if datetime.now() > CONTROLS.eventDT:
                 CONTROLS.rules['event']['upcoming'] = 0
 
-        print(f'Position {positionMarker}',flush=True)# remove flush arg for performance
+        print(f'Position {positionMarker}')# remove flush arg for performance
 
         #is adding some logic to always charge if below 20% necessary?
 

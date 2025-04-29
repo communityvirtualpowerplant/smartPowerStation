@@ -158,7 +158,11 @@ async def bleLoop() -> None:
         await setMode(devices, SPS,m)
 
         print('************ SLEEPING **************')
-        await asyncio.sleep(120)
+        #await asyncio.sleep(120)
+        try:
+            await asyncio.wait_for(shutdown_event.wait(), timeout=120)
+        except asyncio.TimeoutError:
+            pass
 
 async def wakeUp():
     # charge it!
@@ -337,8 +341,8 @@ if __name__ == "__main__":
     warnings.simplefilter("ignore", FutureWarning)
 
     # Setup signal handlers for graceful shutdown
-    signal.signal(signal.SIGINT, handle_signal)
-    signal.signal(signal.SIGTERM, handle_signal)
+    # signal.signal(signal.SIGINT, handle_signal)
+    # signal.signal(signal.SIGTERM, handle_signal)
 
     try:
         #asyncio.run(main(SPS)) # old async code - now running async in seperate thread

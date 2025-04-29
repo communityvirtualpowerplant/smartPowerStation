@@ -81,7 +81,7 @@ class Bluetti():
                     #await asyncio.sleep(freq)
         finally:
             try:
-                if client.client and client.client.is_connected:
+                if client.client:# and client.client.is_connected:
                     await client.client.disconnect()
                     print("Disconnected BLE client")
             except Exception as e:
@@ -93,26 +93,26 @@ class Bluetti():
         myData={
         }
 
-        #try:
-        device = build_device(self.address, self.name)
-
-        print(f'Connecting to {self.address}')
-        client = BluetoothClient(self.address)
-        #await client.run()
-
-        # stop_event = asyncio.Event()
-
-        # def shutdown():
-        #     print("Shutdown signal received.")
-        #     stop_event.set()
-
-        # loop = asyncio.get_running_loop()
-        # #bTask = loop.create_task(client.run())
-
-        # for sig in (signal.SIGINT, signal.SIGTERM):
-        #     loop.add_signal_handler(sig, shutdown)
-
         try:
+            device = build_device(self.address, self.name)
+
+            print(f'Connecting to {self.address}')
+            client = BluetoothClient(self.address)
+            #await client.run()
+
+            # stop_event = asyncio.Event()
+
+            # def shutdown():
+            #     print("Shutdown signal received.")
+            #     stop_event.set()
+
+            # loop = asyncio.get_running_loop()
+            # #bTask = loop.create_task(client.run())
+
+            # for sig in (signal.SIGINT, signal.SIGTERM):
+            #     loop.add_signal_handler(sig, shutdown)
+
+        #try:
             async with asyncio.TaskGroup() as tg:
                 # Start the client
                 tg.create_task(client.run())
@@ -150,7 +150,7 @@ class Bluetti():
             print(f"Unexpected error during command execution: {e}")
         finally:
             try:
-                if client.client and client.client.is_connected:
+                if client.client: # and client.client.is_connected:
                     await client.client.disconnect()
                     print("Disconnected BLE client")
             except Exception as e:

@@ -23,7 +23,7 @@ async function fetchAndPlotCSV() {
       datetime.push(row[0]);
       cols.forEach(c=>{
         // get col position
-        let i = cols.indexOf(c); 
+        let i = headers.indexOf(c); 
         let v = parseFloat(row[i])
         y[c].push(isNaN(v) ? null : v)
       })
@@ -39,7 +39,7 @@ async function fetchAndPlotCSV() {
         y: y[c],
         mode: 'lines+markers',
         type: 'scatter',
-        name:c
+        name:c.repace('powerstation','battery').replace('_',' ').replace('percentage','%')
       }
 
       traces.push(t)

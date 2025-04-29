@@ -30,7 +30,7 @@ async function fetchAndPlotCSV() {
 
     rows.forEach(row => {
       datetime.push(row[0]);
-      positions.push(row[headers.indexOf('position')])
+      positionData.push(row[headers.indexOf('position')])
       cols.forEach(c=>{
         // get col position
         let i = headers.indexOf(c); 

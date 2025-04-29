@@ -96,6 +96,17 @@ async function fetchAndPlotCSV() {
       });
     }
 
+    //dummy background traces
+    const backgroundLegendTraces = Object.entries(positionColors).map(([position, color]) => ({
+      name: `Mode: ${position}`,
+      type: 'scatter',
+      mode: 'none',     // don't plot points
+      hoverinfo: 'skip', // avoid hover distractions
+      showlegend: true,
+      marker: { color }, // just to force color into legend
+      legendgroup: 'positions', // optional: group legend items
+      line: { color } // ensures legend swatch gets the color
+    }));
 
 
     traces = []

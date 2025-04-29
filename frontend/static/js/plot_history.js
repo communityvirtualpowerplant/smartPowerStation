@@ -21,7 +21,7 @@ async function fetchAndPlotCSV() {
     const datetime = [];
     const cols = ['powerstation_percentage','powerstation_inputWAC','powerstation_inputWDC','powerstation_outputWAC','powerstation_outputWDC','relay1_power','relay2_power','relay3_power'];
     const y = {}
-    const positions = []
+    const positionData = []
 
 
     cols.forEach(c=>{
@@ -55,7 +55,7 @@ async function fetchAndPlotCSV() {
     let startTime = null;
 
     for (let i = 0; i < datetime.length; i++) {
-      const currentPosition = positions[i];
+      const currentPosition = positionData[i];
       const currentTime = datetime[i];
       if (currentPosition !== lastPosition) {
         if (lastPosition !== null) {

@@ -40,6 +40,9 @@ async function fetchAndPlotCSV() {
       //y.push(parseFloat(row[1]));
     });
 
+    ///////////////////////////////////////////
+    //********** BACKGROUND *******************
+    ///////////////////////////////////////////
 
     const shapes = []; // Will hold background color blocks
     const positions = ['A','B','C','D','E','F','G','EA','EB','EC','ED','EE','EF','EG','EH'];
@@ -49,7 +52,6 @@ async function fetchAndPlotCSV() {
     // randomly assign a unique color to each position
     positions.forEach(p=>{
       positionColors[p] = getColor()
-      console.log(positionColors)
     })
 
     // Create background rectangles where mode changes
@@ -98,7 +100,7 @@ async function fetchAndPlotCSV() {
 
     //dummy background traces
     const backgroundLegendTraces = Object.entries(positionColors).map(([position, color]) => ({
-      name: `Mode: ${position}`,
+      name: `Position: ${position}`,
       type: 'scatter',
       mode: 'none',     // don't plot points
       hoverinfo: 'skip', // avoid hover distractions
@@ -109,6 +111,10 @@ async function fetchAndPlotCSV() {
     }));
 
 
+    ///////////////////////////////////////////
+    //********** CREATE DATA TRACES************
+    ///////////////////////////////////////////
+
     traces = []
 
     cols.forEach(c=>{
@@ -117,14 +123,14 @@ async function fetchAndPlotCSV() {
         y: y[c],
         mode: 'lines+markers',
         type: 'scatter',
-        name:c.replace('powerstation','battery').replace('_',' ').replace('percentage','%')
+        name:c.replace('powerstation','battery').replace('_',' ').replace('percentage','%')// make labels more readable
       }
 
       traces.push(t)
     })  
 
     traces.push(backgroundLegendTraces)
-    
+
     Plotly.newPlot('plot',traces, {
       title: "Smart Power Station Data - Today",
       xaxis: { title: "Time" },

@@ -141,9 +141,8 @@ async def bleLoop() -> None:
             print(d)
             result = await statusUpdate(SPS, d)
             if result:
-                if result != '':
-                    print(result)
-                    tempResults = SPS.packageData(d, result, tempResults)
+                print(result)
+                tempResults = SPS.packageData(d, result, tempResults)
                 #results.append(result)
 
         # count how many times it doesn't respond in a row
@@ -303,12 +302,20 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
                     except Exception as e:
                         SPS.log_error(f"Error setting state")
  
-                if int(savedDev['relay1']) in [1,2,3]:
-                    SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
-                    await trySetState(SPS, assign[int(savedDev['relay1'])],0)
-                if int(savedDev['relay2']) in [1,2,3]:
-                    SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
-                    await trySetState(SPS, assign[int(savedDev['relay2'])],1)
+                try:
+                    if int(savedDev['relay1']) in [1,2,3]:
+                        SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
+                        await trySetState(SPS, assign[int(savedDev['relay1'])],0)
+                except:
+                    SPS.log_error(f"Error setting {savedDev['manufacturer']} relay 1")
+
+                try:
+                    if int(savedDev['relay2']) in [1,2,3]:
+                        SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
+                        await trySetState(SPS, assign[int(savedDev['relay2'])],1)
+                except:
+                    SPS.log_error(f"Error setting {savedDev['manufacturer']} relay 2")
+
 
     return mode
 

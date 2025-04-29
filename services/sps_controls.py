@@ -10,6 +10,12 @@ import threading
 from dotenv import load_dotenv
 import os
 import random
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
 # eventUpcoming = False
 # eventOngoing = False

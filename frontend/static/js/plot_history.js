@@ -52,8 +52,9 @@ async function fetchAndPlotCSV() {
 
     // randomly assign a unique color to each position
     positions.forEach(p=>{
-      if (positionData.includes(p)):
+      if (positionData.includes(p)){
         positionColors[p] = getColor()
+      }
     })
 
     console.log(positionColors)

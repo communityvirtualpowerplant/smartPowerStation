@@ -331,6 +331,11 @@ async def main()-> None:
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.start()
 
+
+    # start with a full bluetooth reset
+    subprocess.run(["sudo", "systemctl", "restart", "bluetooth"], check=True)
+    await asyncio.sleep(3)  # Give service time to fully restart
+
     setup_signal_handlers()
 
     await bleLoop()

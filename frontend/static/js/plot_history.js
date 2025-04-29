@@ -41,7 +41,7 @@ async function fetchAndPlotCSV() {
     });
 
     ///////////////////////////////////////////
-    //********** BACKGROUND *******************
+    //********** BACKGROUND ******************/
     ///////////////////////////////////////////
 
     const shapes = []; // Will hold background color blocks
@@ -112,10 +112,11 @@ async function fetchAndPlotCSV() {
 
 
     ///////////////////////////////////////////
-    //********** CREATE DATA TRACES************
+    //********** CREATE DATA TRACES***********/
     ///////////////////////////////////////////
 
-    traces = []
+    traces = [...backgroundLegendTraces] // ... spreads content into array, so it isn't nested
+
 
     cols.forEach(c=>{
       t = {
@@ -129,8 +130,7 @@ async function fetchAndPlotCSV() {
       traces.push(t)
     })  
 
-    // ... spreads content into array appropriately
-    traces.push(...backgroundLegendTraces)
+
 
     Plotly.newPlot('plot',traces, {
       title: "Smart Power Station Data - Today",

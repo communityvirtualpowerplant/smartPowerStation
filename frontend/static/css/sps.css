@@ -10,3 +10,7 @@ body {
 main{
   margin: 10px;
 }
+
+#historyPlot{
+  max-width: 90%;
+}

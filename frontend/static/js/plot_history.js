@@ -104,6 +104,8 @@ async function fetchAndPlotCSV() {
       name: `Position: ${position}`,
       type: 'scatter',
       mode: 'markers',     // don't plot points
+      x: [datetime[0]], // 👈 Needs at least one point (we can use first datetime)
+      y: [0], 
       hoverinfo: 'skip', // avoid hover distractions
       showlegend: true,
       marker: { 
@@ -112,6 +114,10 @@ async function fetchAndPlotCSV() {
       },
       legendgroup: 'positions'//, // optional: group legend items
       //line: { color } // ensures legend swatch gets the color
+      legendgroup: 'positions',
+      ...(index === 0 ? { 
+        legendgrouptitle: { text: 'Positions' } 
+      } : {})
     }));
 
 
@@ -140,7 +146,11 @@ async function fetchAndPlotCSV() {
       title: "Smart Power Station Data - Today",
       xaxis: { title: "Time" },
       yaxis: { title: "Power" },
-      shapes: shapes  
+      shapes: shapes,
+      legend: {
+        orientation: 'v',
+        traceorder: 'grouped'
+      }
     });
   } catch (error) {
     console.error('Error fetching or plotting CSV:', error);

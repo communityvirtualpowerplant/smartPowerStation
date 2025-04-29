@@ -1,10 +1,10 @@
 const apiUrl = '/api/data?file=recent';
 
 function getColor(){
-  r = (Math.floor(Math.random() * 205)+51).toString()
-  g = (Math.floor(Math.random() * 205)+51).toString()
-  b = (Math.floor(Math.random() * 205)+51).toString()
-  a = (.5).toString();
+  let r = (Math.floor(Math.random() * 205)+51).toString()
+  let g = (Math.floor(Math.random() * 205)+51).toString()
+  let b = (Math.floor(Math.random() * 205)+51).toString()
+  let a = (.5).toString();
   return 'rgba(${r},${g},${b},${a})'
 }
 
@@ -42,7 +42,7 @@ async function fetchAndPlotCSV() {
     const shapes = []; // Will hold background color blocks
     const positions = ['A','B','C','D','E','F','G','EA','EB','EC','ED','EE','EF','EG','EH'];
 
-    const modeColors = []
+    const positionColors = []
 
     positions.forEach(()=>{
       positionColors.push(getColor())
@@ -106,45 +106,10 @@ async function fetchAndPlotCSV() {
       }
 
       traces.push(t)
-    })
-
-  // var layout = {
-  //   title: {text: 'Smart Power Station Data'},
-  //   xaxis: {
-  //     autorange: true,
-  //     range: ['2015-02-17', '2017-02-16'],
-  //     rangeselector: {buttons: [
-  //         {
-  //           count: 1,
-  //           label: '1d',
-  //           step: 'day',
-  //           stepmode: 'backward'
-  //         },
-  //         {
-  //           count: 6,
-  //           label: '1w',
-  //           step: 'week',
-  //           stepmode: 'backward'
-  //         },
-
-  //         {step: 'month'}
-
-  //       ]},
-
-  //     rangeslider: {range: ['2015-02-17', '2017-02-16']},
-  //     type: 'date'
-
-  //   },
-
-  //   yaxis: {
-  //     autorange: true,
-  //     range: [86.8700008333, 138.870004167],
-  //     type: 'linear'
-  //   }
-  // };  
+    })  
 
     Plotly.newPlot('plot',traces, {
-      title: "TSmart Power Station Data - Today",
+      title: "Smart Power Station Data - Today",
       xaxis: { title: "Time" },
       yaxis: { title: "Data" },
       shapes: shapes  

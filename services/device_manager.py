@@ -304,10 +304,10 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
  
                 if int(savedDev['relay1']) in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
-                    await trySetState(SPS, assign[savedDev['relay1']],0)
+                    await trySetState(SPS, assign[int(savedDev['relay1'])],0)
                 if int(savedDev['relay2']) in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
-                    await trySetState(SPS, assign[savedDev['relay2']],1)
+                    await trySetState(SPS, assign[int(savedDev['relay2'])],1)
 
     return mode
 

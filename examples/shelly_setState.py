@@ -114,9 +114,9 @@ async def main(SPS: SmartPowerStation) -> None:
                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
                 # set ID based on position
-                if savedDev['relay1']==assign[0]['pos']:
+                if int(savedDev['relay1'])==int(assign[0]['pos']):
                     r =0 
-                elif savedDev['relay2']==assign[0]['pos']:
+                elif int(savedDev['relay2'])==int(assign[0]['pos']):
                     r =1
                 try:
                     # set relay state

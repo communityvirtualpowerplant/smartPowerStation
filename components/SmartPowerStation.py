@@ -182,14 +182,14 @@ class SmartPowerStation():
             elif 'Shelly'.lower() in d[1]['name'].lower():
                 if '1PM'.lower() in d[1]['name'].lower():
                     #print('1pm!')
-                    if d[1]['relay1'] in [1,2,3]:
-                        p = d[1]['relay1']
+                    if int(d[1]['relay1']) in [1,2,3]:
+                        p = int(d[1]['relay1'])
                         t[f'relay{p}_power'] = r[0]["apower"]
                         t[f'relay{p}_current'] =r[0]["current"]
                         t[f'relay{p}_voltage'] =r[0]["voltage"]
                         t[f'relay{p}_status'] =str(r[0]["output"]) #must be cast to str because the dict interprets the bool as an int
                         t[f'relay{p}_device'] = d[1]['name']
-                    # elif d[1]['relay1'] == 2:
+                    # elif int(d[1]['relay1']) == 2:
                     #     t['relay2_power'] = r[0]["apower"]
                     #     t['relay2_current'] =r[0]["current"]
                     #     t['relay2_voltage'] =r[0]["voltage"]
@@ -208,8 +208,8 @@ class SmartPowerStation():
                     t['relay2_status'] =str(r[1]["output"]) #must be cast to str because the dict interprets the bool as an int
                     t['relay2_device'] = d[1]['name']
             elif KASA:
-                if d[1]['relay1'] in [1,2,3]:
-                    p = d[1]['relay1']
+                if int(d[1]['relay1']) in [1,2,3]:
+                    p = int(d[1]['relay1'])
                     t[f'relay{p}_power'] = r[0]["apower"]
                     t[f'relay{p}_current'] =r[0]["current"]
                     t[f'relay{p}_voltage'] =r[0]["voltage"]

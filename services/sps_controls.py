@@ -125,7 +125,7 @@ async def controlLoop(SPS) -> None:
                         toMode = 5
 
                 # if discharging, but below min set point, charge it
-                if (CONTROLS.rules['status']['mode'] in [0,2,5]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['minSetPoint']):
+                if (int(CONTROLS.rules['status']['mode']) in [0,2,5]) & (now['powerstation_percentage'] <= CONTROLS.rules['battery']['minSetPoint']):
                     positionMarker = 'D'
                     toMode = 1
                     #SPS.log_debug(f"Mode changed from {CONTROLS.rules['status']['mode']} to {toMode}.")

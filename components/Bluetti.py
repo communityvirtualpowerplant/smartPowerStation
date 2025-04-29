@@ -96,30 +96,14 @@ class Bluetti():
 
             print(f'Connecting to {self.address}')
             client = BluetoothClient(self.address)
-            #await client.run()
-
-            # stop_event = asyncio.Event()
 
             # loop = asyncio.get_running_loop()
             # #bTask = loop.create_task(client.run())
 
         #try:
             # async with asyncio.TaskGroup() as tg:
-            #     # Start the client
-            #     t = tg.create_task(client.run())
-
-                # Wait for a shutdown signal
-                #await stop_event.wait()
-
-                # # Wait for device connection
-                # t = 0
-                # while not client.is_ready:
-                #     print('Waiting for connection...')
-                #     await asyncio.sleep(1)
-                #     t = t +1
-                #     if t > 10:
-                #         break
-                #     continue
+            # #     # Start the client
+            #     tg.create_task(client.run())
 
                 # for _ in range(self.maxTries):
                 #     if client.is_ready:
@@ -140,13 +124,22 @@ class Bluetti():
                 #     return myData
             t = asyncio.get_running_loop().create_task(client.run())
 
+            # try:
+            #     async with asyncio.timeout(15):
+            #         await self._wait_for_ready(client)
+            # except TimeoutError:
+            #     print("The task group timed out")
+            #     t.cancel()
+            #     return myData
+
+
             try:
-                async with asyncio.timeout(15):
-                    await self._wait_for_ready(client)
-            except TimeoutError:
-                print("The task group timed out")
+                await asyncio.wait_for(self._wait_for_ready(client), timeout=10)
+            except asyncio.TimeoutError:
+                print("[BLE] Connection timeout. Cancelling client task...")
                 t.cancel()
-                return myData
+                #await asyncio.gather(client_task, return_exceptions=True)
+                #raise  # or handle however you want
 
             # Poll device
             for command in device.logging_commands:

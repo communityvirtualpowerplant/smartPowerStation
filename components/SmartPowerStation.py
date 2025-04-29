@@ -87,8 +87,9 @@ class SmartPowerStation():
     ######### BLUETOOTH ############
     def reset_bluetooth(self) -> None:
         try:
-            subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
             subprocess.run(["sudo", "rfkill", "unblock", "bluetooth"], check=True)
+            subprocess.run(["sudo", "hciconfig", "hci0", "up"], check=True)
+
         except subprocess.CalledProcessError as e:
             self.log_error(f"Bluetooth interface reset failed: {e}")
 

@@ -291,7 +291,7 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
         # filter devices by role
         if savedDev['role'] == 'relay':
             # filter by shelly device
-            if savedDev['manufacturer'] == 'shelly':
+            if savedDev['manufacturer'].lower() == 'shelly':
 
                 shDevice = ShellyDevice(savedDev["address"], savedDev["name"])
 
@@ -302,10 +302,10 @@ async def setMode(devices: list[list[Dict]], SPS: SmartPowerStation, m:int=None)
                     except Exception as e:
                         SPS.log_error(f"Error setting state")
  
-                if savedDev['relay1'] in [1,2,3]:
+                if int(savedDev['relay1']) in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 1 on device {savedDev['name']}")
                     await trySetState(SPS, assign[savedDev['relay1']],0)
-                if savedDev['relay2'] in [1,2,3]:
+                if int(savedDev['relay2']) in [1,2,3]:
                     SPS.log_debug(f"trying to set relay 2 on device {savedDev['name']}")
                     await trySetState(SPS, assign[savedDev['relay2']],1)
 
@@ -322,13 +322,13 @@ def setup_signal_handlers():
     for sig in (signal.SIGTERM, signal.SIGINT):
         loop.add_signal_handler(sig, handle_shutdown_signal)
 
+def run_flask():
+        app.run(host="0.0.0.0", port=5001, debug=False)
+
 async def main()-> None:
     #SPS = SmartPowerStation(configFile)
 
-    def run_flask():
-        app.run(host="0.0.0.0", port=5001, debug=False)
-
-    flask_thread = threading.Thread(target=run_flask)
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
 
 

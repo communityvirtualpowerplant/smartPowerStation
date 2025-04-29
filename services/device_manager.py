@@ -237,7 +237,7 @@ async def statusUpdate(SPS, device):
         #     myData[k]=v
 
         else:
-            SPS.log_debug(f"Method executed successfully. No data returned.")
+            SPS.log_debug(f"Method executed. No data returned.")
 
     return result
 

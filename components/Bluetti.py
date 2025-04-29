@@ -132,7 +132,6 @@ class Bluetti():
             #     t.cancel()
             #     return myData
 
-
             try:
                 await asyncio.wait_for(self._wait_for_ready(client), timeout=10)
             except asyncio.TimeoutError:
@@ -140,6 +139,7 @@ class Bluetti():
                 t.cancel()
                 await asyncio.gather(t, return_exceptions=True)
                 #raise  # or handle however you want
+                return myData
 
             # Poll device
             for command in device.logging_commands:

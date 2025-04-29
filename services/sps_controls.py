@@ -9,6 +9,7 @@ from components.MQTT import Participant
 import threading
 from dotenv import load_dotenv
 import os
+import random
 
 # eventUpcoming = False
 # eventOngoing = False
@@ -210,7 +211,7 @@ async def controlLoop(SPS) -> None:
         await updateAirtable(CONTROLS,SPS.config, now)
 
         print('************ SLEEPING **************')
-        await asyncio.sleep(60*freqMin)
+        await asyncio.sleep(int(60*freqMin)+random.randint(0,30))
 
 def parse_datetime(date_str: str, fallback_years: int = 10) -> datetime:
     try:

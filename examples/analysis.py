@@ -28,7 +28,7 @@ async def updateAirtableAnalysis(CONTROLS, fields):
 
     try:
         # get list of records filtered by name
-        url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/analysis?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{name}%22'
+        url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/analysis?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{fields['name']}%22'
         res = await CONTROLS.send_secure_get_request(url, key)
         print(res)
 
@@ -89,11 +89,12 @@ async def main(SPS) -> None:
         CONTROLS.analyzeDailyWh(files=files)
     )
 
+    print()
     print(rBaseline)
-
-    print(rSolar)
-
-    print(rWh)
+    print()
+    print(rSolar[1])
+    print()
+    print(rWh[1])
 
     # # estimate the baseline Wh AC during event window
     # bl = await CONTROLS.estBaseline(10)

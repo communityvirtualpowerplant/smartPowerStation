@@ -74,15 +74,23 @@ class SmartPowerStation():
 
         return self.devices
 
-    def writeJSON(self, data:Any, fn:str)-> None:
+    def writeJSON(self, data:Dict, fn:str)-> None:
         # Save data to a JSON file
         try:
             with open(fn, "w") as json_file:
                 json.dump(data, json_file, indent=4)
 
-            print(f"JSON file saved successfully at {fn}")
+            print(f"JSON file written successfully at {fn}")
         except Exception as e:
-            self.log_error(f"Error during saving {fn} file: {e}")
+            self.log_error(f"Error writing {fn} file: {e}")
+
+    def readJSON(self, fn:str):
+        # Read data from a JSON file
+        try:
+            with open(fn, "r") as json_file:
+                savedDevices = json.load(json_file)
+        except Exception as e:
+            print(f"Error reading json file {fn}: {e}")
 
     ######### BLUETOOTH ############
     def reset_bluetooth(self) -> None:
@@ -538,10 +546,14 @@ class Controls():
     # estimate DR baseline for the specified event window
     async def estBaseline(self, d:int=30, files:list=None)->float:
 
+        data=[]
         if files == None:
             data = await self.getRecentData(d)
         else:
-            data = files
+            for index, file in enumerate(files):
+                data.append(file)
+                if index >= d-1:
+                    break
 
         # filter out all data except for event window
         filteredDF = []
@@ -628,10 +640,14 @@ class Controls():
     # to do: determine PV-to-battery efficiency
     async def analyzeSolar(self,d:int=30, files:list=None)->Tuple:
 
+        data=[]
         if files == None:
             data = await self.getRecentData(d)
         else:
-            data = files
+            for index, file in enumerate(files):
+                data.append(file)
+                if index >= d-1:
+                    break
 
         # filter out all data without PV input
         filteredDF = []
@@ -643,7 +659,8 @@ class Controls():
         trimmedDf = []
         cols=['datetime','powerstation_percentage','powerstation_inputWAC','powerstation_inputWDC','powerstation_outputWAC','powerstation_outputWDC']
         for d in filteredDF:
-            trimmedDf.append(d[cols])
+            if not d[cols].empty: #filter out empties
+                trimmedDf.append(d[cols])
 
         # create list[Dict] with analysis results
         metaList = []
@@ -699,10 +716,15 @@ class Controls():
     # returns a tuple - 1st elements is a dictionary for each available file, 2nd element is averages
     # note - this is raw data and doesn't take into account conversion efficiencies or sun window
     async def analyzeDailyWh(self,d:int=30,files:list=None)->Tuple[Dict,Dict]:
+
+        data=[]
         if files == None:
             data = await self.getRecentData(d)
         else:
-            data = files 
+            for index, file in enumerate(files):
+                data.append(file)
+                if index >= d-1:
+                    break
 
         filteredDF = []
         for d in data:
@@ -784,6 +806,7 @@ class Controls():
         h = int(xMin/60)
         m = int(xMin%60)
         return time(h,m)
+
 
     # #estimate when the PV will start producing and for how long
     # async def estSunWindow(self,d:int=30):

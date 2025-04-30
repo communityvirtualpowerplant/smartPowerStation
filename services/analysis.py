@@ -68,10 +68,10 @@ async def updateAirtableAnalysis(CONTROLS, fields):
     except Exception as e:
         print(f'Exception with getting Airtable records: {e}')
 
-async def get_with_retry(CONTROLS,maxRetries=3):
+async def get_with_retry(CONTROLS,days:int=30,maxRetries:int=3):
     for attempt in range(1, maxRetries + 1):
         try:
-            files = await CONTROLS.getRecentData(30)
+            files = await CONTROLS.getRecentData(days)
             return files
         except:
             # back off
@@ -91,14 +91,14 @@ async def main(SPS) -> None:
             break
 
     try:
-        files = await get_with_retry(CONTROLS)
+        files = await get_with_retry(CONTROLS,30)
     except Exception as e:
         print(f'getRecentData failed with {e}')
 
     rBaseline, rSolar, rWh = await asyncio.gather(
-        CONTROLS.estBaseline(files=files),
-        CONTROLS.analyzeSolar(files=files),
-        CONTROLS.analyzeDailyWh(files=files)
+        CONTROLS.estBaseline(30,files=files),
+        CONTROLS.analyzeSolar(2,files=files),
+        CONTROLS.analyzeDailyWh(7,files=files)
     )
 
     # print()
@@ -134,6 +134,12 @@ async def main(SPS) -> None:
                 "event start time":str(CONTROLS.eventStartT),
                 "network": str(SPS.config['network'])
             }
+
+    name = SPS.config['name']
+    dtstr = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fn = f'{analysisDirectory}/{name}_{dtstr}_analysis.json'
+    print(fn)
+    SPS.writeJSON({dtstr:fields}, fn)
 
     #(battery cap Wh * Dod * invEff)/AC W
     await updateAirtableAnalysis(CONTROLS,fields)

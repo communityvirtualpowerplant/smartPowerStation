@@ -700,7 +700,8 @@ class Controls():
                 cols=['datetime','powerstation_percentage','powerstation_inputWDC','relay1_power','relay2_power','relay3_power']
                 filteredDF.append(d[cols])
             except Exception as e:
-                print(f'{e}')
+                #print(f'{e}')
+                pass
                       
         print(len(filteredDF))
         print('')

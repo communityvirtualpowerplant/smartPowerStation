@@ -92,9 +92,9 @@ async def main(SPS) -> None:
     print()
     print(rBaseline)
     print()
-    print(rSolar[1])
+    print(rSolar[1]['dailyPVWh'])
     print()
-    print(rWh[1])
+    print(rWh[1]['load Daily Avg'])
 
     # # estimate the baseline Wh AC during event window
     # bl = await CONTROLS.estBaseline(10)
@@ -123,10 +123,10 @@ async def main(SPS) -> None:
                 "name": str(SPS.config['location'].lower()),
                 "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "event baseline WhAC": str(rBaseline),
-                "avg PV WhDC":"",
-                "max flex WhAC":"",
-                "avg daily grid demand WhAC":"",
-                "avg daily load demand WhAC":"",
+                "avg PV WhDC":str(rSolar[1]['dailyPVWh']),
+                "max flex WhAC":str(CONTROLS.maxFlexibilityWh),
+                "avg daily grid demand WhAC":str(rWh[1]['grid Daily Avg']),
+                "avg daily load demand WhAC":str(rWh[1]['load Daily Avg']),
                 "avg event performance Wh":str(0),
                 # "event value $":"",
                 "event start time":str(CONTROLS.eventStartT),

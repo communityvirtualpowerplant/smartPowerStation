@@ -559,14 +559,14 @@ class Controls():
         listSums = []
         for d in hourlyPower:
             sumEnergy = 0
-            print('')
+            #print('')
             for h in range(len(d)):
                 hourlyEnergy = self.getWh(d[h]['powerstation_inputWAC'],d[h]['increments'])# change from inputWAC to whatever is more appropriate
                 if (math.isnan(hourlyEnergy)):
                     hourlyEnergy = 0.0
-                print(f'{h}: {hourlyEnergy}')
+                #print(f'{h}: {hourlyEnergy}')
                 sumEnergy += hourlyEnergy
-            print(f'tot: {sumEnergy}')
+            #print(f'tot: {sumEnergy}')
             listSums.append(sumEnergy)
 
         return sum(listSums)/len(listSums)

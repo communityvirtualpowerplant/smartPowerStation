@@ -253,8 +253,13 @@ async def updateAirtable(CONTROLS, config, now):
                 "pv w": str(now["powerstation_inputWDC"]),
                 "battery":str(now["powerstation_percentage"]),
                 "flex wh": str(CONTROLS.getAvailableFlex(now["powerstation_percentage"])),
-                "id": str(f"{myID}"),
-                "network": str(f"{network}")}
+                "sensor 1 wac":str(now["relay1_power"]),
+                "sensor 2 wac":str(now["relay2_power"]),
+                "sensor 3 wac":str(now["relay3_power"]),
+                "sensor 4 wdc":str(now["powerstation_inputWDC"]),
+                "grid vac":str(now["relay1_voltage"]),
+                "mode":str(now["mode"]),
+                "position":str(now["position"])}
             }]}
 
         try:

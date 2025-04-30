@@ -56,7 +56,7 @@ async def updateAirtableAnalysis(CONTROLS, config):
         data={
             "fields": {
                 "name": str(f"{name}"),
-                "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"), # not needed because it has a date created stamp automatically
+                "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "event baseline WhAC": "",
                 "avg PV WhDC":"",
                 "max flex WhAC":"",
@@ -98,11 +98,14 @@ async def main(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
+    files = await CONTROLS.getRecentData(30)
+
     rBaseline, rSolar, rWh = await asyncio.gather(
-        CONTROLS.estBaseline(10),
-        CONTROLS.analyzeSolar(),
-        CONTROLS.analyzeDailyWh()
+        CONTROLS.estBaseline(files=files),
+        CONTROLS.analyzeSolar(files=files),
+        CONTROLS.analyzeDailyWh(files=files)
     )
+
     print(rBaseline)
 
     print(rSolar)

@@ -535,9 +535,12 @@ class Controls():
         return data
 
     # estimate DR baseline for the specified event window
-    async def estBaseline(self, d:int=30)->float:
+    async def estBaseline(self, d:int=30, files:list=None)->float:
 
-        data = await self.getRecentData(d)
+        if files == None:
+            data = await self.getRecentData(d)
+        else:
+            data = files
 
         # filter out all data except for event window
         filteredDF = []
@@ -622,8 +625,12 @@ class Controls():
 
     # determines solar window, solar production
     # to do: determine PV-to-battery efficiency
-    async def analyzeSolar(self,d:int=30)->Tuple:
-        data = await self.getRecentData(d)
+    async def analyzeSolar(self,d:int=30, files:list=None)->Tuple:
+
+        if files == None:
+            data = await self.getRecentData(d)
+        else:
+            data = files
 
         # filter out all data without PV input
         filteredDF = []
@@ -690,9 +697,12 @@ class Controls():
     # get Wh at each sensor point
     # returns a tuple - 1st elements is a dictionary for each available file, 2nd element is averages
     # note - this is raw data and doesn't take into account conversion efficiencies or sun window
-    async def analyzeDailyWh(self,d:int=30)->Tuple[Dict,Dict]:
-        data = await self.getRecentData(d)
-        
+    async def analyzeDailyWh(self,d:int=30,files:list=None)->Tuple[Dict,Dict]:
+        if files == None:
+            data = await self.getRecentData(d)
+        else:
+            data = files 
+                   
         filteredDF = []
         for d in data:
             # get columns of interest

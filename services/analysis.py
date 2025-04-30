@@ -139,8 +139,8 @@ async def main(SPS) -> None:
     dtstr = datetime.now().strftime("%Y-%m")
     fn = f'{analysisDirectory}/{name}_{dtstr}_analysis.csv'
     # print(fn)
-    # SPS.writeJSON({dtstr:fields}, fn)
-    SPS.writeCSV(pd.json_normalize(fields),fn)
+    # await SPS.writeJSON({dtstr:fields}, fn)
+    await SPS.writeCSV(pd.json_normalize(fields),fn)
 
     #(battery cap Wh * Dod * invEff)/AC W
     await updateAirtableAnalysis(CONTROLS,fields)

@@ -86,15 +86,15 @@ class SmartPowerStation():
         except Exception as e:
             self.log_error(f"Error writing {fn} file: {e}")
 
-    def readJSON(self, fn:str):
+    async def readJSON(self, fn:str):
         # Read data from a JSON file
         try:
             with open(fn, "r") as json_file:
                 savedDevices = json.load(json_file)
         except Exception as e:
-            print(f"Error reading json file {fn}: {e}")
+            self.log_error(f"Error reading json file {fn}: {e}")
 
-    async def writeCSV(SPS, df:pd.DataFrame, fn:str)->None:
+    async def writeCSV(self, SPS, df:pd.DataFrame, fn:str)->None:
         # create a new file daily to save data
         # or append if the file already exists
 

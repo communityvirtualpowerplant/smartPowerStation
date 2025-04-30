@@ -68,6 +68,15 @@ async def updateAirtableAnalysis(CONTROLS, fields):
     except Exception as e:
         print(f'Exception with getting Airtable records: {e}')
 
+async def get_with_retry(CONTROLS,maxRetries=3):
+    for attempt in range(1, maxRetries + 1):
+        try:
+            files = await CONTROLS.getRecentData(30)
+            return files
+        except:
+            # back off
+            asyncio.sleep(10 * attempt)
+
 async def main(SPS) -> None:
     CONTROLS = Controls()
 
@@ -81,7 +90,10 @@ async def main(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
-    files = await CONTROLS.getRecentData(30)
+    try:
+        files = await get_with_retry(CONTROLS)
+    except Exception as e:
+        print(f'getRecentData failed with {e}')
 
     rBaseline, rSolar, rWh = await asyncio.gather(
         CONTROLS.estBaseline(files=files),
@@ -89,22 +101,12 @@ async def main(SPS) -> None:
         CONTROLS.analyzeDailyWh(files=files)
     )
 
-    print()
-    print(rBaseline)
-    print()
-    print(rSolar[1]['dailyPVWh'])
-    print()
-    print(rWh[1]['load Daily Avg'])
-
-    # # estimate the baseline Wh AC during event window
-    # bl = await CONTROLS.estBaseline(10)
-    # print(bl)
-
-    # pv = await CONTROLS.analyzeSolar()
-    # print(pv)
-
-    # dWh = await CONTROLS.analyzeDailyWh()
-    # print(dWh)
+    # print()
+    # print(rBaseline)
+    # print()
+    # print(rSolar[1]['dailyPVWh'])
+    # print()
+    # print(rWh[1]['load Daily Avg'])
 
     # estimate sun window based on available recent data
 

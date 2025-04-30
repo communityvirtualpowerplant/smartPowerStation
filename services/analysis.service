@@ -1,0 +1,16 @@
+[Unit]
+Description=Crunch yesterday's numbers. Do it once.
+After=network.target
+Wants=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/pi/smartPowerStation/venv/bin/python -m analysis.api
+WorkingDirectory=/home/pi/smartPowerStation
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target

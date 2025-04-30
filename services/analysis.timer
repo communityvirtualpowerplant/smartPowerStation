@@ -1,0 +1,9 @@
+[Unit]
+Description=Run analysis.py daily at 12:15 AM
+
+[Timer]
+OnCalendar=*-*-* 00:15:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

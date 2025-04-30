@@ -259,7 +259,11 @@ async def updateAirtable(CONTROLS, config, now):
                 "sensor 4 wdc":str(now["powerstation_inputWDC"]),
                 "grid vac":str(now["relay1_voltage"]),
                 "mode":str(now["mode"]),
-                "position":str(now["position"])}
+                "position":str(now["position"]),
+                "event upcoming":str(CONTROLS.rules['upcoming']), #"upcoming":0, "ongoing":0, "eventDate"
+                "event upcoming":str(CONTROLS.rules['ongoing']),
+                "event date":str(CONTROLS.rules['eventDate'])
+                }
             }]}
 
         try:

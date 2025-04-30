@@ -35,11 +35,25 @@ async def updateAirtableAnalysis(CONTROLS, config):
         print(res)
 
         # pull the id for the first record
-        recordID = res['records'][0]['id']
+        recordID = str(res['records'][0]['id'])
 
         # patch record
-        data={"records": [{
-            "id": str(recordID),
+        # data={"records": [{
+        #     "id": str(recordID),
+        #     "fields": {
+        #         "name": str(f"{name}"),
+        #         "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"), # not needed because it has a date created stamp automatically
+        #         "event baseline WhAC": "",
+        #         "avg PV WhDC":"",
+        #         "max flex WhAC":"",
+        #         "avg daily grid demand WhAC":"",
+        #         "avg daily load demand WhAC":"",
+        #         "avg event performance Wh":0,
+        #         "event value $":"",
+        #         "event start time":str(CONTROLS.eventStartT),
+        #         "network": str(f"{network}")}
+        #     }]}
+        data={
             "fields": {
                 "name": str(f"{name}"),
                 "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"), # not needed because it has a date created stamp automatically
@@ -52,10 +66,10 @@ async def updateAirtableAnalysis(CONTROLS, config):
                 "event value $":"",
                 "event start time":str(CONTROLS.eventStartT),
                 "network": str(f"{network}")}
-            }]}
+            }
 
         try:
-            url='https://api.airtable.com/v0/appZI2AenYNrfVqCL/analysis'
+            url=f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/analysis/{recordID}'
 
             patch_status = 0
             while patch_status < 3:
@@ -84,12 +98,16 @@ async def main(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
-    results = await asyncio.gather(
+    rBaseline, rSolar, rWh = await asyncio.gather(
         CONTROLS.estBaseline(10),
         CONTROLS.analyzeSolar(),
         CONTROLS.analyzeDailyWh()
     )
-    print(results)
+    print(rBaseline)
+
+    print(rSolar)
+
+    print(rWh)
 
     # # estimate the baseline Wh AC during event window
     # bl = await CONTROLS.estBaseline(10)
@@ -100,7 +118,7 @@ async def main(SPS) -> None:
 
     # dWh = await CONTROLS.analyzeDailyWh()
     # print(dWh)
-    
+
     # estimate sun window based on available recent data
 
     # past solar production DC - returns solar energy production DC for each day of the past month + %

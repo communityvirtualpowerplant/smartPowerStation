@@ -261,7 +261,7 @@ async def updateAirtable(CONTROLS, config, now):
                 "mode":str(now["mode"]),
                 "position":str(now["position"]),
                 "event upcoming":str(CONTROLS.rules['event']['upcoming']),
-                "event upcoming":str(CONTROLS.rules['event']['ongoing']),
+                "event ongoing":str(CONTROLS.rules['event']['ongoing']),
                 "event date":str(CONTROLS.rules['event']['eventDate'])
                 }
             }]}

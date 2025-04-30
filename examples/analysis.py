@@ -84,15 +84,23 @@ async def main(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
-    # estimate the baseline Wh AC during event window
-    bl = await CONTROLS.estBaseline(10)
-    print(bl)
+    results = await asyncio.gather(
+        CONTROLS.estBaseline(10),
+        CONTROLS.analyzeSolar(),
+        CONTROLS.analyzeDailyWh()
+    )
+    print(results)
 
-    pv = await CONTROLS.analyzeSolar()
-    print(pv)
+    # # estimate the baseline Wh AC during event window
+    # bl = await CONTROLS.estBaseline(10)
+    # print(bl)
 
-    dWh = await CONTROLS.analyzeDailyWh()
-    print(dWh)
+    # pv = await CONTROLS.analyzeSolar()
+    # print(pv)
+
+    # dWh = await CONTROLS.analyzeDailyWh()
+    # print(dWh)
+    
     # estimate sun window based on available recent data
 
     # past solar production DC - returns solar energy production DC for each day of the past month + %

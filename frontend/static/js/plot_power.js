@@ -2,9 +2,9 @@ const apiUrl = '/api/data?file=recent';
 
 function getColor(){
   // get colors between 20-240
-  let r = (Math.floor(Math.random() * 220)+20).toString()
-  let g = (Math.floor(Math.random() * 220)+20).toString()
-  let b = (Math.floor(Math.random() * 220)+20).toString()
+  let r = (Math.floor(Math.random() * 200)+20).toString()
+  let g = (Math.floor(Math.random() * 200)+20).toString()
+  let b = (Math.floor(Math.random() * 200)+20).toString()
   let a = (.6).toString();
   return `rgba(${r},${g},${b},${a})`
 }

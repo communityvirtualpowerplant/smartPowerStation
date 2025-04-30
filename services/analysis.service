@@ -8,8 +8,6 @@ Type=oneshot
 ExecStart=/home/pi/smartPowerStation/venv/bin/python -m analysis.api
 WorkingDirectory=/home/pi/smartPowerStation
 StandardOutput=inherit
-StandardError=inherit
-Restart=always
 User=pi
 
 [Install]

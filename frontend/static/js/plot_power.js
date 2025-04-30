@@ -5,7 +5,7 @@ function getColor(){
   let r = (Math.floor(Math.random() * 200)+20).toString()
   let g = (Math.floor(Math.random() * 200)+20).toString()
   let b = (Math.floor(Math.random() * 200)+20).toString()
-  let a = (.6).toString();
+  let a = (1).toString();
   return `rgba(${r},${g},${b},${a})`
 }
 

@@ -260,9 +260,9 @@ async def updateAirtable(CONTROLS, config, now):
                 "grid vac":str(now["relay1_voltage"]),
                 "mode":str(now["mode"]),
                 "position":str(now["position"]),
-                "event upcoming":str(CONTROLS.rules['upcoming']), #"upcoming":0, "ongoing":0, "eventDate"
-                "event upcoming":str(CONTROLS.rules['ongoing']),
-                "event date":str(CONTROLS.rules['eventDate'])
+                "event upcoming":str(CONTROLS.rules['event']['upcoming']),
+                "event upcoming":str(CONTROLS.rules['event']['ongoing']),
+                "event date":str(CONTROLS.rules['event']['eventDate'])
                 }
             }]}
 

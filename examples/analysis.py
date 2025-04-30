@@ -6,9 +6,13 @@ from typing import cast
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
 import sys
+from dotenv import load_dotenv
 from components.SmartPowerStation import SmartPowerStation, Controls
 #import csv
 
+
+load_dotenv()
+key = os.getenv('AIRTABLE_PARTICIPANTS')
 
 URL = 'localhost'
 PORT = 5000
@@ -18,6 +22,53 @@ configFile = '../config/config.json'
 devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 analysisDirectory = '../analysis'
+
+async def updateAirtableAnalysis(CONTROLS, config):
+    name = config['location'].lower()
+    network = config['network']
+
+    try:
+        # get list of records filtered by name
+        url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/analysis?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{name}%22'
+        res = await CONTROLS.send_secure_get_request(url, key)
+        print(res)
+
+        # pull the id for the first record
+        recordID = res['records'][0]['id']
+
+        # patch record
+        data={"records": [{
+            "id": str(recordID),
+            "fields": {
+                "name": str(f"{name}"),
+                "datetime":datetime.now(), # not needed because it has a date created stamp automatically
+                "event baseline WhAC": "",
+                "avg PV WhDC":"",
+                "max flex WhAC":"",
+                "avg daily grid demand WhAC":"",
+                "avg daily load demand WhAC":"",
+                "avg event performance Wh":0,
+                "event value $":"",
+                "event start time":CONTROLS.eventStartT,
+                "network": str(f"{network}")}
+            }]}
+
+        try:
+            url='https://api.airtable.com/v0/appZI2AenYNrfVqCL/analysis'
+
+            patch_status = 0
+            while patch_status < 3:
+                # note that patch leaves unchanged data in place, while a post would delete old data in the record even if not being updated
+                r = await CONTROLS.send_patch_request(url,data, key)
+                if r != False:
+                    break
+                await asyncio.sleep(1+patch_status)
+                patch_status += 1
+            print(r)
+        except Exception as e:
+            print(f'Exception with patching Airtable: {e}')
+    except Exception as e:
+        print(f'Exception with getting Airtable records: {e}')
 
 async def main(SPS) -> None:
     CONTROLS = Controls()
@@ -55,6 +106,7 @@ async def main(SPS) -> None:
     # battery time remaining
 
     #(battery cap Wh * Dod * invEff)/AC W
+    updateAirtableAnalysis(CONTROLS,SPS.config)
 
 
 if __name__ == "__main__":

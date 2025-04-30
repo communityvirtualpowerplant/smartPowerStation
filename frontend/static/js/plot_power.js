@@ -20,7 +20,7 @@ async function fetchAndPlotCSV() {
 
     // Assuming the first column is X (e.g., Date) and second column is Y (e.g., Value)
     const datetime = [];
-    const cols = ['powerstation_percentage','powerstation_inputWAC','powerstation_inputWDC','powerstation_outputWAC','powerstation_outputWDC','relay1_power','relay2_power','relay3_power'];
+    const cols = ['powerstation_percentage','powerstation_inputWDC','relay1_power','relay2_power','relay3_power']; //'powerstation_inputWAC','powerstation_outputWAC','powerstation_outputWDC',
     const y = {}
     const positionData = []
 

@@ -75,7 +75,7 @@ async def get_with_retry(CONTROLS,days:int=30,maxRetries:int=3):
             return files
         except:
             # back off
-            asyncio.sleep(10 * attempt)
+            await asyncio.sleep(10 * attempt)
 
 async def main(SPS) -> None:
     CONTROLS = Controls()

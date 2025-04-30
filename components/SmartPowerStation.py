@@ -101,7 +101,7 @@ class SmartPowerStation():
         try:
             if os.path.exists(fn):
                 with open(fn) as csvfile:
-                    savedDf = pd.read_csv(fn)
+                    savedDf = pd.read_csv(csvfile)
                     savedDf = pd.concat([savedDf,df], ignore_index = True)
                     savedDf.to_csv(fn, sep=',',index=False)
                     SPS.log_debug(f"Concatinating existing CSV: {fn}")

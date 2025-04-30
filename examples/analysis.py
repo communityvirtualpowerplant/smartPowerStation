@@ -24,9 +24,7 @@ devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
 analysisDirectory = '../analysis'
 
-async def updateAirtableAnalysis(CONTROLS, config):
-    name = config['location'].lower()
-    network = config['network']
+async def updateAirtableAnalysis(CONTROLS, fields):
 
     try:
         # get list of records filtered by name
@@ -37,35 +35,20 @@ async def updateAirtableAnalysis(CONTROLS, config):
         # pull the id for the first record
         recordID = str(res['records'][0]['id'])
 
-        # patch record
-        # data={"records": [{
-        #     "id": str(recordID),
-        #     "fields": {
-        #         "name": str(f"{name}"),
-        #         "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"), # not needed because it has a date created stamp automatically
-        #         "event baseline WhAC": "",
-        #         "avg PV WhDC":"",
-        #         "max flex WhAC":"",
-        #         "avg daily grid demand WhAC":"",
-        #         "avg daily load demand WhAC":"",
-        #         "avg event performance Wh":0,
-        #         "event value $":"",
-        #         "event start time":str(CONTROLS.eventStartT),
-        #         "network": str(f"{network}")}
-        #     }]}
         data={
-            "fields": {
-                "name": str(f"{name}"),
-                "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "event baseline WhAC": "",
-                "avg PV WhDC":"",
-                "max flex WhAC":"",
-                "avg daily grid demand WhAC":"",
-                "avg daily load demand WhAC":"",
-                "avg event performance Wh":0,
-                "event value $":"",
-                "event start time":str(CONTROLS.eventStartT),
-                "network": str(f"{network}")}
+            "fields": fields
+            # {
+            #     "name": str(f"{name}"),
+            #     "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            #     "event baseline WhAC": "",
+            #     "avg PV WhDC":"",
+            #     "max flex WhAC":"",
+            #     "avg daily grid demand WhAC":"",
+            #     "avg daily load demand WhAC":"",
+            #     "avg event performance Wh":str(0),
+            #     # "event value $":"",
+            #     "event start time":str(CONTROLS.eventStartT),
+            #     "network": str(f"{network}")}
             }
 
         try:
@@ -135,8 +118,22 @@ async def main(SPS) -> None:
 
     # battery time remaining
 
+    fields = {
+                "name": str(SPS.config['location'].lower()),
+                "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "event baseline WhAC": str(rBaseline),
+                "avg PV WhDC":"",
+                "max flex WhAC":"",
+                "avg daily grid demand WhAC":"",
+                "avg daily load demand WhAC":"",
+                "avg event performance Wh":str(0),
+                # "event value $":"",
+                "event start time":str(CONTROLS.eventStartT),
+                "network": str(SPS.config['network'])
+            }
+
     #(battery cap Wh * Dod * invEff)/AC W
-    await updateAirtableAnalysis(CONTROLS,SPS.config)
+    await updateAirtableAnalysis(CONTROLS,fields)
 
 
 if __name__ == "__main__":

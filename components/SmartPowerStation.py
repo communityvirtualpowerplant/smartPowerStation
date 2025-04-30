@@ -343,6 +343,7 @@ class Controls():
         if response.ok:
             return response.json()
         else:
+            print(f'{response.status_code}')
             return False
 
     # set time variables based on ingested rules file
@@ -702,7 +703,7 @@ class Controls():
             data = await self.getRecentData(d)
         else:
             data = files 
-                   
+
         filteredDF = []
         for d in data:
             # get columns of interest

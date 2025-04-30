@@ -1,3 +1,4 @@
+// get today's data
 const apiUrl = '/api/data?file=recent';
 
 function getColor(){
@@ -147,7 +148,7 @@ async function fetchAndPlotCSV() {
 
     traces.push(...backgroundLegendTraces)
 
-    Plotly.newPlot('plot',traces, {
+    Plotly.newPlot('plotEnergy',traces, {
       title: "Smart Power Station Data - Today",
       xaxis: { title: "Time" },
       yaxis: { title: "Power" },

@@ -401,10 +401,11 @@ class Controls():
 
         #if its after sun window
         upcomingSunWindowEnd = datetime.combine(dt,sWE) #combine provided datetime with sunwindow end to get a datetime object
-        print(f'Sun window: {upcomingSunWindowEnd}')
         if dt > upcomingSunWindowEnd:
+            print(f'Sun window closed at {upcomingSunWindowEnd}')
             return True
         else:
+            print(f'Sun window closes at {upcomingSunWindowEnd}')
             return False
 
     # # checks if a datetime is after that day's sunwindow
@@ -612,7 +613,7 @@ class Controls():
 
     #     return control
 
-    # attempts to reach a certain amount of energy avoidance
+    # attempts to reach a certain amount of energy avoidance - not in use
     def pi_controller_energy(self, setpoint, pv, kp, ki,):
         error = setpoint - pv
         self.integral += error * dt
@@ -642,7 +643,7 @@ class Controls():
             meta={}
             meta['raw min time']=df['datetime'].min()
             meta['raw max time']=df['datetime'].max()
-            meta['max power']=df['powerstation_inputWDC'].max()
+            meta['max power W']=float(df['powerstation_inputWDC'].max())
             meta['max power time']=df[df['powerstation_inputWDC']==df['powerstation_inputWDC'].max()]['datetime']
             try:
                 meta['power std']=statistics.stdev(df['powerstation_inputWDC'])
@@ -677,7 +678,7 @@ class Controls():
             sunWindowMin.append(m['sun window min'])
             sunWindowMax.append(m['sun window max'])
             sunWindowDuration.append(m['sun window duration'])
-            dcIn.append(m['Wh DC input'])
+            dcIn.append(m['PV Wh DC'])
 
         listAvg = {'sunWindowMin':self.avgTimes(sunWindowMin),
                    'sunWindowMax':self.avgTimes(sunWindowMax),
@@ -686,6 +687,64 @@ class Controls():
 
         return (metaList,listAvg)
 
+    # get Wh at each sensor point
+    # returns a tuple - 1st elements is a dictionary for each available file, 2nd element is averages
+    # note - this is raw data and doesn't take into account conversion efficiencies or sun window
+    async def analyzeDailyWh(self,d:int=30)->Tuple[Dict,Dict]:
+        data = await self.getRecentData(d)
+        
+        filteredDF = []
+        for d in data:
+            # get columns of interest
+            try:
+                cols=['datetime','powerstation_percentage','powerstation_inputWDC','relay1_power','relay2_power','relay3_power']
+                filteredDF.append(d[cols])
+            except Exception as e:
+                print(f'{e}')
+                      
+        print(len(filteredDF))
+        print('')
+        # create list[Dict] with analysis results
+        metaDict = {}
+
+        runningS1 = []
+        runningS2 = []
+        runningS3 = []
+        runningS4 = []
+        runningL = []
+        runningG = []
+
+        for m in range(len(filteredDF)):
+            meta={}
+            meta['S1 Wh AC'] = float(self.getWh(filteredDF[m]['relay1_power'].fillna(0),self.prepWh(filteredDF[m])['increments']))
+            runningS1.append(meta['S1 Wh AC'])
+            meta['S2 Wh AC'] = float(self.getWh(filteredDF[m]['relay2_power'].fillna(0),self.prepWh(filteredDF[m])['increments']))
+            runningS2.append(meta['S2 Wh AC'])
+            meta['S3 Wh AC'] = float(self.getWh(filteredDF[m]['relay3_power'].fillna(0),self.prepWh(filteredDF[m])['increments']))
+            runningS3.append(meta['S3 Wh AC'])
+            meta['S4 Wh DC'] = float(self.getWh(filteredDF[m]['powerstation_inputWDC'].fillna(0),self.prepWh(filteredDF[m])['increments']))
+            runningS4.append(meta['S4 Wh DC'])
+            meta['load Wh AC'] = meta['S1 Wh AC'] + meta['S3 Wh AC']
+            runningL.append(meta['load Wh AC'])
+            meta['total grid demand'] = meta['S1 Wh AC'] + meta['S2 Wh AC']
+            runningG.append(meta['total grid demand'])
+
+            metaDict[filteredDF[m].iloc[0]['datetime']]=meta
+
+        avgDict={}
+
+        for a in metaDict.keys():
+            avgDict['days sampled'] = len(filteredDF)
+            avgDict['S1 Daily Avg'] = statistics.mean(runningS1)
+            avgDict['S2 Daily Avg'] = statistics.mean(runningS2)
+            avgDict['S3 Daily Avg'] = statistics.mean(runningS3)
+            avgDict['S4 Daily Avg'] = statistics.mean(runningS4)
+            avgDict['load Daily Avg'] = statistics.mean(runningL)
+            avgDict['grid Daily Avg'] = statistics.mean(runningG)
+
+        return (metaDict,avgDict)
+
+    # cleans data
     def prepWh(self, df:pd.DataFrame)->pd.DataFrame:
         #fill NaN with 0
         df = df.fillna(0)
@@ -751,41 +810,3 @@ class Controls():
 
     def eventOngoingLoop(self):
         pass
-
-
-# class Data():
-#     def __init__(self,n:str,i:str):
-#         self.id=i
-#         self.name=n
-
-#     async def updateAirtable(self, now):
-#         # get list of records filtered by name
-#         url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{self.name}%22'
-#         res = await CONTROLS.send_secure_get_request(url, key)
-#         print(res)
-
-#         # pull the id for the first record
-#         recordID = res['records'][0]['id']
-
-#         # patch record
-#         data={"records": [{
-#             "id": str(recordID),
-#             "fields": {
-#                 "name": str(f"{home}"),
-#                 "datetime":now['datetime'],
-#                 "pv w": str(now["powerstation_inputWDC"]),
-#                 "battery":str(now["powerstation_percentage"]),
-#                 "flex wh": str(150),
-#                 "id": str(f"{id}")}
-#             }]}
-
-#         url='https://api.airtable.com/v0/appZI2AenYNrfVqCL/live'
-
-#         patch_status = 0
-#         while patch_status < 3:
-#             r = await CONTROLS.send_patch_request(url,data, key)
-#             if r != False:
-#                 break
-#             await asyncio.sleep(1+patch_status)
-#             patch_status += 1
-#         print(r)

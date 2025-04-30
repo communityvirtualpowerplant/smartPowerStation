@@ -17,13 +17,13 @@ ENDPOINT = '/api/data?file=now'
 configFile = '../config/config.json'
 devicesFile = '../config/devices.json'
 rulesFile = '../config/rules.json'
+analysisDirectory = '../analysis'
 
 async def main(SPS) -> None:
     CONTROLS = Controls()
 
-
     CONTROLS.getRules(rulesFile)
-    CONTROLS.setTimes()
+    
     filteredDevices = SPS.getDevices(devicesFile)
 
     for d in filteredDevices:
@@ -32,11 +32,15 @@ async def main(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
-    # flexibility at event start - returns a list of estimated Wh for each day in the past month
+    # estimate the baseline Wh AC during event window
+    bl = await CONTROLS.estBaseline(10)
+    print(bl)
 
-    # estimates event window baselines - returns a list of estimated Wh baselines for each day in the past month
-    print(await CONTROLS.estBaseline(7))
+    pv = await CONTROLS.analyzeSolar()
+    print(pv)
 
+    dWh = await CONTROLS.analyzeDailyWh()
+    print(dWh)
     # estimate sun window based on available recent data
 
     # past solar production DC - returns solar energy production DC for each day of the past month + %

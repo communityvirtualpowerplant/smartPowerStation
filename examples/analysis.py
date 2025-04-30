@@ -6,6 +6,7 @@ from typing import cast
 from typing import Any, Dict, Optional, List
 from datetime import datetime, timedelta, time
 import sys
+import os
 from dotenv import load_dotenv
 from components.SmartPowerStation import SmartPowerStation, Controls
 #import csv
@@ -41,7 +42,7 @@ async def updateAirtableAnalysis(CONTROLS, config):
             "id": str(recordID),
             "fields": {
                 "name": str(f"{name}"),
-                "datetime":datetime.now(), # not needed because it has a date created stamp automatically
+                "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"), # not needed because it has a date created stamp automatically
                 "event baseline WhAC": "",
                 "avg PV WhDC":"",
                 "max flex WhAC":"",
@@ -49,7 +50,7 @@ async def updateAirtableAnalysis(CONTROLS, config):
                 "avg daily load demand WhAC":"",
                 "avg event performance Wh":0,
                 "event value $":"",
-                "event start time":CONTROLS.eventStartT,
+                "event start time":str(CONTROLS.eventStartT),
                 "network": str(f"{network}")}
             }]}
 
@@ -106,7 +107,7 @@ async def main(SPS) -> None:
     # battery time remaining
 
     #(battery cap Wh * Dod * invEff)/AC W
-    updateAirtableAnalysis(CONTROLS,SPS.config)
+    await updateAirtableAnalysis(CONTROLS,SPS.config)
 
 
 if __name__ == "__main__":

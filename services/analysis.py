@@ -9,8 +9,8 @@ import sys
 import os
 from dotenv import load_dotenv
 from components.SmartPowerStation import SmartPowerStation, Controls
-#import csv
-
+import csv
+import pandas as pd
 
 load_dotenv()
 key = os.getenv('AIRTABLE_PARTICIPANTS')
@@ -135,11 +135,12 @@ async def main(SPS) -> None:
                 "network": str(SPS.config['network'])
             }
 
-    name = SPS.config['name']
-    dtstr = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    fn = f'{analysisDirectory}/{name}_{dtstr}_analysis.json'
-    print(fn)
-    SPS.writeJSON({dtstr:fields}, fn)
+    name = SPS.config['location']
+    dtstr = datetime.now().strftime("%Y-%m")
+    fn = f'{analysisDirectory}/{name}_{dtstr}_analysis.csv'
+    # print(fn)
+    # SPS.writeJSON({dtstr:fields}, fn)
+    SPS.writeCSV(pd.json_normalize(fields),fn)
 
     #(battery cap Wh * Dod * invEff)/AC W
     await updateAirtableAnalysis(CONTROLS,fields)

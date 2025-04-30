@@ -74,6 +74,8 @@ class SmartPowerStation():
 
         return self.devices
 
+    ################# FILE IO ######################
+
     def writeJSON(self, data:Dict, fn:str)-> None:
         # Save data to a JSON file
         try:
@@ -91,6 +93,25 @@ class SmartPowerStation():
                 savedDevices = json.load(json_file)
         except Exception as e:
             print(f"Error reading json file {fn}: {e}")
+
+    async def writeCSV(SPS, df:pd.DataFrame, fn:str)->None:
+        # create a new file daily to save data
+        # or append if the file already exists
+
+        try:
+            if os.path.exists(fn):
+                with open(fn) as csvfile:
+                    savedDf = pd.read_csv(fn)
+                    savedDf = pd.concat([savedDf,df], ignore_index = True)
+                    savedDf.to_csv(fn, sep=',',index=False)
+                    SPS.log_debug(f"Concatinating existing CSV: {fn}")
+            else:
+                #if file doesn't exist, create it
+                df.to_csv(fn, sep=',',index=False)
+                SPS.log_debug(f"Creating new CSV: {fn}")
+
+        except Exception as e:
+            self.log_error(e)
 
     ######### BLUETOOTH ############
     def reset_bluetooth(self) -> None:

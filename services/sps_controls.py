@@ -52,9 +52,9 @@ async def controlLoop(SPS) -> None:
             break
 
     # get analysis data from airtable - if this is
-    analysisURL = 'https://communityvirtualpowerplant.com/api/gateway.php?table=live'
+    analysisURL = 'https://communityvirtualpowerplant.com/api/gateway.php?table=analysis'
     try:
-        analysisResponse = await CONTROLS.send_secure_get_request(analysisURL, key)
+        analysisResponse = await CONTROLS.send_secure_get_request(analysisURL)
         #print(analysisResponse)
 
         locationAnalysis = {}

@@ -1,7 +1,7 @@
 let params = new URLSearchParams(document.location.search);
 let name = 'home'//params.get("name"); update this to be dynamic
 
-getData('/api/gateway.php?table=live')
+getData('https://communityvirtualpowerplant.com/api/gateway.php?table=live')
 setInterval(getData,60000);
 
 

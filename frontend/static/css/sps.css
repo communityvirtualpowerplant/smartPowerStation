@@ -14,3 +14,38 @@ main{
 #historyPlot{
   max-width: 90%;
 }
+
+
+nav {
+    background-color: #333;
+    overflow: hidden;
+}
+
+nav a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+}
+
+nav a:hover {
+    background-color: #575757;
+    color: white;
+}
+
+.image-row {
+    display: flex;
+    justify-content: center; /* center the images */
+    gap: 20px; /* space between images */
+    margin-top: 30px;
+}
+
+.image-row div {
+    max-width: 100%;
+    height: auto;
+    width: 300px; /* adjust as needed */
+    border: 2px solid #ccc;
+    border-radius: 8px;
+}

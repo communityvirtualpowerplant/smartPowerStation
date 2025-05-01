@@ -16,8 +16,8 @@ function draw() {
     }
 }
 
-function changeImage(filename) {
-    const fullPath = `static/images/${filename}`;
+window.changeImage = function changeImage(filename) {
+    const fullPath = `${filename}`;
     loadImage(fullPath, (loadedImg) => {
         img = loadedImg;
     });

@@ -188,12 +188,12 @@ async def controlLoop(SPS) -> None:
             # if depleted, turn on battery and connect back to grid
             if now['powerstation_percentage'] <= 20:
                 positionMarker = 'ED'
-                if CONTROLS.rules['event']['curtailment'] == 0:
+                if CONTROLS.rules['event']['curtailment'] == 0: #if not curtailing
                     toMode = 2
                     positionMarker = 'EE'
                 else:
                     toMode = 0
-                    positionMarker = 'EG'
+                    positionMarker = 'EH'
 
             # should there be an emergency backstop for the battery even in an event?
             if now['powerstation_percentage'] < 10:
@@ -286,6 +286,7 @@ async def updateAirtable(CONTROLS, config, now):
                 "sensor 4 wdc":str(now["powerstation_inputWDC"]),
                 "grid vac":str(now["relay1_voltage"]),
                 "mode":str(now["mode"]),
+                "network":network,
                 "position":str(now["position"]),
                 "event upcoming":str(CONTROLS.rules['event']['upcoming']),
                 "event ongoing":str(CONTROLS.rules['event']['ongoing']),

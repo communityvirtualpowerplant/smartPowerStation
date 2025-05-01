@@ -9,7 +9,7 @@ body {
 }
 
 .raw-data{
-  margin: 2em;
+  margin: 1em;
   width:100%;
 }
 
@@ -49,7 +49,6 @@ nav a {
 }
 
 .right-content a {
-  font-weight: bold;
   color: #f2f2f2;
   text-align: center;
   padding: 14px 20px;

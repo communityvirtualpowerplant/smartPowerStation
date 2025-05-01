@@ -86,16 +86,16 @@ async def controlLoop(SPS) -> None:
             # shoud be expanded to include event type too!
             CONTROLS.rules['event']['eventDate'] = mqtt_data['data']['start_time']
 
-        edDT = datetime.strptime(CONTROLS.rules['event']['eventDate'], "%Y-%m-%d %H:%M:%S")
-        if datetime.now() < edDT:
-            CONTROLS.rules['event']['ongoing'] = 0
-            CONTROLS.rules['event']['upcoming'] = 1
-            print('EVENT UPCOMING!')
-        elif datetime.now() < edDT + timedelta(hours=4):
-            CONTROLS.rules['event']['ongoing'] = 1
-            CONTROLS.rules['event']['upcoming'] = 0
-            print('EVENT ONGOING!')
-
+        if CONTROLS.rules['event']['eventDate'] != "":
+            edDT = datetime.strptime(CONTROLS.rules['event']['eventDate'], "%Y-%m-%d %H:%M:%S")
+            if datetime.now() < edDT:
+                CONTROLS.rules['event']['ongoing'] = 0
+                CONTROLS.rules['event']['upcoming'] = 1
+                print('EVENT UPCOMING!')
+            elif datetime.now() < edDT + timedelta(hours=4):
+                CONTROLS.rules['event']['ongoing'] = 1
+                CONTROLS.rules['event']['upcoming'] = 0
+                print('EVENT ONGOING!')
 
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)

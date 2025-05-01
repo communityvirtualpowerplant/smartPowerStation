@@ -77,7 +77,7 @@ class EnergyController:
 
             start_time = datetime.combine(datetime.now(),time(hour=eventTimes[random.randint(0,len(eventTimes)-1)],minute=00)) + timedelta(days=1)
             start_time = start_time.strftime("%Y-%m-%d %H:%M:%S")
-
+            print(start_time)
             # update key when first connected
             if authUpdate:
                 a = self.auth()

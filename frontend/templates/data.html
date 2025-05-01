@@ -18,12 +18,13 @@
       <!-- <a href="api"></a>-->
     </nav>
 
-    <h1>Smart Power Station</h1>
-    <p>
-        Download CSV file with /api/data?file=FILENAME_WITH_NO_SUFFIX<br>
-        View file list with /api/files
-    </p>
-    <div class='data-table'>
+    <div class='raw-data'>
+
+        <h1>Smart Power Station</h1>
+        <p>
+            Download CSV file with /api/data?file=FILENAME_WITH_NO_SUFFIX<br>
+            View file list with /api/files
+        </p>
         <table>
             <tr>
             {% for c in cols %}

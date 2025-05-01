@@ -4,12 +4,12 @@
 }
 
 body {
-/*  margin: 0;*/
-  margin: 2em;
+  margin: 0;
   font-family: Arial, sans-serif;
 }
 
-.data-table{
+.raw-data{
+  margin: 2em;
   width:100%;
 }
 
@@ -27,7 +27,7 @@ td, th {
 }
 
 main{
-  margin: calc(20px - 2em);
+  margin: 20px;
 }
 
 

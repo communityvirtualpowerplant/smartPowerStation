@@ -55,18 +55,19 @@ async def controlLoop(SPS) -> None:
     analysisURL = 'https://communityvirtualpowerplant.com/api/gateway.php?table=analysis'
     try:
         analysisResponse = await CONTROLS.send_secure_get_request(analysisURL)
-        #print(analysisResponse)
+        print(analysisResponse)
 
         locationAnalysis = {}
         for r in analysisResponse['records']:
             if r['fields']['name'].lower()==SPS.config['location'].lower():
                 locationAnalysis = r['fields']
         p = CONTROLS.whToPerc(int(locationAnalysis['avg PV WhDC']))
+        print(f'msp: {p}')
         CONTROLS.rules['battery']['maxSetPoint'] = str(100 - (p*1.1))
     except Exception as e:
         print(f'{e}')
     msp = CONTROLS.rules['battery']['maxSetPoint']
-    print(f"New Max Set Point: {msp}")
+    print(f"New max set point: {msp}")
 
     # if the analysis file for today hasn't been created yet, do it
     #print(await CONTROLS.estBaseline(7))
@@ -258,7 +259,7 @@ async def updateAirtable(CONTROLS, config, now):
         # get list of records filtered by name
         url = f'https://api.airtable.com/v0/appZI2AenYNrfVqCL/live?maxRecords=3&view=Grid%20view&filterByFormula=name%3D%22{name}%22'
         res = await CONTROLS.send_secure_get_request(url, key)
-        print(res)
+        #print(res)
 
         # pull the id for the first record
         recordID = res['records'][0]['id']
@@ -296,7 +297,7 @@ async def updateAirtable(CONTROLS, config, now):
                     break
                 await asyncio.sleep(1+patch_status)
                 patch_status += 1
-            print(r)
+            #print(r)
         except Exception as e:
             print(f'Exception with patching Airtable: {e}')
     except Exception as e:

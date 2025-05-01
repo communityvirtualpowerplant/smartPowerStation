@@ -84,9 +84,9 @@ async def controlLoop(SPS) -> None:
             mqtt_data['data'] = participant.data
 
             # shoud be expanded to include event type too!
-            CONTROLS.rules['event']['eventDate'] = datetime.strptime(mqtt_data['data']['start_time'], "%Y-%m-%d %H:%M")
+            CONTROLS.rules['event']['eventDate'] = datetime.strptime(mqtt_data['data']['start_time'], "%Y-%m-%d %H:%M:%S")
 
-            if datetime.now() < mqtt_data['data']['start_time']
+            if datetime.now() < mqtt_data['data']['start_time']:
                 CONTROLS.rules['event']['ongoing'] = 0
                 CONTROLS.rules['event']['upcoming'] = 1
                 print('EVENT UPCOMING!')

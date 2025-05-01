@@ -22,6 +22,7 @@ class Participant:
         self.timezone = ZoneInfo("America/New_York")
         self.port = self.getPort(encrypt) # true = encrypted, false = unencrypted
         self.path = 'demandResponseController/'
+        self.data = {}
         if encrypt:
             self.client.tls_set(ca_certs=self.path +"keys/mosquitto.org.crt", certfile=self.path +"keys/client.crt",keyfile=self.path +"keys/client.key", tls_version=ssl.PROTOCOL_TLSv1_2)
         self.client.username_pw_set(None, password=None)
@@ -69,7 +70,7 @@ class Participant:
         if msg.topic == "OpenDemandResponse/Event/"+self.network:
             event, event_type, start_time,timestamp = message.split("#")
             self.data = {'event':event,'type':event_type,'start_time':start_time,'msg_timestamp':timestamp}
-            self.data['start_time']= self.data['start_time'].replace('_',' ') #format date str
+            #self.data['start_time']= self.data['start_time'].replace('_',' ') #format date str
             print('********* RECIEVING *******************')
             print("{} {} event, starting at {}".format(event, event_type, start_time))
             print('***************************************')

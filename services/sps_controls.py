@@ -51,13 +51,22 @@ async def controlLoop(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
-
     # get analysis data from airtable - if this is
     analysisURL = 'https://communityvirtualpowerplant.com/api/gateway.php?table=live'
-    analysisResponse = await CONTROLS.send_secure_get_request(analysisURL, key)
-    print(analysisResponse)
+    try:
+        analysisResponse = await CONTROLS.send_secure_get_request(analysisURL, key)
+        #print(analysisResponse)
 
-    #analysisResponse['records']
+        locationAnalysis = {}
+        for r in analysisResponse['records']
+            if r['fields']['name'].lower()==SPS.config['location'].lower():
+                locationAnalysis = r['fields']
+        p = CONTROLS.whToPerc(int(locationAnalysis['avg PV WhDC']))
+        CONTROLS.rules['battery']['maxSetPoint'] = str(100 - (p*1.1))
+    except Exception as e:
+        print(f'{e}')
+    msp = CONTROLS.rules['battery']['maxSetPoint']
+    print(f"New Max Set Point: {msp}")
 
     # if the analysis file for today hasn't been created yet, do it
     #print(await CONTROLS.estBaseline(7))

@@ -58,7 +58,7 @@ async def controlLoop(SPS) -> None:
         #print(analysisResponse)
 
         locationAnalysis = {}
-        for r in analysisResponse['records']
+        for r in analysisResponse['records']:
             if r['fields']['name'].lower()==SPS.config['location'].lower():
                 locationAnalysis = r['fields']
         p = CONTROLS.whToPerc(int(locationAnalysis['avg PV WhDC']))

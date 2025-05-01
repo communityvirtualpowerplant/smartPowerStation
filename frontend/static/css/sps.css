@@ -16,7 +16,7 @@ body {
 table {
   border-collapse: collapse;
   table-layout:fixed;
-  width: calc(100% - 2em);
+  width: calc(100% - 4em);
   font-size:9px;
 }
 

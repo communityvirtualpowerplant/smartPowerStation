@@ -1,9 +1,11 @@
+/*makes width more intuitve by including padding and margin*/
 * {
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
+/*  margin: 0;*/
+  margin: 2em;
   font-family: Arial, sans-serif;
 }
 
@@ -25,25 +27,41 @@ td, th {
 }
 
 main{
-  margin: 20px;
+  margin: calc(20px - 2em);
 }
 
 
 nav {
     background-color: #333;
     overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 10px 20px;
 }
 
 nav a {
-    float: left;
-    display: block;
     color: #f2f2f2;
     text-align: center;
     padding: 14px 20px;
     text-decoration: none;
 }
 
+.right-content a {
+  font-weight: bold;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+}
+
 nav a:hover {
+    background-color: #575757;
+    color: white;
+}
+
+.right-content a:hover {
     background-color: #575757;
     color: white;
 }

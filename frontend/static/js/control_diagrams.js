@@ -1,5 +1,5 @@
 let img;
-let currentImage = 'static/images/image1.jpg';  // Initial image path
+let currentImage = 'static/images/smartPowerStation_May1_2025-Controls.png';  // Initial image path
 
 function setup() {
     let canvas = createCanvas(400, 300);

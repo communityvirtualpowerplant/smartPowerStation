@@ -51,6 +51,12 @@ async def controlLoop(SPS) -> None:
             print(f'Max flex: {CONTROLS.maxFlexibilityWh} WhAC')
             break
 
+
+    # get analysis data from airtable - if this is
+    analysisURL = 'https://communityvirtualpowerplant.com/api/gateway.php?table=live'
+    analysisResponse = await CONTROLS.send_secure_get_request(analysis, key)
+    print(analysis)
+
     # if the analysis file for today hasn't been created yet, do it
     #print(await CONTROLS.estBaseline(7))
 

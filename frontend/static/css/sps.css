@@ -39,7 +39,7 @@ nav a:hover {
 }
 
 .image-row div {
-    max-width: 100%;
+    max-width: 700px;
     height: auto;
     width: auto; /* adjust as needed */
     /*border: 2px solid #ccc;

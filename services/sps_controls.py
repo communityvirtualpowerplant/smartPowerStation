@@ -17,9 +17,6 @@ import logging
 #     level=logging.INFO
 # )
 
-# eventUpcoming = False
-# eventOngoing = False
-
 URL = 'localhost'
 PORT = 5000
 ENDPOINT = '/api/data?file=now'
@@ -112,18 +109,8 @@ async def controlLoop(SPS) -> None:
         #if SPS.isRecent(now['datetime']):
             #SPS.log_debug('data is fresh')
 
-        # # this block should be ahead of the LF test, so that it defaults to mode 1 if both are blank
-        # try:
-        #     le = datetime.strptime(CONTROLS.rules['status']['lastEmpty'], "%Y-%m-%d %H:%M:%S")
-        # except:
-        #     # if there isn't any saved data, set last empty to 10 years back
-        #     le = datetime.now() - timedelta(days=(10*365))
+        # le should be ahead of the LF test, so that it defaults to mode 1 if both are blank
         le = parse_datetime(CONTROLS.rules['status']['lastEmpty'])
-        # try:
-        #     lf = datetime.strptime(CONTROLS.rules['status']['lastFull'], "%Y-%m-%d %H:%M:%S")
-        # except:
-        #     # if there isn't any saved data, set last full to 10 years back
-        #     lf = datetime.now() - timedelta(days=(10*365))
         lf = parse_datetime(CONTROLS.rules['status']['lastFull'])
 
         # if no event upcoming or ongoing
@@ -199,36 +186,45 @@ async def controlLoop(SPS) -> None:
             positionMarker = 'EC'
 
             # if depleted, turn on battery and connect back to grid
-            if now['powerstation_percentage'] < 20:
+            if now['powerstation_percentage'] <= 20:
                 positionMarker = 'ED'
                 if CONTROLS.rules['event']['curtailment'] == 0:
                     toMode = 2
-                    positionMarker = 'EG'
+                    positionMarker = 'EE'
                 else:
                     toMode = 0
+                    positionMarker = 'EG'
+
+            # should there be an emergency backstop for the battery even in an event?
+            if now['powerstation_percentage'] < 10:
+                pass
 
             # check if event is over and reset to 0
             if datetime.now() > (CONTROLS.eventDT + timedelta(hours=CONTROLS.eventDurationH)):
                 CONTROLS.rules['event']['ongoing'] = 0
         elif CONTROLS.rules['event']['upcoming'] != 0:
             # prep for event
-            toMode = 1 #charge with load to AC
+
+            #check is event is after sun window
+            if edDT:
+                if CONTROLS.isAfterSun(edDT):
+                    bMax = 100
+                else:
+                    bMax = 95 # set this dynamically
 
             #if battery is full
-            if now['powerstation_percentage'] == 100:
+            if now['powerstation_percentage'] == bMax:
+                toMode = 2 #charge with load to AC
                 positionMarker = 'EB'
-            else:
+            elif now['powerstation_percentage'] < bMax:
+                toMode = 1 #charge with load to AC
                 positionMarker = 'EF'
-
-            #if sun window hasn't ended make sure there is room for solar
-            if CONTROLS.isAfterSun(datetime.now()):
-                # this should be changed based on time and solar intensity
-                if now['powerstation_percentage'] > 90:
-                    toMode = 5
-                    positionMarker = 'EE'
-
+            elif now['powerstation_percentage'] > bMax:
+                toMode = 5 #charge with load to AC
+                positionMarker = 'EG'
 
             # check if event is no longer upcoming and reset to 0
+            # this variable is redundant
             if datetime.now() > CONTROLS.eventDT:
                 CONTROLS.rules['event']['upcoming'] = 0
 

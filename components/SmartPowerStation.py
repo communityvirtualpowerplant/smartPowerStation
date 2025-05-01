@@ -729,7 +729,7 @@ class Controls():
         listAvg = {'sunWindowMin':self.avgTimes(sunWindowMin),
                    'sunWindowMax':self.avgTimes(sunWindowMax),
                    'sunWindowDuration':self.avgTimes(sunWindowDuration),
-                   'maxPVWh':dcIn.max(),
+                   'maxPVWh':max(dcIn),
                    'dailyPVWh':statistics.mean(dcIn)}
 
         return (metaList,listAvg)

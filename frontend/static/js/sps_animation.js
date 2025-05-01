@@ -211,9 +211,9 @@ function drawSystem(data) {
   fill(0) 
   noStroke()
   textSize(20)
-  text("Demand Response Behind-The-Meter (BTM) System", centerW, 50);
+  text("Hardware - Live View", centerW, 50);
   
-    drawKey()
+  drawKey()
 }
 
 function drawKey(){

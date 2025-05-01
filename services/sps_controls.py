@@ -64,14 +64,9 @@ async def controlLoop(SPS) -> None:
                     locationAnalysis = r['fields']
                     break
         p = CONTROLS.whToPerc(float(locationAnalysis['avg PV WhDC']))
-        CONTROLS.rules['battery']['maxSetPoint'] = str(int(100 - (p*1.1)))
+        CONTROLS.rules['battery']['maxSetPoint'] = int(100 - (p*1.1))
     except Exception as e:
         print(f'Error: {e}')
-    msp = CONTROLS.rules['battery']['maxSetPoint']
-    print(f"New max set point: {msp}")
-
-    # if the analysis file for today hasn't been created yet, do it
-    #print(await CONTROLS.estBaseline(7))
 
     print(f'Upcoming discharge time: {CONTROLS.upcomingDischargeDT}')
 
@@ -82,7 +77,7 @@ async def controlLoop(SPS) -> None:
 
     while True:
 
-        # reget analysis if date isn't today
+        # re-get analysis if date isn't today (could also rerun if data is old...)
 
         if old_mqtt_data['message'] != participant.message:
             print(f'new data! {participant.message}')

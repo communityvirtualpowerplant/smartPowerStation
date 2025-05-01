@@ -126,6 +126,7 @@ async def main(SPS) -> None:
                 "datetime":datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "event baseline WhAC": str(rBaseline),
                 "avg PV WhDC":str(rSolar[1]['dailyPVWh']),
+                "max PV WhDC":str(rSolar[1]['maxPVWh']),
                 "max flex WhAC":str(CONTROLS.maxFlexibilityWh),
                 "avg daily grid demand WhAC":str(rWh[1]['grid Daily Avg']),
                 "avg daily load demand WhAC":str(rWh[1]['load Daily Avg']),

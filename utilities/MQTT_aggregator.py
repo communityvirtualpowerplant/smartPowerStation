@@ -26,7 +26,7 @@ else:
 
 eventNames = ['DLRP','CSRP']
 eventTypes = ['contingency','immediate']
-eventTimes = [25,14, 16, 17, 19]
+eventTimes = [11,14, 16, 17, 19]
 
 class EnergyController:
     def __init__(self):

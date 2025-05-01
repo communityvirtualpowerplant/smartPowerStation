@@ -38,12 +38,17 @@ nav a:hover {
     margin-top: 30px;
 }
 
-.image-row div {
+.image-row .image-element {
     max-width: 700px;
     height: auto;
     width: auto; /* adjust as needed */
     /*border: 2px solid #ccc;
     border-radius: 8px;*/
+}
+
+.image-row .image-element div {
+  display: flex;
+  justify-content: center;
 }
 
 .plot-container {
@@ -55,6 +60,13 @@ nav a:hover {
 
 }
 
+#status{
+  display: flex;
+  justify-content: center; /* center the images */
+  gap: 20px; /* space between images */
+  width: 100%;
+}
+
 #plotPower{
   max-width: 95%;
 }
@@ -64,5 +76,9 @@ nav a:hover {
     .image-row {
         flex-direction: column;
         align-items: center;
+    }
+
+    .image-row .image-element{
+        width: 90%;
     }
 }

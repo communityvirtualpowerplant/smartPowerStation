@@ -830,7 +830,7 @@ class Controls():
 
     # pass in Wh (usually from analysis) and convert to % of full battery, without any derating
     def whToPerc(self, Wh:int)->int:
-        return int(Wh / self.batCapWh)
+        return (Wh / self.batCapWh)*100
 
     # #estimate when the PV will start producing and for how long
     # async def estSunWindow(self,d:int=30):

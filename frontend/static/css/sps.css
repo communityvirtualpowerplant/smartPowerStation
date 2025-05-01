@@ -8,11 +8,7 @@ body {
 }
 
 main{
-  margin: 10px;
-}
-
-#historyPlot{
-  max-width: 90%;
+  margin: 20px;
 }
 
 
@@ -45,7 +41,19 @@ nav a:hover {
 .image-row div {
     max-width: 100%;
     height: auto;
-    width: 300px; /* adjust as needed */
+    width: auto; /* adjust as needed */
     border: 2px solid #ccc;
     border-radius: 8px;
+}
+
+.plot-container {
+  display: flex;
+  justify-content: center; /* center the images */
+  gap: 20px; /* space between images */
+  margin-top: 30px;
+
+}
+
+#historyPlot{
+  max-width: 90%;
 }

@@ -14,38 +14,37 @@
   </head>
   <body>
     <nav>
-      <a href="/">home</a><br>
-      <a href="/today">raw data</a><br>
+      <a href="/">home</a>
+      <a href="/today">raw data</a>
       <!-- <a href="api"></a>-->
     </nav>
-    
+
     <main>
         
-        <p>
-          A Community Virtual Power Plant (CVPP) merges the principles of community energy with virtual power plant (VPP) systems. This website serves as platform for research in developing this concept and applying it in an urban US context. It draws on lessons learned from community solar, electricity co-ops, and community energy systems in the US; balcony solar in Germany; and adhoc electricity networks in Pakistan (among other initiatives) to consider how this may work.
-        </p>
+      <p>
+        A Community Virtual Power Plant (CVPP) merges the principles of community energy with virtual power plant (VPP) systems. This website serves as platform for research in developing this concept and applying it in an urban US context. It draws on lessons learned from community solar, electricity co-ops, and community energy systems in the US; balcony solar in Germany; and adhoc electricity networks in Pakistan (among other initiatives) to consider how this may work.
+      </p>
+      <p>
+        Event Status: <span id=eventStatus>None</span>
+      </p>
 
-        <div class="image-row">
-          <div id="statusCanvasContainer"></div>
-          <div id="controls_key"><img src="/static/images/smartPowerStation_May1_2025-Controls.png"></div>
-        </div>
+      <div class="image-row">
+        <div id="statusCanvasContainer"></div>
+        <div id="controls_key"><img src="/static/images/smartPowerStation_May1_2025-Controls.png"></div>
+      </div>
 
-        <div id="plots">
-          <div class = historyPlot>
-            <div id="plotPower"></div>
-            <div id="plotEnergy"></div>
-          </div>
-        </div>
+      <div class = plot-container>
+        <div id="plotPower"></div>
+        <div id="plotEnergy"></div>
+      </div>
 
-        <h3>Demand Response</h3>
-        event upcoming
-        event ongoing/ time remaining
-        commitment % met
-        amount flexed
-        baseline
-        daily specs
-
-        
+<!--         <h3>Demand Response</h3>
+      event upcoming
+      event ongoing/ time remaining
+      commitment % met
+      amount flexed
+      baseline
+      daily specs -->
 
     </main>
 

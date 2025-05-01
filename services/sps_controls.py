@@ -63,8 +63,8 @@ async def controlLoop(SPS) -> None:
                 if r['fields']['name'].lower()==SPS.config['location'].lower():
                     locationAnalysis = r['fields']
                     break
-        p = CONTROLS.whToPerc(float(locationAnalysis['avg PV WhDC']))
-        CONTROLS.rules['battery']['maxSetPoint'] = int(100 - (p*1.1))
+        p = CONTROLS.whToPerc(float(locationAnalysis['max PV WhDC']))
+        CONTROLS.rules['battery']['maxSetPoint'] = int(100 - (p*1.05))# give it a 5% buffer
     except Exception as e:
         print(f'Error: {e}')
 
@@ -73,15 +73,28 @@ async def controlLoop(SPS) -> None:
     # controls loop frequency
     freqMin = 1
 
-    old_mqtt_data = {"message":""}
+    mqtt_data = {"data":{}}
 
     while True:
 
         # re-get analysis if date isn't today (could also rerun if data is old...)
 
-        if old_mqtt_data['message'] != participant.message:
-            print(f'new data! {participant.message}')
-            old_mqtt_data['message'] = participant.message
+        if mqtt_data['data'] != participant.data:
+            print(f'new data! {participant.data}')
+            mqtt_data['data'] = participant.data
+
+            # shoud be expanded to include event type too!
+            CONTROLS.rules['event']['eventDate'] = datetime.strptime(mqtt_data['data']['start_time'], "%Y-%m-%d %H:%M")
+
+            if datetime.now() < mqtt_data['data']['start_time']
+                CONTROLS.rules['event']['ongoing'] = 0
+                CONTROLS.rules['event']['upcoming'] = 1
+                print('EVENT UPCOMING!')
+            elif datetime.now() < mqtt_data['data']['start_time'] + timedelta(hours=4):
+                CONTROLS.rules['event']['ongoing'] = 1
+                CONTROLS.rules['event']['upcoming'] = 0
+                print('EVENT ONGOING!')
+
 
         # get most recent data
         now = await CONTROLS.send_get_request(URL, PORT, ENDPOINT,'json',timeout=2)

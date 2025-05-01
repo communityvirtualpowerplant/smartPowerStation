@@ -2,9 +2,9 @@
 
 import paho.mqtt.client as mqtt
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta, time
 from pytz import timezone
-import time
+#import time
 import random
 import ssl
 
@@ -66,14 +66,17 @@ class EnergyController:
     def auth(self):
         return gfdgsdfhsdfsjdf
 
-    def run(self, freq):
+    # simulate an event alert
+    async def run(self, freq):
         self.client.connect(BROKER, port=myPort, keepalive=60)
         self.client.loop_start()
         authUpdate = False
         while True:
             event = eventNames[random.randint(0,len(eventNames)-1)]
             event_type = eventTypes[random.randint(0,len(eventTypes)-1)]
-            start_time = eventTimes[random.randint(0,len(eventTimes)-1)]
+
+            start_time = datetime.combine(datetime.now(),time(hour=eventTimes[random.randint(0,len(eventTimes)-1)],minute=00))
+            #start_time = start_time.strftime("%Y-%m-%d_%H:%M")
 
             # update key when first connected
             if authUpdate:
@@ -85,7 +88,7 @@ class EnergyController:
                 timestamp = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S")
                 self.client.publish("OpenDemandResponse/Event/crownheights", payload="#".join([event, event_type, str(start_time), timestamp]), qos=0, retain=False)
 
-            time.sleep(freq)
+            await asyncio.sleep(freq)
     
     def stop_tracking(self):
         self.client.loop_stop()
@@ -93,4 +96,4 @@ class EnergyController:
 
 if __name__ == '__main__':
     controller = EnergyController()
-    controller.run(30) #was 90 second intervals
+    asyncio.run(controller.run(30))

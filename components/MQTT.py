@@ -69,6 +69,7 @@ class Participant:
         if msg.topic == "OpenDemandResponse/Event/"+self.network:
             event, event_type, start_time,timestamp = message.split("#")
             self.data = {'event':event,'type':event_type,'start_time':start_time,'msg_timestamp':timestamp}
+            self.data['start_time']= self.data['start_time'].replace('_',' ') #format date str
             print('********* RECIEVING *******************')
             print("{} {} event, starting at {}".format(event, event_type, start_time))
             print('***************************************')

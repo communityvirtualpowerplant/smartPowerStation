@@ -59,9 +59,10 @@ async def controlLoop(SPS) -> None:
 
         locationAnalysis = {}
         for r in analysisResponse['records']:
-            if r['fields']['name'].lower()==SPS.config['location'].lower():
-                locationAnalysis = r['fields']
-                break
+            if r['fields']['name']:
+                if r['fields']['name'].lower()==SPS.config['location'].lower():
+                    locationAnalysis = r['fields']
+                    break
         p = CONTROLS.whToPerc(float(locationAnalysis['avg PV WhDC']))
         print(f'msp: {p}')
         CONTROLS.rules['battery']['maxSetPoint'] = str(int(100 - (p*1.1)))

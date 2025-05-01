@@ -75,7 +75,7 @@ class EnergyController:
             event = eventNames[random.randint(0,len(eventNames)-1)]
             event_type = eventTypes[random.randint(0,len(eventTypes)-1)]
 
-            start_time = datetime.combine(datetime.now(),time(hour=eventTimes[random.randint(0,len(eventTimes)-1)],minute=00))
+            start_time = datetime.combine(datetime.now(),time(hour=eventTimes[random.randint(0,len(eventTimes)-1)],minute=00)) + timedelta(days=1)
             start_time = start_time.strftime("%Y-%m-%d %H:%M:%S")
 
             # update key when first connected

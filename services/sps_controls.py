@@ -84,16 +84,17 @@ async def controlLoop(SPS) -> None:
             mqtt_data['data'] = participant.data
 
             # shoud be expanded to include event type too!
-            CONTROLS.rules['event']['eventDate'] = datetime.strptime(mqtt_data['data']['start_time'], "%Y-%m-%d %H:%M:%S")
+            CONTROLS.rules['event']['eventDate'] = mqtt_data['data']['start_time']
 
-            if datetime.now() < CONTROLS.rules['event']['eventDate']:
-                CONTROLS.rules['event']['ongoing'] = 0
-                CONTROLS.rules['event']['upcoming'] = 1
-                print('EVENT UPCOMING!')
-            elif datetime.now() < CONTROLS.rules['event']['eventDate'] + timedelta(hours=4):
-                CONTROLS.rules['event']['ongoing'] = 1
-                CONTROLS.rules['event']['upcoming'] = 0
-                print('EVENT ONGOING!')
+        edDT = datetime.strptime(CONTROLS.rules['event']['eventDate'], "%Y-%m-%d %H:%M:%S")
+        if datetime.now() < edDT:
+            CONTROLS.rules['event']['ongoing'] = 0
+            CONTROLS.rules['event']['upcoming'] = 1
+            print('EVENT UPCOMING!')
+        elif datetime.now() < edDT + timedelta(hours=4):
+            CONTROLS.rules['event']['ongoing'] = 1
+            CONTROLS.rules['event']['upcoming'] = 0
+            print('EVENT ONGOING!')
 
 
         # get most recent data
@@ -236,6 +237,7 @@ async def controlLoop(SPS) -> None:
         #is adding some logic to always charge if below 20% necessary?
 
         CONTROLS.rules['status']['mode']=toMode #set to charge
+        #CONTROLS.rules['event']['eventDate'] = CONTROLS.rules['event']['eventDate'].strftime("%Y-%m-%d %H:%M:%S")
         SPS.writeJSON(CONTROLS.rules,rulesFile)
 
         # pass control data to device manager

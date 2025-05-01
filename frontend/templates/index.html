@@ -30,17 +30,39 @@
 
       <div class="image-row">
         <div id="statusCanvasContainer"></div>
-        <div id="controlLogicContainer"></div>
+        <div id="controlLogicContainer">
+          <img id="controlImage" src="static/images/smartPowerStation_May1_2025-Controls.png">
+        </div>
 
-        <!-- <div id="controls_key"><img src="/static/images/smartPowerStation_May1_2025-Controls.png"></div> -->
+        <script>
+        // Wait until DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const imgElement = document.getElementById('controlImage');
+
+            document.querySelectorAll('a[data-img]').forEach(link => {
+                link.addEventListener('click', event => {
+                    event.preventDefault();
+                    const filename = event.target.getAttribute('data-img');
+                    imgElement.src = `${filename}`;
+                });
+            });
+        });
+    </script>
+
+
+      <a href="#" data-img='/static/images/smartPowerStation_May1_2025-Controls.png'>Normal Logic</a>
+      <a href="#" data-img='/static/images/smartPowerStation_May1_2025-Controls_Event.png'>Event Logic</a>
+
+
       </div>
 
       <div class = plot-container>
         <div id="plotPower"></div>
         <div id="plotEnergy"></div>
       </div>
-      <a href="#" onclick="changeImage('/static/images/smartPowerStation_May1_2025-Controls.png')">Normal Logic</a> |
-      <a href="#" onclick="changeImage('/static/images/smartPowerStation_May1_2025-Controls_Event.png')">Event Logic</a> |
+
+
+
 <!--         <h3>Demand Response</h3>
       event upcoming
       event ongoing/ time remaining

@@ -54,8 +54,10 @@ async def controlLoop(SPS) -> None:
 
     # get analysis data from airtable - if this is
     analysisURL = 'https://communityvirtualpowerplant.com/api/gateway.php?table=live'
-    analysisResponse = await CONTROLS.send_secure_get_request(analysis, key)
-    print(analysis)
+    analysisResponse = await CONTROLS.send_secure_get_request(analysisURL, key)
+    print(analysisResponse)
+
+    #analysisResponse['records']
 
     # if the analysis file for today hasn't been created yet, do it
     #print(await CONTROLS.estBaseline(7))
@@ -68,6 +70,8 @@ async def controlLoop(SPS) -> None:
     old_mqtt_data = {"message":""}
 
     while True:
+
+        # reget analysis if date isn't today
 
         if old_mqtt_data['message'] != participant.message:
             print(f'new data! {participant.message}')

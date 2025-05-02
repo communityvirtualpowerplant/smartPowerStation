@@ -13,7 +13,7 @@ async function fetchAndPlotCSV() {
   try {
     const response = await fetch(apiUrl);
     const csvText = await response.text();
-
+    console.log(csvText)
     // Parse CSV manually
     const rows = csvText.trim().split('\n').map(row => row.split(','));
     const headers = rows.shift();

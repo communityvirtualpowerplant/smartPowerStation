@@ -96,8 +96,8 @@ async def main(SPS) -> None:
         print(f'getRecentData failed with {e}')
 
     rBaseline, rSolar, rWh = await asyncio.gather(
-        CONTROLS.estBaseline(30,files=files),
-        CONTROLS.analyzeSolar(2,files=files),
+        CONTROLS.estBaseline(15,files=files),
+        CONTROLS.analyzeSolar(5,files=files),
         CONTROLS.analyzeDailyWh(7,files=files)
     )
 

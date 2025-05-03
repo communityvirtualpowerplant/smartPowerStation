@@ -57,9 +57,13 @@ Reload and enable
 `sudo systemctl enable sps_controls.service`
 `sudo systemctl start sps_controls.service`
 
+`sudo systemctl enable sps_controls.service`
+
+
 Check if its running
 `sudo systemctl status api.service`
 `sudo systemctl status ble_logger.service`
+`sudo systemctl status sps_controls.service`
 
 Set daily reboot
 `sudo crontab -e`<br>
@@ -78,3 +82,9 @@ Not necessary if owned and run by pi user, but worth checking: make scripts exec
 `chmod +x smartPowerStation/services/api.py`
 `chmod +x smartPowerStation/services/ble_logger.py`
 `chmod +x smartPowerStation/services/sps_controls.py`
+
+
+#### Timers
+
+`systemctl status <timer-name>.timer`
+`systemctl list-timers`

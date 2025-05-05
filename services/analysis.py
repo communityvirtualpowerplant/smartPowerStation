@@ -1,3 +1,9 @@
+# to do:
+# est whdc in to %
+# est whdc out to %
+# est whac in to %
+# est whdc in to %
+
 import asyncio
 import signal
 import requests
@@ -97,8 +103,8 @@ async def main(SPS) -> None:
 
     rBaseline, rSolar, rWh = await asyncio.gather(
         CONTROLS.estBaseline(15,files=files),
-        CONTROLS.analyzeSolar(5,files=files),
-        CONTROLS.analyzeDailyWh(7,files=files)
+        CONTROLS.analyzeSolar(14,files=files),
+        CONTROLS.analyzeDailyWh(30,files=files)
     )
 
     # print()

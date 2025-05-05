@@ -72,6 +72,8 @@ async def controlLoop(SPS) -> None:
 
     mqtt_data = {"data":{}}
 
+    dod = 20
+
     while True:
 
         # re-get analysis if date isn't today (could also rerun if data is old...)
@@ -135,8 +137,8 @@ async def controlLoop(SPS) -> None:
                     sp = CONTROLS.rules['battery']['maxSetPoint']
 
                     # maintenance charge - optional
-                    maintenanceBuffer = 5
-                    if now['powerstation_percentage'] < (sp-maintenanceBuffer):
+                    maintenanceBuffer = 15
+                    if now['powerstation_percentage'] < max(sp-maintenanceBuffer,dod): #make sure it doesn't drop below DoD
                         positionMarker = 'F'
                         toMode = 1
                     # switch back from maintenance charge with a little buffer
@@ -169,7 +171,7 @@ async def controlLoop(SPS) -> None:
                         toMode = 1
                         CONTROLS.rules['status']['lastFull']= datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 # if not time to discharge, but below DoD, maintain DoD level
-                elif now['powerstation_percentage'] <= 20:
+                elif now['powerstation_percentage'] <= dod:
                     positionMarker = 'H'
                 else:
                     toMode = 2
@@ -186,7 +188,7 @@ async def controlLoop(SPS) -> None:
             positionMarker = 'EC'
 
             # if depleted, turn on battery and connect back to grid
-            if now['powerstation_percentage'] <= 20:
+            if now['powerstation_percentage'] <= dod:
                 positionMarker = 'ED'
                 if CONTROLS.rules['event']['curtailment'] == 0: #if not curtailing
                     toMode = 2

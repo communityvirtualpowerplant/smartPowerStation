@@ -398,20 +398,28 @@ function drawSystem(data) {
   let batCenterX = xThree
   let batHeight = 75 * cHscaler
   let batCenterY = height/2-batHeight*1.25;
-  let batP=data['battery']*0.01
   let batH = 160
   let circleDiam = 26 * cWscaler
   let circleDiamCenter = 20 * cWscaler
+  let pvH = batCenterY-(batHeight/3)
 
   let relay1H = batCenterY
   let transferSwitch = 50 * cWscaler
   let smCenterY = height/2+batHeight*1.25;
-  let gridV = data['grid vac']
-  let posOne =data['sensor 1 wac']
-  let posTwo = data['sensor 2 wac']
-  let posThree = data['sensor 3 wac']
-  let posFour = data['sensor 4 wdc']
-  let pvH = batCenterY-(batHeight/3)
+
+  //let batP=data['battery']*0.01
+  // let gridV = data['grid vac']
+  // let posOne =data['sensor 1 wac']
+  // let posTwo = data['sensor 2 wac']
+  // let posThree = data['sensor 3 wac']
+  // let posFour = data['sensor 4 wdc']
+
+  let batP=data['powerstation_percentage']*0.01
+  let gridV = data['relay1_voltage']
+  let posOne =data['relay1_power']
+  let posTwo = data['relay2_power']
+  let posThree = data['relay3_power']
+  let posFour = data['powerstation_inputWDC']
 
   let loadW
   if (posOne > 0){

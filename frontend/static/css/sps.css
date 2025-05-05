@@ -109,11 +109,15 @@ nav a:hover {
 
 .plot-container {
   display: flex;
+  flex-direction: column;
   justify-content: center; /* center the images */
-  gap: 20px; /* space between images */
   margin-top: 30px;
   width: 100%;
 
+}
+
+#plotPower{
+  width: 100%;
 }
 
 #status{
@@ -121,10 +125,6 @@ nav a:hover {
   justify-content: center; /* center the images */
   gap: 20px; /* space between images */
   width: 100%;
-}
-
-#plotPower{
-  max-width: 95%;
 }
 
 /* Responsive: stack vertically on small screens */

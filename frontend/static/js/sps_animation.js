@@ -356,7 +356,7 @@ function getData(url){
       data = JSON.parse(safeJSON);
       //console.log('Data received:', data);
       myData = data
-      updateData(myData)
+      //updateData(myData)
       drawSystem(myData);
     })
     .catch(error => {
@@ -364,18 +364,39 @@ function getData(url){
     });
 }
 
+
+// function getData(){
+//   fetch('/api/data?file=now')
+//     .then(response => {
+//       if (!response.ok) {
+//         throw new Error('Network response was not OK');
+//       }
+//       return response.text(); // or response.text() if it's plain text
+//     })
+//     .then(data => {
+//       const safeJSON = data.replace(/\bNaN\b/g, 'null');
+//       data = JSON.parse(safeJSON);
+//       //console.log('Data received:', data);
+//       drawSystem(data);
+//     })
+//     .catch(error => {
+//       console.error('There was a problem with the fetch:', error);
+//     });
+// }
+
+
 function drawSystem(data) {
   let cWscaler = cW/700
   let cHscaler = cH/500
 
-  data = data['records']//[0]['fields']
+  //data = data['records']//[0]['fields']
 
-  // Find index where name is
-  const index = data.findIndex(item => item.fields.name === nameNow);
-  console.log(index); // Output: 1
+  // // Find index where name is
+  // const index = data.findIndex(item => item.fields.name === nameNow);
+  // console.log(index); // Output: 1
 
-  data = data[index]['fields']
-  //console.log(data)
+  // data = data[index]['fields']
+  // //console.log(data)
 
   background(220);
 

@@ -103,7 +103,7 @@ async def main(SPS) -> None:
 
     rBaseline, rSolar, rWh = await asyncio.gather(
         CONTROLS.estBaseline(15,files=files),
-        CONTROLS.analyzeSolar(14,files=files),
+        CONTROLS.analyzeSolar(7,files=files),
         CONTROLS.analyzeDailyWh(30,files=files)
     )
 

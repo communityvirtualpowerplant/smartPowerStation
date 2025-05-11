@@ -202,6 +202,8 @@ def getRole(mf):
         r = "relay"
     elif mf.lower() == 'kasa': #this line is untested
         r = "relay"
+    elif mf.lower() == 'switchbot':
+        r = 'button'
     else:
         r = ""
     return r

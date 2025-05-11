@@ -36,11 +36,14 @@ RPC_CHAR_TX_CTL_UUID = "5f6d4f53-5f52-5043-5f74-785f63746c5f"
 RPC_CHAR_RX_CTL_UUID = "5f6d4f53-5f52-5043-5f72-785f63746c5f"
 ALLTERCO_MFID = 0x0BA9  # Manufacturer ID for Shelly devices
 shellySTR = 'Shelly'
-
+shellyID = 2985
 # ============================
 # Bluetti Configuration Constants
 # ============================
 bluettiSTR = ['AC180','AC2']
+bluettiID = 19522
+
+switchbotID = 2409
 
 #if an arg has been passed
 # if len(sys.argv) > 1:
@@ -72,6 +75,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
         except (ValueError, TypeError) as e:
             return
 
+        # this might cause errors with some devices
         if device.name is None:
             return
 
@@ -91,9 +95,12 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
                         notFound = 0
                         continue
 
-            # if shelly or bluetti strings aren't found in devices return
+            # if shelly or bluetti strings aren't found in device names, check manufacturer IDs, and return if not found
             if notFound == 1:
-                return
+                if switchbotID in advertisement_data.manufacturer_data.keys():
+                    mf = 'switchbot'
+                else:
+                    return
 
 
             print('found device:')
@@ -134,7 +141,7 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
                         "rssi": int(advertisement_data.rssi),
                         "timestamp":datetime.now().isoformat(),
                         "location": location,
-                        "role": getRole(mf)
+                        "role": getRole(mf),
                         "relay1":"", #this is manually entered
                         "relay2":"", #this is manually entered
                         "capacityWh":"", #this is manually entered
@@ -145,17 +152,6 @@ async def scan_devices(scan_duration: int, saved_devices: Dict, location:str):
             print(f'{e}')
 
     log_info(f"Scanning for BLE devices for {scan_duration} seconds...")
-
-    def getRole(mf):
-        if mf.lower() == 'bluetti':
-            r = "ps"
-        elif mf.lower() == 'shelly':
-            r = "relay"
-        elif mf.lower() == 'kasa': #this line is untested
-            r = "relay"
-        else:
-            r = ""
-        return r
 
     async with BleakScanner(detection_callback=discovery_handler) as scanner:
         await asyncio.sleep(scan_duration)
@@ -198,6 +194,17 @@ async def main(fn,conf):
         log_info("Discovered devices:")
         print_devices(devices)
         save_devices(devices, fn)
+
+def getRole(mf):
+    if mf.lower() == 'bluetti':
+        r = "ps"
+    elif mf.lower() == 'shelly':
+        r = "relay"
+    elif mf.lower() == 'kasa': #this line is untested
+        r = "relay"
+    else:
+        r = ""
+    return r
 
 # ============================
 # Logging Helper

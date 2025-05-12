@@ -1,6 +1,7 @@
 *.sublime-project
 *.sublime-workspace
 
+__pycache__/
 __pycache__/*
 
 *.crt
@@ -13,7 +14,8 @@ venv/*
 
 .github/
 
-*.ipynb
+# *.ipynb
 
-.ipynb_checkpoints/*
+.ipynb_checkpoints/
 *-checkpoint.py
+*-checkpoint.ipynb

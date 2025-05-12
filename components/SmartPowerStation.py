@@ -537,7 +537,7 @@ class Controls():
         return recentFileNames
 
     # retrieves recent CSV files for specified amount of days
-    # returns data in df format
+    # returns list of data by day in df format
     async def getRecentData(self,d:int=30)-> pd.DataFrame:
         # get list of recent files for specified number of past days
         recentFileNames = await self.getRecentFileList(d)
@@ -607,48 +607,33 @@ class Controls():
     # determines AC energy draw or demand for a given range
     # assumes NaN = 0W
     # args: start datetime, end datetime, power columns to sum
-    async def trackWh(self,start: datetime, end:datetime='now', cols:list[str]=['relay1_power','relay2_power'])->float:
-        if end == 'now':
-            end = datetime.now()
+    # async def trackWh(self,start: datetime, end:datetime='now', cols:list[str]=['relay1_power','relay2_power'])->float:
+    #     if end == 'now':
+    #         end = datetime.now()
 
-        # determine days of data based on starting value
-        d = int((end - start).days + 1)
-        data = await self.getRecentData(d)
+    #     # determine days of data based on starting value
+    #     d = int((end - start).days + 1)
+    #     data = await self.getRecentData(d)
 
-        #merge files
-        allData = data[0].copy()
-        for d in range(1,len(data)):
-            allData = pd.concat([allData, data[d]], ignore_index=True)
+    #     #merge files - this is wrong!!!
+    #     allData = data[0].copy()
+    #     for d in range(1,len(data)):
+    #         allData = pd.concat([allData, data[d]], ignore_index=True)
 
-        allData = allData.sort_values(by='datetime').reset_index(drop=True)
+    #     allData = allData.sort_values(by='datetime').reset_index(drop=True)
 
-        filteredData = allData[(allData['datetime']>=start) & (allData['datetime']<end)]
+    #     filteredData = allData[(allData['datetime']>=start) & (allData['datetime']<end)]
 
-        #fill NaN with 0
-        filteredData = filteredData.fillna(0)
+    #     #fill NaN with 0
+    #     filteredData = filteredData.fillna(0)
 
-        filteredData = self.increments(filteredData)
+    #     filteredData = self.increments(filteredData)
 
-        # columns in the data with values to sum
-        summedData = filteredData.copy()
-        summedData['summedPower'] = filteredData[cols].sum(axis=1)
+    #     # columns in the data with values to sum
+    #     summedData = filteredData.copy()
+    #     summedData['summedPower'] = filteredData[cols].sum(axis=1)
 
-        return self.getWh(summedData['summedPower'],summedData['increments'])
-
-    # attempts to maintain the battery at a specific percentage with proportional control
-    # def p_controller_percentage(self, bat:int, setpoint:int=100, previous_error:int=0):
-    #     setpoint = setpoint + previous_error
-    #     error = setpoint - bat
-
-    #     if error < 0:
-    #         # draw down
-    #         pass
-
-    #     elif error > 0:
-    #         # charge up
-    #         pass
-
-    #     return control
+    #     return self.getWh(summedData['summedPower'],summedData['increments'])
 
     # attempts to reach a certain amount of energy avoidance - not in use
     def pi_controller_energy(self, setpoint, pv, kp, ki,):
